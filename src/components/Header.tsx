@@ -168,15 +168,12 @@ export default function Header() {
   // 🔹 判斷是否當前路徑
   const isActive = (path: string) => pathname === path;
   // 處理點完 home 後點 projects 的 bug
-  const [activeSection, setActiveSection] = useState<"home" | "projects" | null>("home");
-
 
   const handleScroll = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
     if (pathname !== "/") {
       router.push("/?scrollTo=projects");
-      setActiveSection("projects"); // 手動設成 Projects
       setIsOpen(false);
       return;
     }
@@ -203,7 +200,6 @@ export default function Header() {
     }
 
     requestAnimationFrame(scrollStep);
-    setActiveSection("projects"); // 滾動後也設成 Projects
     setIsOpen(false);
   };
 
@@ -236,24 +232,19 @@ export default function Header() {
     const scrollTarget = searchParams.get("scrollTo");
 
     if (pathname !== "/") {
-      // 🔹 非首頁 → 回到頂部 + 清掉 activeSection
+      // 🔹 非首頁 → 回到頂部
       window.scrollTo({ top: 0, behavior: "smooth" });
-      setActiveSection(null);
       return; // 直接結束，避免下面條件重複執行
     }
 
     if (scrollTarget === "projects") {
       // 🔹 首頁 + 帶 scrollTo=projects → 滾動到 Projects
-      setActiveSection("projects");
       const target = document.getElementById("projects-section");
       if (target) {
         setTimeout(() => {
           target.scrollIntoView({ behavior: "smooth", block: "start" });
         }, 200);
       }
-    } else {
-      // 🔹 首頁但沒有 scrollTo → 回到 Home 狀態
-      setActiveSection("home");
     }
   }, [searchParams, pathname]);
 
@@ -315,10 +306,9 @@ export default function Header() {
           >
             Home
           </Link>
-          <a
+          <Link
             href="/#projects-section"
             onClick={handleScroll}
-            // className="font-light hover:underline cursor-pointer"
             className={`font-light hover:underline cursor-pointer ${
               pathname === "/" && searchParams.get("scrollTo") === "projects"
                 ? "underline"
@@ -326,7 +316,7 @@ export default function Header() {
             }`}
           >
             Projects
-          </a>
+          </Link>
           <Link
             href="/archive"
             className={`font-light hover:underline ${
@@ -381,13 +371,13 @@ export default function Header() {
             <Link href="/" onClick={() => setIsOpen(false)} className="block font-light hover:underline">
               Home
             </Link>
-            <a
+            <Link
               href="/#projects-section"
               onClick={handleScroll}
               className="block font-light hover:underline cursor-pointer"
             >
               Projects
-            </a>
+            </Link>
             <Link href="/gallery" onClick={() => setIsOpen(false)} className="block font-light hover:underline">
               Gallery
             </Link>
@@ -400,7 +390,6 @@ export default function Header() {
     </header>
   );
 }
-
 
 
 

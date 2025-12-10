@@ -1,25 +1,30 @@
+import Image from "next/image";
+
+// 模擬作品資料庫
+const projectData = {
+  "morphing-wood": {
+    title: "Morphing Wood",
+    description: "A humidity-responsive morphing wood prototype.",
+    img: "/images/p1.jpg",
+  },
+  "energy-retrofit": {
+    title: "Energy Retrofit",
+    description: "A study on sustainable building retrofits.",
+    img: "/images/p2.jpg",
+  },
+  "data-visualization": {
+    title: "Data Visualization",
+    description: "Interactive visualization of urban housing data.",
+    img: "/images/p3.jpg",
+  },
+};
+
+export function generateStaticParams() {
+  return Object.keys(projectData).map((slug) => ({ slug }));
+}
+
 export default function ProjectDetail({ params }) {
   const { slug } = params;
-
-  // 模擬作品資料庫
-  const projectData = {
-    "morphing-wood": {
-      title: "Morphing Wood",
-      description: "A humidity-responsive morphing wood prototype.",
-      img: "/images/p1.jpg",
-    },
-    "energy-retrofit": {
-      title: "Energy Retrofit",
-      description: "A study on sustainable building retrofits.",
-      img: "/images/p2.jpg",
-    },
-    "data-visualization": {
-      title: "Data Visualization",
-      description: "Interactive visualization of urban housing data.",
-      img: "/images/p3.jpg",
-    },
-  };
-
   const project = projectData[slug];
 
   if (!project) return <h1>Project Not Found</h1>;
@@ -27,7 +32,14 @@ export default function ProjectDetail({ params }) {
   return (
     <div className="p-8 max-w-3xl mx-auto">
       <h1 className="text-4xl font-bold mb-4">{project.title}</h1>
-      <img src={project.img} alt={project.title} className="rounded-lg mb-6" />
+      <Image
+        src={project.img}
+        alt={project.title}
+        width={1200}
+        height={800}
+        className="rounded-lg mb-6 h-auto w-full"
+        priority
+      />
       <p className="text-lg">{project.description}</p>
     </div>
   );
@@ -74,4 +86,3 @@ export default function ProjectDetail({ params }) {
 //     </div>
 //   );
 // }
-

@@ -60,8 +60,26 @@ import matter from "gray-matter";
 import { serialize } from "next-mdx-remote/serialize";
 import ProjectContent from "@/components/ProjectContent";
 
-export default async function ProjectPage({ params }: { params: { slug: string } }) {
-  const filePath = path.join(process.cwd(), "src/app/projects", `${params.slug}.mdx`);
+type PageProps = {
+  params: Promise<{
+    slug: string;
+  }>;
+};
+
+export function generateStaticParams() {
+  const projectsDir = path.join(process.cwd(), "src/app/projects");
+  const files = fs.readdirSync(projectsDir);
+
+  return files
+    .filter((file) => file.endsWith(".mdx") || file.endsWith(".md"))
+    .map((file) => ({
+      slug: file.replace(/\.mdx?$/, ""),
+    }));
+}
+
+export default async function ProjectPage({ params }: PageProps) {
+  const { slug } = await params;
+  const filePath = path.join(process.cwd(), "src/app/projects", `${slug}.mdx`);
   const fileContent = fs.readFileSync(filePath, "utf8");
 
   const { content } = matter(fileContent);
@@ -134,5 +152,3 @@ export default async function ProjectPage({ params }: { params: { slug: string }
 //     </div>
 //   );
 // }
-
-

@@ -1,5 +1,5 @@
 "use client";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 export default function ClientWrapper({ children }: { children: React.ReactNode }) {
