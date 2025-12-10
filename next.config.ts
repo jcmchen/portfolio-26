@@ -17,7 +17,7 @@ const withMDX = createMDX({
 
 const nextConfig: NextConfig = withMDX({
   // 讓 Next.js 支援 .mdx 與 .md
-  pageExtensions: ["ts", "tsx", "js", "jsx"], //"md", "mdx"
+  pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"], //"md", "mdx"
 
   // 其他 Next.js 設定可保留
   reactStrictMode: true,
