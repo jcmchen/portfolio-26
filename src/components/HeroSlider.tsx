@@ -112,7 +112,7 @@ const slides = [
     ],
   },
   {
-    img: "/images/seed/DSC_7539_bright_02-c3.jpg",
+    img: "/images/seed/DSC_7539_bright_02-c3_jpg.jpg",
     title: "Seeds Starter Kit",
     links: [
       { text: "Project Page", href: "#" },
