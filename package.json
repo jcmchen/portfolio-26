@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
-    // "deploy": "npm run build && gh-pages -d out -b gh-pages"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.0",
