@@ -318,9 +318,9 @@ export default function Header() {
             Projects
           </Link>
           <Link
-            href="/archive"
+            href="/gallery"
             className={`font-light hover:underline ${
-              isActive("/archive") ? "underline" : ""
+              isActive("/gallery") ? "underline" : ""
             }`}
           >
             Archive
