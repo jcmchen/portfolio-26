@@ -130,8 +130,7 @@ const slides = [
     img: "/images/DSC_9959_ed.jpg",
     title: "Form Force Matter",
     links: [
-      { text: "Journal", href: "#" },
-      { text: "Project Page", href: "#" },
+      { text: "Project Page", href: "/projects/form-force-matter" },
     ],
   },
   {
@@ -145,14 +144,14 @@ const slides = [
     img: "/images/IMG_1259-ed.jpg",
     title: "Interlace",
     links: [
-      { text: "Project Page", href: "#" },
+      { text: "Project Page", href: "/projects/interlace" },
     ],
   },
   {
     img: "/images/CNV000021-ed.jpg",
     title: "Bridges",
     links: [
-      { text: "Project Page", href: "#" },
+      { text: "Project Page", href: "/projects/bridges" },
     ],
   },
   {
@@ -167,7 +166,7 @@ const slides = [
     img: "/images/DSC_7022-c.jpg",
     title: "Assembled Living",
     links: [
-      { text: "Project Page", href: "#" },
+      { text: "Project Page", href: "/projects/assembled-living" },
     ],
   },
   {
