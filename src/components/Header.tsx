@@ -323,7 +323,7 @@ export default function Header() {
               isActive("/gallery") ? "underline" : ""
             }`}
           >
-            Archive
+            Gallery
           </Link>
           <Link
             href="/about"
