@@ -88,12 +88,12 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { Roboto } from "next/font/google";
 import ClientWrapper from "@/components/ClientWrapper";
-import { Suspense } from "react";   // 🔹 新增這行
+import { Suspense } from "react";   
 
 const roboto = Roboto({ subsets: ["latin"], weight: ["300", "400", "500", "700"] });
 
 export const metadata = {
-  title: "My Portfolio",
+  title: "Jeremy Chen",
   description: "A Next.js portfolio with lazy load and animations",
 };
 
