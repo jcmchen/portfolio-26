@@ -171,7 +171,7 @@ const slides = [
     img: "/images/resource-main.png",
     title: "Resource Rush",
     links: [
-      { text: "Resource Rush", href: "/projects/resource-rush" },
+      { text: "Project Page", href: "/projects/resource-rush" },
     ],
   },
   {
