@@ -140,7 +140,7 @@ const slides = [
     ],
   },
   {
-    img: "/images/m2-5_s22_m.gif",
+    img: "/images/m2-5_s18_c180.gif",
     title: "Bio-inspired Composites Design",
     links: [
       { text: "Project Page", href: "/projects/bio-inspired-composite" },
