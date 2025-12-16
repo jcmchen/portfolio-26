@@ -88,7 +88,8 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { Roboto } from "next/font/google";
 import ClientWrapper from "@/components/ClientWrapper";
-import { Suspense } from "react";   
+import { Suspense } from "react";
+import { Analytics } from "@vercel/analytics/next" // Vercel Analytics
 
 const roboto = Roboto({ subsets: ["latin"], weight: ["300", "400", "500", "700"] });
 
@@ -105,6 +106,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Suspense fallback={null}>
           <Header />
           <ClientWrapper>{children}</ClientWrapper>
+          <Analytics /> {/* Vercel Analytics */}
         </Suspense>
       </body>
     </html>
