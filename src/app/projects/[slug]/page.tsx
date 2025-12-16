@@ -86,7 +86,7 @@ export default async function ProjectPage({ params }: PageProps) {
   const mdxSource = await serialize(content);
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-16">
+    <div className="w-full max-w-4xl mx-auto px-6 md:px-10 lg:px-16 py-20">
       <ProjectContent source={mdxSource} />
     </div>
   );

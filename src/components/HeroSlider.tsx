@@ -99,16 +99,16 @@ const slides = [
     img: "/images/moment-cube/ezgif.com-gif-maker.gif",
     title: "MomentCube",
     links: [
-      { text: "Project Page", href: "#" },
-      { text: "Paper", href: "#" },
+      { text: "Project Page", href: "/project/momentcube" },
+      { text: "Report", href: "#" },
     ],
   },
   {
     img: "/images/moment-cube/cube_compressed2.gif",
     title: "MomentCube",
     links: [
-      { text: "Project Page", href: "#" },
-      { text: "Paper", href: "#" },
+      { text: "Project Page", href: "/project/momentcube" },
+      { text: "Report", href: "#" },
     ],
   },
   {
@@ -120,10 +120,9 @@ const slides = [
   },
   {
     img: "/images/IMG_0003-ed.jpg",
-    title: "Unidentified Funicular Object",
+    title: "Unidentified Funicular Objects",
     links: [
-      { text: "Paper", href: "#" },
-      { text: "Project Page", href: "#" },
+      { text: "Project Page", href: "/projects/unidentified-funicular-objects" },
     ],
   },
   {
@@ -137,7 +136,7 @@ const slides = [
     img: "/images/DSC_9100-c.jpg",
     title: "Micro Macro",
     links: [
-      { text: "Project Page", href: "#" },
+      { text: "Project Page", href: "/projects/micro-macro" },
     ],
   },
   {
@@ -159,7 +158,6 @@ const slides = [
     title: "Sacred Light",
     links: [
       { text: "Project Page", href: "#" },
-      { text: "Paper", href: "#" },
     ],
   },
   {
@@ -180,7 +178,7 @@ const slides = [
     img: "/images/DSC_8958-c.jpg",
     title: "Botani Plan: Second Nature",
     links: [
-      { text: "Project Page", href: "#" },
+      { text: "Project Page", href: "/projects/botani-plan" },
     ],
   },
   {

@@ -145,20 +145,30 @@ import ProjectCard from "@/components/ProjectCard";
 // ];
 
 const projects = [
-  { slug: "assembled-living", title: "Assembled Living", year: 2022, category: "Architecture", img: "/images/DSC_7022-c.jpg" },
-  { slug: "boolean-auditorium", title: "Boolean Auditorium", year: 2022, category: "Architecture", img: "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg" },
-  { slug: "bridge-x", title: "Bridge X", year: 2021, category: "Construction / Fabrication", img: "/images/bridge-x_300ppi.png" },
-  { slug: "bridges", title: "Bridges", year:"2017, 2018", category: "Construction / Fabrication", img: "/images/CNV000021-ed.jpg" },
+  { slug: "bridges", title: "Bridges", year:"2017-2018", category: "Construction / Fabrication", img: "/images/CNV000021-ed.jpg" },
   { slug: "form-force-matter", title: "Form Force Matter", year: 2021, category: "Construction / Fabrication", img: "/images/DSC_9959_ed.jpg" }, 
+  { slug: "bridge-x", title: "Bridge X", year: 2021, category: "Construction / Fabrication", img: "/images/bridge-x_300ppi.png" },
   { slug: "hanger-games", title: "Hanger Games", year: 2019, category: "Construction / Fabrication", img: "/images/sss19-00-ps-ai-bg.png" },
   { slug: "slime-spring-structure", title: "Slime Spring Structure", year: 2018, category: "Construction / Fabrication", img: "/images/sss18-01-c-ai-bg.png" },
   { slug: "interlace", title: "Interlace", year: 2018, category: "Construction / Fabrication", img: "/images/IMG_1259-ed.jpg" },
-  { slug: "7", title: "7", year: 2022, category: "Architecture", img: "/images/DSC_7022-c.jpg" },
-  { slug: "8", title: "8", year: 2022, category: "Architecture", img: "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg" },
-  { slug: "9", title: "9", year: 2022, category: "Architecture", img: "/images/DSC_7022-c.jpg" },
-  { slug: "10", title: "10", year: 2022, category: "Human Computer Interaction", img: "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg" },
-  { slug: "11", title: "11", year: 2022, category: "Robotics", img: "/images/DSC_7022-c.jpg" },
-  { slug: "12", title: "12", year: 2022, category: "Visualization", img: "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg" },
+  { slug: "fold-and-cut", title: "Fold & Cut", year: 2017, category: "Perception", img: "/images/DSC_3370-ed.jpg" },
+  { slug: "illustrations", title: "Illustrations", year: "2019-2021", category: "Perception", img: "/images/DSC_8999-PS3_BW-c.jpg" },
+  { slug: "sacred-light", title: "Sacred Light", year: 2020, category: "Perception", img: "/images/IMG_5087_BW-c.jpg" },
+  { slug: "unidentified-funicular-objects", title: "Unidentified Funicular Objects", year: "2017", category: "Construction / Fabrication", img: "/images/IMG_0003-ed.jpg" },
+  { slug: "yuan", title: "Yuan", year: 2023, category: "Perception", img: "/images/portfolio/p_Page_38.png" },
+  { slug: "the-nature-of-growth", title: "The Nature of Growth", year: 2019, category: "Nature", img: "/images/Tree%2001-c.jpeg" },
+  { slug: "bio-inspired-composite", title: "Bio-Inspired Composite Materials", year: 2019, category: "Nature", img: "/images/BICM-00.png" },
+  { slug: "botani-plan", title: "Botani Plan: Second Nature", year: 2020, category: "Nature", img: "/images/DSC_8958-c.jpg" },
+  { slug: "floating-structures", title: "Floating Structures", year: "2019-2020", category: "Nature", img: "/images/IMG_8809-c2.png" },
+  { slug: "tangi-growth", title: "TangiGrowth", year: 2022, category: "New Media", img: "/images/TUI/Tangi05-ed.jpg" },
+  { slug: "moment-cube", title: "MomentCube", year: 2022, category: "New Media", img: "/images/moment-cube/DSC08012_REDUCED.jpg" },
+  { slug: "capacitive-salad", title: "Capacitive Salad", year: 2022, category: "New Media", img: "/images/TUI/salad-ed.png" },
+  { slug: "recycled-crawler", title: "Recycled Crawler", year: 2022, category: "New Media", img: "/images/TUI/DSC_6518_ED.jpg" },
+  { slug: "granola-cuckoo-clock", title: "Granola Cuckoo Clock", year: 2022, category: "New Media", img: "/images/TUI/DSC_6529_ED.jpg" },
+  { slug: "micro-macro", title: "Micro Macro", year: "2019-2020", category: "Perception", img: "/images/DSC_9100-c.jpg" },
+  { slug: "assembled-living", title: "Assembled Living", year: 2022, category: "Building", img: "/images/DSC_7022-c.jpg" },
+  { slug: "boolean-auditorium", title: "Boolean Auditorium", year: 2022, category: "Building", img: "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg" },
+  { slug: "14", title: "14", year: 2022, category: "Visualization", img: "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg" },
 ];
 
 // export default function HomePage() {
@@ -249,7 +259,7 @@ export default function HomePage() {
 
       {/* Projects 區域（Header Projects 會捲動到這裡） */}
       <div id="projects-section" className="p-8 scroll-mt-24">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto"> 
           <FilterBar categories={categories} active={active} setActive={setActive} />
 
           {/* ✅ AnimatePresence 包裹 ProjectCard *//*filter完沒有三個row 也有最小高度 */}
