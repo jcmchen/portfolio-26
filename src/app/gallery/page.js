@@ -23,9 +23,9 @@ export default function GalleryPage() {
       <section className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-16">
         <header className="mb-10">
           <p className="text-sm uppercase tracking-[0.3em] text-gray-500 mb-3">Gallery</p>
-          <h1 className="text-4xl md:text-5xl font-light text-gray-900">The visible, and the invisible.</h1>
+          <h1 className="text-4xl md:text-5xl font-light text-gray-900">The visible and the invisible.</h1>
           <p className="text-gray-600 mt-4 max-w-3xl">
-            A mix of places and scenes around the world.
+            Places and scenes across the world.
           </p>
         </header>
 
