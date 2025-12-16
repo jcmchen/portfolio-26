@@ -110,7 +110,7 @@ export default async function ProjectPage({ params }: PageProps) {
       <header className="mb-10">
         <p className="text-sm uppercase tracking-[0.3em] text-gray-500 mb-3">{headerMeta}</p>
         <h1 className="text-4xl md:text-5xl font-light text-gray-900">{headerTitle}</h1>
-        {headerDesc ? <p className="text-gray-600 mt-4 max-w-3xl">{headerDesc}</p> : null}
+        {headerDesc ? <p className="text-gray-600 mt-4 max-w-3xl whitespace-pre-line">{headerDesc}</p> : null}
       </header>
 
       <ProjectContent source={content} />
