@@ -140,6 +140,13 @@ const slides = [
     ],
   },
   {
+    img: "/images/m2-5_high.gif",
+    title: "Bio-inspired Composites Design",
+    links: [
+      { text: "Project Page", href: "/projects/bio-inspired-composite" },
+    ],
+  },
+  {
     img: "/images/IMG_1259-ed.jpg",
     title: "Interlace",
     links: [
@@ -165,13 +172,6 @@ const slides = [
     title: "Assembled Living",
     links: [
       { text: "Project Page", href: "/projects/assembled-living" },
-    ],
-  },
-  {
-    img: "/images/BICM-00.png",
-    title: "Bio-inspired Composites Design",
-    links: [
-      { text: "Project Page", href: "/projects/bio-inspired-composite" },
     ],
   },
   {
