@@ -172,7 +172,7 @@ const projects = [
   { slug: "the-rotary-vagary", title: "The Rotary Vagary", year: 2023, category: "Building", img: "/images/1.png" },
   { slug: "assembled-living", title: "Assembled Living", year: 2022, category: "Building", img: "/images/DSC_7022-c.jpg" },
   { slug: "boolean-auditorium", title: "Boolean Auditorium", year: 2022, category: "Building", img: "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg" },
-  { slug: "14", title: "14", year: 2022, category: "Visualization", img: "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg" },
+  { slug: "task-and-motion-planning", title: "Task and Motion Planning for Robotic Assembly", year: 2023, category: "Construction and Fabrication", img: "/images/chair/0160.png" },
 ];
 
 // export default function HomePage() {
