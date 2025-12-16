@@ -168,6 +168,13 @@ const slides = [
     ],
   },
   {
+    img: "/images/resource-main.png",
+    title: "Resource Rush",
+    links: [
+      { text: "Resource Rush", href: "/projects/resource-rush" },
+    ],
+  },
+  {
     img: "/images/DSC_7022-c.jpg",
     title: "Assembled Living",
     links: [

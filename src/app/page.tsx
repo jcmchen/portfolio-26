@@ -160,6 +160,7 @@ const projects = [
   { slug: "yuan", title: "Yuan", year: 2023, category: "Perception", img: "/images/portfolio/p_Page_38.png" },
   { slug: "task-and-motion-planning", title: "Task and Motion Planning for Robotic Assembly", year: 2023, category: "Robotics", img: "/images/chair/0160.png" },
   { slug: "the-nature-of-growth", title: "The Nature of Growth", year: 2019, category: "Nature", img: "/images/Tree%2001-c.jpeg" },
+  { slug: "mobility-and-housing-taipei", title: "Mobility and Housing in Taipei", year: 2021, category: "Visualization", img: "/images/housing01.png" },
   { slug: "bio-inspired-composite", title: "Bio-Inspired Composite Materials", year: 2019, category: "Nature", img: "/images/BICM-00.png" },
   { slug: "botani-plan", title: "Botani Plan: Second Nature", year: 2020, category: "Nature", img: "/images/DSC_8958-c.jpg" },
   { slug: "floating-structures", title: "Floating Structures", year: "2019-2020", category: "Nature", img: "/images/IMG_8809-c2.png" },
