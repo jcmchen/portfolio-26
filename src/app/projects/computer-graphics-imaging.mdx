@@ -1,30 +1,83 @@
 ---
 layout: page
-title: Seeds Starter Kit
-description: UC Berkeley 2023 | BioPrinting @ Cal
-description_in: 2022/ UC Berkeley/ Instructor&#58; Chris Myers
-img: assets/img/Link/TUI/DSC_6529_ED.jpg
-importance: 3
-category: nature
+title: Computer Graphics and Imaging
+description: |
+  UC Berkeley 2024 | Instructor: Ren Ng
+  Rasterizer, Mesh Edit, Path Tracer, Cloth Simulator
+
+category: Visualization
 ---
 
-Developed an observation kit for seed germination.
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <figure className="m-0">
+    <img
+      src="/images/cg/cg04.png"
+      className="w-full h-auto object-cover"
+    />
+    <figcaption className="mt-2 text-[11px] ">
+      <a
+        href="https://cal-cs184-student.github.io/hw-webpages-sp24-jcmchen/hw4/index.html"
+        className="text-sm font-medium text-gray-900 underline hover:no-underline"
+      >
+        Cloth Simulator (link)
+      </a>
+        This project delves into simulating cloth behavior through constructing its structure with masses and springs, numerically integrating the simulation while adjusting parameters like spring constant, density, and damping to observe their effects on the cloth's behavior, handling collisions with spheres and planes, addressing self-collisions within the cloth simulation using spatial hashing, and implementing shaders for rendering realistic material appearances. Through these stages, the project provides a deep exploration into the intricacies of cloth simulation, collision detection, and rendering techniques, offering insights into the complex interplay between physics simulation and visual representation in computer graphics.
+    </figcaption>
+  </figure>
 
-<div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
-  <img
-    src="/images/Seed/DSC_7539_bright_02-c3.jpeg"
-    className="w-full h-auto object-cover"
-  />
+  <figure className="m-0">
+    <img
+      src="/images/cg/cg02.png"
+      className="w-full h-auto object-cover"
+    />
+    <figcaption className="mt-1 text-[11px] ">
+      <div className="mb-4">
+        <a
+          href="https://cal-cs184-student.github.io/hw-webpages-sp24-jcmchen/hw2/index.html"
+          className="text-sm font-medium text-gray-900 underline hover:no-underline"
+        >
+          Mesh Edit (link)
+        </a>
+        This project includes various aspects of basic mesh manipulation and subdivision algorithms using the half-edge data structure. Initially, the de Casteljau algorithm is employed to evaluate Bezier curves and surfaces, extending its application from 2D to 3D space. Area-weighted vertex normals are then computed for mesh vertices based on neighboring triangle faces, providing approximations of surface normals. Subsequently, the edge flip and split operations are implemented to modify mesh topology efficiently. Loop subdivision is then applied to increase mesh resolution. In the end, we use pre-processing tricks such as flipping and splitting edges to ensure that our subdivision results are symmetrical and maintain the geometric features, addressing asymmetry issues in subdividing meshes like a cube in the example file. I really enjoy this project since the result images demonstrate the variety of geometric objects that could be achieved using simple techniques in mesh manipulation.
+      </div>
+    </figcaption>
+
+  </figure>
 </div>
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-  <img src="/images/Seed/seed01.png" className="w-full h-auto object-cover" />
-  <img src="/images/Seed/seed02.png" className="w-full h-auto object-cover" />
-</div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <figure className="m-0">
+    <img
+      src="/images/cg/cg03.png"
+      className="w-full h-auto object-cover"
+    />
+    <figcaption className="mt-1 text-[11px] ">
+        <a
+          href="https://cal-cs184-student.github.io/hw-webpages-sp24-jcmchen/hw3/index.html"
+          className="text-sm font-medium text-gray-900 underline hover:no-underline"
+        >
+          Path Tracer (link)
+        </a>
+        This project provides a detailed examination of the path tracing process, covering essential components such as ray generation, scene intersection, direct and indirect illumination, global illumination techniques, incorporating optimizations like bounding volume hierarchy (BVH), and adaptive sampling. First, we generate rays for pixel sampling and detecting intersections with objects in the scene. We then implemented direct illumination using both Uniform Hemisphere Sampling and lmportance Sampling techniques, followed by indirect illumination and Russian Roulette to capture light reflection from surrounding environments. Each section delves into specific aspects of path tracing, from the generation of camera rays to the calculation of radiance contributions, and includes visualizations of rendered images to illustrate the effects of different rendering settings and techniques. Through comparisons and analyses of rendering results, this project offers valuable insights into the techniques and factors influencing rendering quality and efficiency, ultimately providing a thorough understanding of the complexities involved in creating realistic rendering scenes.
+    </figcaption>
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-  <img src="/images/Seed/seed03.png" className="w-full h-auto object-cover" />
-  <img src="/images/Seed/seed04.png" className="w-full h-auto object-cover" />
+  </figure>
+  <figure className="m-0">
+    <img
+      src="/images/cg/cg01.png"
+      className="w-full h-auto object-cover"
+    />
+    <figcaption className="mt-2 text-[11px] ">
+        <a
+          href="https://cal-cs184-student.github.io/hw-webpages-sp24-jcmchen/hw1/index.html"
+          className="text-sm font-medium text-gray-900 underline hover:no-underline"
+        >
+          Rasterizer (link)
+        </a>
+        In this project, we implemented a rasterizer with various features including single-color triangle rasterization, antialiasing, transformations, barycentric coordinates, pixel and level sampling for texture mapping, and finally, we generated a burger picture for the art competition! We explored rasterizing triangles with specific winding orders, bounding box optimizations, and the point-in-triangle test. We also learned about the pixel sampling and level sampling, compared these different sampling methods with respect to speed, memory usage, and antialiasing power, etc. Through this project, we've deepened our understanding of rasterizer in computer graphics field.
+    </figcaption>
+  </figure>
+
 </div>
 
 <div className="row h-6" />
