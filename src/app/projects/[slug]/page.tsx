@@ -66,6 +66,13 @@ type PageProps = {
   }>;
 };
 
+type Frontmatter = {
+  title?: string;
+  description?: string;
+  description_in?: string;
+  category?: string;
+};
+
 export function generateStaticParams() {
   const projectsDir = path.join(process.cwd(), "src/app/projects");
   const files = fs.readdirSync(projectsDir);
@@ -82,11 +89,21 @@ export default async function ProjectPage({ params }: PageProps) {
   const filePath = path.join(process.cwd(), "src/app/projects", `${slug}.mdx`);
   const fileContent = fs.readFileSync(filePath, "utf8");
 
-  const { content } = matter(fileContent);
+  const { content, data } = matter(fileContent) as { content: string; data: Frontmatter };
   const mdxSource = await serialize(content);
 
+  const headerTitle = data.title || slug.replace(/-/g, " ");
+  const headerMeta = (data.category || "Project").toUpperCase();
+  const headerDesc = data.description || data.description_in || "";
+
   return (
-    <div className="w-full max-w-4xl mx-auto px-6 md:px-10 lg:px-16 py-20">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-16">
+      <header className="mb-10">
+        <p className="text-sm uppercase tracking-[0.3em] text-gray-500 mb-3">{headerMeta}</p>
+        <h1 className="text-4xl md:text-5xl font-light text-gray-900">{headerTitle}</h1>
+        {headerDesc ? <p className="text-gray-600 mt-4 max-w-3xl">{headerDesc}</p> : null}
+      </header>
+
       <ProjectContent source={mdxSource} />
     </div>
   );
