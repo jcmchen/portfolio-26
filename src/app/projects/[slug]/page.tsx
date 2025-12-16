@@ -57,7 +57,8 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { serialize } from "next-mdx-remote/serialize";
+// import { serialize } from "next-mdx-remote/serialize";
+import { notFound } from "next/navigation";
 import ProjectContent from "@/components/ProjectContent";
 
 type PageProps = {
@@ -85,12 +86,20 @@ export function generateStaticParams() {
 }
 
 export default async function ProjectPage({ params }: PageProps) {
-  const { slug } = await params;
-  const filePath = path.join(process.cwd(), "src/app/projects", `${slug}.mdx`);
-  const fileContent = fs.readFileSync(filePath, "utf8");
+  // const { slug } = await params;
+  // const filePath = path.join(process.cwd(), "src/app/projects", `${slug}.mdx`);
+  // const fileContent = fs.readFileSync(filePath, "utf8");
 
+  // const { content, data } = matter(fileContent) as { content: string; data: Frontmatter };
+  // const mdxSource = await serialize(content);
+  const { slug } = await Promise.resolve(params);
+
+  const filePath = path.join(process.cwd(), "src/app/projects", `${slug}.mdx`);
+  if (!fs.existsSync(filePath)) notFound();
+
+  const fileContent = fs.readFileSync(filePath, "utf8");
   const { content, data } = matter(fileContent) as { content: string; data: Frontmatter };
-  const mdxSource = await serialize(content);
+
 
   const headerTitle = data.title || slug.replace(/-/g, " ");
   const headerMeta = (data.category || "Project").toUpperCase();
@@ -104,7 +113,7 @@ export default async function ProjectPage({ params }: PageProps) {
         {headerDesc ? <p className="text-gray-600 mt-4 max-w-3xl">{headerDesc}</p> : null}
       </header>
 
-      <ProjectContent source={mdxSource} />
+      <ProjectContent source={content} />
     </div>
   );
 }

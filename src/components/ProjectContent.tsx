@@ -1,6 +1,4 @@
-"use client";
-
-import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
+import { MDXRemote } from "next-mdx-remote/rsc";
 import Image, { ImageProps } from "next/image";
 import { ComponentPropsWithoutRef } from "react";
 
@@ -14,7 +12,6 @@ type MDXImageProps = Omit<ImageProps, "src" | "alt"> & {
   alt?: string;
 };
 
-// 自訂 MDX 元件
 const components = {
   h1: (props: HeadingProps) => (
     <h1 {...props} className={`text-4xl font-light mt-6 mb-2 shadow-none ${props.className ?? ""}`} />
@@ -51,10 +48,11 @@ const components = {
   ),
 };
 
-export default function ProjectContent({ source }: { source: MDXRemoteSerializeResult }) {
+export default function ProjectContent({ source }: { source: string }) {
   return (
     <div className="w-full my-8">
-      <MDXRemote {...source} components={components} />
+      <MDXRemote source={source} components={components} />
     </div>
   );
 }
+
