@@ -147,7 +147,7 @@ import ProjectCard from "@/components/ProjectCard";
 const projects = [
   { slug: "bridges", title: "Bridges", year:"2017-2018", category: "Construction / Fabrication", img: "/images/CNV000021-ed.jpg" },
   { slug: "form-force-matter", title: "Form Force Matter", year: 2021, category: "Construction / Fabrication", img: "/images/DSC_9959_ed.jpg" }, 
-  { slug: "bridge-x", title: "Bridge X", year: 2021, category: "Construction / Fabrication", img: "/images/bridge-x_300ppi.png" },
+  { slug: "resource-rush", title: "Resource Rush", year: 2023, category: "Construction / Fabrication", img: "/images/resource-main.png" },
   { slug: "hanger-games", title: "Hanger Games", year: 2019, category: "Construction / Fabrication", img: "/images/sss19-00-ps-ai-bg.png" },
   { slug: "slime-spring-structure", title: "Slime Spring Structure", year: 2018, category: "Construction / Fabrication", img: "/images/sss18-01-c-ai-bg.png" },
   { slug: "interlace", title: "Interlace", year: 2018, category: "Construction / Fabrication", img: "/images/IMG_1259-ed.jpg" },
@@ -162,7 +162,8 @@ const projects = [
   { slug: "botani-plan", title: "Botani Plan: Second Nature", year: 2020, category: "Nature", img: "/images/DSC_8958-c.jpg" },
   { slug: "floating-structures", title: "Floating Structures", year: "2019-2020", category: "Nature", img: "/images/IMG_8809-c2.png" },
   { slug: "tangi-growth", title: "TangiGrowth", year: 2022, category: "New Media", img: "/images/TUI/Tangi05-ed.jpg" },
-
+  { slug: "15", title: "15", year: 2022, category: "Visualization", img: "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg" },
+  { slug: "bridge-x", title: "Bridge X", year: 2021, category: "Construction / Fabrication", img: "/images/bridge-x_300ppi.png" },
   { slug: "capacitive-salad", title: "Capacitive Salad", year: 2022, category: "New Media", img: "/images/TUI/salad-ed.png" },
   { slug: "seeds-starter-kit", title: "Seeds Starter Kit", year: 2023, category: "Nature", img: "/images/Seed/DSC_7539_bright_02-c3.jpeg" },
   { slug: "micro-macro", title: "Micro Macro", year: "2019-2020", category: "Perception", img: "/images/DSC_9100-c.jpg" },
