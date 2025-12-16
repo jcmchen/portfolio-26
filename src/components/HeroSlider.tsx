@@ -157,7 +157,7 @@ const slides = [
     img: "/images/IMG_5087_BW-c.jpg",
     title: "Sacred Light",
     links: [
-      { text: "Project Page", href: "#" },
+      { text: "Project Page", href: "/projects/sacred-light" },
     ],
   },
   {
@@ -171,7 +171,7 @@ const slides = [
     img: "/images/BICM-00.png",
     title: "Bio-inspired Composites Design",
     links: [
-      { text: "Project Page", href: "#" },
+      { text: "Project Page", href: "/projects/bio-inspired-composite" },
     ],
   },
   {
