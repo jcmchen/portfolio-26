@@ -99,16 +99,16 @@ const slides = [
     img: "/images/moment-cube/ezgif.com-gif-maker.gif",
     title: "MomentCube",
     links: [
-      { text: "Project Page", href: "/project/momentcube" },
-      { text: "Report", href: "#" },
+      { text: "Project Page", href: "/project/moment-cube" },
+      { text: "Report", href: "https://drive.google.com/file/d/1IWg_7bU3prEHDrfwdtIan9II6ElAlk5S/view?usp=share_link" },
     ],
   },
   {
     img: "/images/moment-cube/cube_compressed2.gif",
     title: "MomentCube",
     links: [
-      { text: "Project Page", href: "/project/momentcube" },
-      { text: "Report", href: "#" },
+      { text: "Project Page", href: "/project/moment-cube" },
+      { text: "Report", href: "https://drive.google.com/file/d/1IWg_7bU3prEHDrfwdtIan9II6ElAlk5S/view?usp=share_link"},
     ],
   },
   {
@@ -185,7 +185,7 @@ const slides = [
     img: "/images/Tree 01-c.jpeg",
     title: "The Nature of Growth",
     links: [
-      { text: "Project Page", href: "#" },
+      { text: "Project Page", href: "/projects/the-nature-of-growth" },
     ],
   }
 ];
