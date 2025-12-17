@@ -168,7 +168,7 @@ const projects = [
   { slug: "capacitive-salad", title: "Capacitive Salad", year: 2022, category: "New Media", img: "/images/TUI/salad-ed.png" },
   { slug: "seeds-starter-kit", title: "Seeds Starter Kit", year: 2023, category: "Nature", img: "/images/Seed/DSC_7539_bright_02-c3.jpeg" },
   { slug: "micro-macro", title: "Micro Macro", year: "2019-2020", category: "Perception", img: "/images/DSC_9100-c.jpg" },
-  { slug: "our-grandmas-fridge", title: "Our Grandma's Fridge", year: 2023, category: "New Media", img: "/images/fridge/__Our+Grandma’s+Fridge+MOL+2024.webp" },
+  { slug: "our-grandmas-fridge", title: "Our Grandma's Fridge", year: 2023, category: "New Media", img: "/images/fridge/ogf_mol_2024.png" },
   { slug: "computer-graphics-imaging", title: "Computer Graphics and Imaging", year: 2024, category: "Visualization", img: "/images/cg/cg02.png" },
   { slug: "recycled-crawler", title: "Recycled Crawler", year: 2022, category: "New Media", img: "/images/TUI/DSC_6518_ED.jpg" },
   { slug: "granola-cuckoo-clock", title: "Granola Cuckoo Clock", year: 2022, category: "New Media", img: "/images/TUI/DSC_6529_ED.jpg" },
