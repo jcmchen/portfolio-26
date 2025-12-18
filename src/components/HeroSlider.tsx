@@ -95,14 +95,14 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 const slides = [
-  {
-    img: "/images/moment-cube/ezgif.com-gif-maker.gif",
-    title: "MomentCube",
-    links: [
-      { text: "Project Page", href: "/projects/moment-cube" },
-      { text: "Report", href: "https://drive.google.com/file/d/1IWg_7bU3prEHDrfwdtIan9II6ElAlk5S/view?usp=share_link" },
-    ],
-  },
+  // {
+  //   img: "/images/moment-cube/ezgif.com-gif-maker.gif",
+  //   title: "MomentCube",
+  //   links: [
+  //     { text: "Project Page", href: "/projects/moment-cube" },
+  //     { text: "Report", href: "https://drive.google.com/file/d/1IWg_7bU3prEHDrfwdtIan9II6ElAlk5S/view?usp=share_link" },
+  //   ],
+  // },
   {
     img: "/images/moment-cube/cube_compressed2.gif",
     title: "MomentCube",
