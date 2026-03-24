@@ -104,11 +104,10 @@ const slides = [
   //   ],
   // },
   {
-    img: "/images/moment-cube/cube_compressed2.gif",
-    title: "MomentCube",
+    img: "/images/DSC_9100-c.jpg",
+    title: "Micro Macro",
     links: [
-      { text: "Project Page", href: "/projects/moment-cube" },
-      { text: "Report", href: "https://drive.google.com/file/d/1IWg_7bU3prEHDrfwdtIan9II6ElAlk5S/view?usp=share_link"},
+      { text: "Project Page", href: "/projects/micro-macro" },
     ],
   },
   {
@@ -133,10 +132,11 @@ const slides = [
     ],
   },
   {
-    img: "/images/DSC_9100-c.jpg",
-    title: "Micro Macro",
+    img: "/images/moment-cube/cube_compressed2.gif",
+    title: "MomentCube",
     links: [
-      { text: "Project Page", href: "/projects/micro-macro" },
+      { text: "Project Page", href: "/projects/moment-cube" },
+      { text: "Report", href: "https://drive.google.com/file/d/1IWg_7bU3prEHDrfwdtIan9II6ElAlk5S/view?usp=share_link"},
     ],
   },
   {
