@@ -19,7 +19,7 @@ export default function ProjectCard({ project }: { project: Project }) {
             alt={project.title}
             width={600}
             height={400}
-            className="object-contain w-full h-auto transition duration-300 ease-out group-hover:scale-[1.08]"
+            className="object-contain w-full h-auto transition duration-300 ease-out group-hover:opacity-85"
           />
         </div>
         <h3 className="text-base hover:underline">

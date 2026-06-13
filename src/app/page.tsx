@@ -553,7 +553,7 @@ function HighlightCard({
   const imageIsAnimated = project.img.toLowerCase().endsWith(".gif");
 
   return (
-    <article className="group" onFocus={onActivate}>
+    <article className="group highlight-card relative" onFocus={onActivate}>
       <div className="relative aspect-[1.78/1] overflow-hidden bg-neutral-100">
         <Image
           src={project.img}
@@ -561,8 +561,10 @@ function HighlightCard({
           fill
           unoptimized={imageIsAnimated}
           priority={priority}
+          draggable={false}
+          onDragStart={(event) => event.preventDefault()}
           sizes={wide ? "(min-width: 1280px) 56vw, 82vw" : "(min-width: 1024px) 36vw, 100vw"}
-          className="object-cover transition duration-500 ease-out"
+          className="object-cover transition duration-500 ease-out group-hover:opacity-90"
         />
         <span className="absolute left-4 top-4 border border-white/75 bg-black/15 px-4 py-2 text-[10px] font-normal uppercase tracking-[0.14em] text-white">
           {project.category}
@@ -1018,7 +1020,7 @@ export default function HomePage() {
 
       <section id="projects-section" className="scroll-mt-24 px-4 py-8 md:px-8">
         <div className="mx-auto max-w-[1680px]">
-          <div className="mb-6 grid py-5 md:grid-cols-[minmax(0,1fr)_minmax(260px,0.38fr)] md:items-end">
+          {/* <div className="mb-6 grid py-5 md:grid-cols-[minmax(0,1fr)_minmax(260px,0.38fr)] md:items-end">
             <div>
               <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-400">
                 Selected work
@@ -1027,9 +1029,24 @@ export default function HomePage() {
                 Projects
               </h2>
             </div>
-            <p className="mt-4 max-w-[390px] text-sm leading-6 text-neutral-500 md:mt-0 md:justify-self-end">
-              Material systems, fabrication studies, interactive objects, spatial research, and
-              image-based investigations.
+              <p className="max-w-6xl text-sm leading-6 text-neutral-600 md:justify-self-end md:text-right">
+                Quantitative and qualitative in approach, poetic and artistic in expression, and innovative in form.<br />
+                This body of work explores research, computation, material systems, and perception.
+              </p>
+          </div> */}
+          <div className="mt-8 mb-8 grid gap-5 md:grid-cols-[0.35fr_1.65fr] md:items-end">
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">
+                Selected Work
+              </p>
+              <h2 className="mt-2 text-4xl font-light uppercase tracking-normal md:text-6xl">
+                Projects
+              </h2>
+            </div>
+
+            <p className="max-w-none text-sm leading-6 text-neutral-600 md:justify-self-end md:text-right">
+              Quantitative and qualitative in approach, poetic and artistic in expression, and innovative in form.<br />
+              This body of work explores research, computation, material systems, and perception.
             </p>
           </div>
           <FilterBar categories={categories} active={active} setActive={setCategory} />

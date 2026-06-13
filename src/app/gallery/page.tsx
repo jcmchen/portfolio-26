@@ -35,14 +35,14 @@ export default function GalleryPage() {
 
         <div className="columns-1 sm:columns-2 lg:columns-2 gap-8 [column-fill:_balance]">
           {galleryItems.map((item, idx) => (
-            <figure key={idx} className="mb-6 break-inside-avoid overflow-hidden bg-gray-50 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+            <figure key={idx} className="mb-6 break-inside-avoid overflow-hidden bg-gray-50 shadow-sm transition-shadow duration-300 ease-out hover:shadow-lg">
               <div className="relative w-full overflow-hidden">
                 <Image
                   src={item.src}
                   alt={item.title}
                   width={1200}
                   height={800}
-                  className="w-full h-auto object-cover transition duration-500 ease-out hover:scale-[1.03]"
+                  className="w-full h-auto object-cover transition duration-500 ease-out"
                   unoptimized={item.src.endsWith(".gif")}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent opacity-0 hover:opacity-100 transition duration-300" />
