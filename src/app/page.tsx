@@ -857,18 +857,9 @@ export default function HomePage() {
                 <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-400">
                   Highlights
                 </p>
-                <AnimatePresence mode="wait">
-                  <motion.h1
-                    key={previewProject.slug}
-                    initial={{ y: 14, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -14, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="mt-2 text-4xl font-normal uppercase leading-none tracking-normal"
-                  >
-                    {previewProject.title}
-                  </motion.h1>
-                </AnimatePresence>
+                <h1 className="mt-2 text-4xl font-normal uppercase leading-none tracking-normal">
+                  {previewProject.title}
+                </h1>
               </div>
               <div className="flex items-center gap-5 text-[13px] font-normal uppercase tracking-[0.16em] md:self-center">
                 <span aria-hidden className="hidden h-[34px] border-l border-black md:block" />
