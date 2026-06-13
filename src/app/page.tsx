@@ -282,9 +282,10 @@ const routeGlyphs: Record<string, RouteGlyphSpec> = {
     ],
     nodes: [[76, 98], [128, 42], [128, 114], [230, 72], [306, 72], [392, 72]],
     dash: "3 3",
-    duration: "4.2s",
+    duration: "5s",
     nodeSize: 2.9,
     nodeDelay: 95,
+    nodeDelays: [0, 300, 600, 900, 1200, 1500],
   },
   robotics: {
     path: "M28 70 H126 C168 70 168 28 210 28 H296 C338 28 338 112 380 112 H430",
