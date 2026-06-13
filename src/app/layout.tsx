@@ -86,22 +86,19 @@
 
 import "./globals.css";
 import Header from "@/components/Header";
-import { Roboto } from "next/font/google";
 import ClientWrapper from "@/components/ClientWrapper";
 import { Suspense } from "react";
 import { Analytics } from "@vercel/analytics/next" // Vercel Analytics
 
-const roboto = Roboto({ subsets: ["latin"], weight: ["300", "400", "500", "700"] });
-
 export const metadata = {
   title: "Jeremy Chen",
-  description: "A Next.js portfolio with lazy load and animations",
+  description: "Architecture, computation, material systems, and perception.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${roboto.className} bg-white text-gray-900`}>
+      <body className="bg-[#fbfaf7] text-[#111111]">
         {/* 🔻 這一整塊是 CSR + useSearchParams 的世界 */}
         <Suspense fallback={null}>
           <Header />
@@ -112,7 +109,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-
 
 
 

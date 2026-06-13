@@ -60,6 +60,8 @@ import matter from "gray-matter";
 // import { serialize } from "next-mdx-remote/serialize";
 import { notFound } from "next/navigation";
 import ProjectContent from "@/components/ProjectContent";
+import Image from "next/image";
+import Link from "next/link";
 
 type PageProps = {
   params: Promise<{
@@ -72,6 +74,41 @@ type Frontmatter = {
   description?: string;
   description_in?: string;
   category?: string;
+  year?: string | number;
+};
+
+const projectCovers: Record<string, string> = {
+  hygrometric: "/images/hygrometric/cover_long.jpg",
+  bridges: "/images/CNV000021-ed.jpg",
+  "form-force-matter": "/images/DSC_9959_ed.jpg",
+  "resource-rush": "/images/resource-main.png",
+  "hanger-games": "/images/sss19-00-ps-ai-bg.png",
+  "slime-spring-structure": "/images/sss18-01-c-ai-bg.png",
+  interlace: "/images/IMG_1259-ed.jpg",
+  "bridge-x": "/images/bridge-x_300ppi.png",
+  "fold-and-cut": "/images/DSC_3370-ed.jpg",
+  illustrations: "/images/DSC_8999-PS3_BW-c.jpg",
+  "sacred-light": "/images/IMG_5087_BW-c.jpg",
+  "unidentified-funicular-objects": "/images/IMG_0003-ed.jpg",
+  "moment-cube": "/images/moment-cube/DSC08012_REDUCED.jpg",
+  yuan: "/images/portfolio/p_Page_38.png",
+  "task-and-motion-planning": "/images/chair/0160.png",
+  "the-nature-of-growth": "/images/Tree%2001-c.jpeg",
+  "mobility-and-housing-taipei": "/images/housing01.png",
+  "bio-inspired-composite": "/images/BICM-00.png",
+  "botani-plan": "/images/DSC_8958-c.jpg",
+  "floating-structures": "/images/IMG_8809-c2.png",
+  "tangi-growth": "/images/TUI/Tangi05-ed.jpg",
+  "our-grandmas-fridge": "/images/fridge/ogf_mol_2024.png",
+  "seeds-starter-kit": "/images/Seed/DSC_7539_bright_02-c3.jpeg",
+  "micro-macro": "/images/DSC_9100-c.jpg",
+  "capacitive-salad": "/images/TUI/salad-ed.png",
+  "computer-graphics-imaging": "/images/cg/cg02.png",
+  "recycled-crawler": "/images/TUI/DSC_6518_ED.jpg",
+  "granola-cuckoo-clock": "/images/TUI/DSC_6529_ED.jpg",
+  "the-rotary-vagary": "/images/1.png",
+  "assembled-living": "/images/DSC_7022-c.jpg",
+  "boolean-auditorium": "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg",
 };
 
 export function generateStaticParams() {
@@ -102,19 +139,77 @@ export default async function ProjectPage({ params }: PageProps) {
 
 
   const headerTitle = data.title || slug.replace(/-/g, " ");
-  const headerMeta = (data.category || "Project").toUpperCase();
+  const headerMeta = data.category || "Project";
   const headerDesc = data.description || data.description_in || "";
+  const cover = projectCovers[slug];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-16">
-      <header className="mb-10">
-        <p className="text-sm uppercase tracking-[0.3em] text-gray-500 mb-3">{headerMeta}</p>
-        <h1 className="text-4xl md:text-5xl font-light text-gray-900">{headerTitle}</h1>
-        {headerDesc ? <p className="text-gray-600 mt-4 max-w-3xl whitespace-pre-line">{headerDesc}</p> : null}
+    <main className="bg-[#fbfaf7] px-4 py-8 md:px-8 md:py-12">
+      <header className="mx-auto grid max-w-[1680px] gap-6 border-b border-black pb-8 md:grid-cols-[0.78fr_1.22fr] md:gap-8">
+        <div className="grid content-between gap-8 border-black md:border-r md:pr-8">
+          <div>
+            <Link
+              href="/?scrollTo=projects"
+              className="inline-block border-b border-black pb-1 text-xs uppercase tracking-[0.14em] hover:border-neutral-400 hover:text-neutral-500"
+            >
+              Back to projects
+            </Link>
+            <p className="mt-8 text-xs uppercase tracking-[0.18em] text-neutral-500">
+              {headerMeta}
+            </p>
+            <h1 className="mt-3 text-[clamp(3rem,8vw,8.5rem)] font-light leading-[0.9] tracking-normal">
+              {headerTitle}
+            </h1>
+          </div>
+
+          {headerDesc ? (
+            <p className="max-w-2xl whitespace-pre-line border-t border-black pt-4 text-base leading-7 text-neutral-700">
+              {headerDesc}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="grid gap-3">
+          {cover ? (
+            <div className="project-hero-image relative min-h-[44vh] overflow-hidden bg-[#e8e6df] md:min-h-[72vh]">
+              <Image
+                src={cover}
+                alt={headerTitle}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 58vw"
+                className="object-cover"
+              />
+            </div>
+          ) : null}
+          <div className="grid grid-cols-3 border-y border-black py-3 text-[10px] uppercase tracking-[0.14em] text-neutral-500">
+            <span>{data.year || "Project"}</span>
+            <span className="text-center">Archive</span>
+            <span className="text-right">{slug}</span>
+          </div>
+        </div>
       </header>
 
-      <ProjectContent source={content} />
-    </div>
+      <div className="mx-auto grid max-w-[1680px] gap-10 py-10 md:grid-cols-[0.26fr_0.74fr] md:py-14">
+        <aside className="hidden md:block">
+          <div className="sticky top-24 grid gap-5 border-t border-black pt-4 text-xs uppercase tracking-[0.14em]">
+            <div className="grid grid-cols-[1fr_auto] border-b border-neutral-300 pb-3">
+              <span>Category</span>
+              <span className="text-neutral-500">{headerMeta}</span>
+            </div>
+            <div className="grid grid-cols-[1fr_auto] border-b border-neutral-300 pb-3">
+              <span>Media</span>
+              <span className="text-neutral-500">Images / Text</span>
+            </div>
+            <a href="#project-content" className="border-b border-neutral-300 pb-3 hover:underline">
+              Read documentation
+            </a>
+          </div>
+        </aside>
+
+        <ProjectContent source={content} />
+      </div>
+    </main>
   );
 }
 

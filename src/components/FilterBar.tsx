@@ -35,28 +35,22 @@ type FilterBarProps = {
 
 export default function FilterBar({ categories, active, setActive }: FilterBarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-6 text-sm mb-8">
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-y border-black py-4 text-xs uppercase tracking-[0.12em] md:gap-x-8">
       {categories.map((cat) => (
         <button
           key={cat.name}
           onClick={() => setActive(cat.name)}
-          className={`relative ${
+          className={`group relative flex items-baseline gap-1 border-b transition-colors ${
             active === cat.name
-              ? "underline font-medium"
-              : "text-gray-600 hover:text-black"
+              ? "border-black text-black"
+              : "border-transparent text-neutral-500 hover:border-neutral-400 hover:text-black"
           }`}
         >
-          {cat.name}
-          {/* ✅ Show All 不顯示數字 */}
-          {cat.name !== "Show All" && (
-            <span className="absolute -top-1 -right-2 text-[11px] text-gray-400">
-              {cat.count}
-            </span>
-          )}
+          <span>{cat.name}</span>
+          <span className="text-[10px] text-neutral-400">{cat.count}</span>
         </button>
       ))}
     </div>
   );
 }
-
 

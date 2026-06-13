@@ -45,6 +45,12 @@
 //   );
 // }
 
+import { notFound } from "next/navigation";
+
+export default function GalleryDetailPage() {
+  notFound();
+}
+
 
 // // 🔹 把資料移到外面，給 component + generateStaticParams 共用
 // const projectData = {

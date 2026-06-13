@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fbfaf7;
+  --foreground: #111111;
   color-scheme: light; /* Enforce a light color scheme (ignore system/browser dark mode). */
 }
 
@@ -17,6 +17,1226 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: #111111;
+  color: #fbfaf7;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.material-field {
+  background: #fbfaf7;
+}
+
+.route-overlay {
+  filter: drop-shadow(0 1px 10px rgba(0, 0, 0, 0.34));
+  opacity: 0.9;
+  transition: opacity 300ms ease, transform 600ms ease;
+  color: #fbfaf7;
+}
+
+.highlight-card:hover .route-overlay {
+  opacity: 0.9;
+  transform: none;
+}
+
+.highlight-carousel {
+  cursor: grab;
+  scroll-behavior: smooth;
+  touch-action: pan-x pan-y;
+}
+
+.highlight-carousel:active {
+  cursor: grabbing;
+}
+
+.highlight-carousel img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.highlight-track-card {
+  flex: 0 0 min(82vw, 680px);
+}
+
+@media (min-width: 1280px) {
+  .highlight-track-card {
+    flex-basis: 56%;
+  }
+}
+
+.news-strip {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(to right, rgba(17, 17, 17, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(17, 17, 17, 0.06) 1px, transparent 1px),
+    #f0eee8;
+  background-size: 18px 18px, 18px 18px, auto;
+}
+
+.field-image-reveal {
+  position: relative;
+  overflow: hidden;
+  background: #fbfaf7;
+}
+
+.field-image-reveal.is-unavailable {
+  cursor: default;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(17, 17, 17, 0.035) 0,
+      rgba(17, 17, 17, 0.035) 1px,
+      transparent 1px,
+      transparent 7px
+    ),
+    #fbfaf7;
+}
+
+.field-image-reveal-label,
+.field-image-reveal-mark {
+  display: inline-block;
+  color: #111111;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  padding: 0.65rem 0.7rem;
+  text-transform: uppercase;
+}
+
+.field-image-reveal-mark {
+  float: right;
+  transition: transform 220ms ease;
+}
+
+.field-image-reveal.is-unavailable .field-image-reveal-label {
+  color: #737373;
+}
+
+.field-image-reveal-panel {
+  clear: both;
+  display: block;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: height 320ms ease, opacity 220ms ease;
+}
+
+.field-image-reveal-panel img {
+  filter: grayscale(1) contrast(0.96);
+  transform: scale(1.01);
+  transition: filter 260ms ease, transform 420ms ease;
+}
+
+.field-image-reveal.is-open .field-image-reveal-panel {
+  height: 168px;
+  opacity: 1;
+}
+
+.field-image-reveal.is-open .field-image-reveal-mark {
+  transform: rotate(45deg);
+}
+
+.field-image-reveal.is-open .field-image-reveal-panel img {
+  filter: grayscale(1) contrast(1.02);
+  transform: scale(1.035);
+}
+
+.route-line {
+  animation: route-dash 7s linear infinite;
+}
+
+.route-node {
+  animation: route-pulse 1.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.route-nature .route-line {
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.route-nature .glyph-secondary {
+  animation-name: route-dash;
+  opacity: 0.36;
+  stroke-width: 1.02;
+}
+
+.route-nature .route-node {
+  animation-name: route-coral-blooming;
+  animation-duration: 4.6s;
+}
+
+.route-nature .route-node:nth-of-type(-n + 3) {
+  animation-name: route-colony-source;
+  animation-duration: 4.2s;
+}
+
+.route-nature .route-node:nth-of-type(n + 4) {
+  opacity: 0.72;
+}
+
+.route-nature .glyph-route {
+  animation-name: route-dash;
+  stroke-width: 1.42;
+}
+
+.route-nature .glyph-trail {
+  display: block;
+  opacity: 0.24;
+  stroke-dasharray: 12 18;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: route-dash 12s linear infinite;
+}
+
+.route-nature .glyph-trail-main {
+  stroke-width: 2.1;
+}
+
+.route-nature .glyph-trail-secondary {
+  stroke-width: 1.35;
+}
+
+.route-construction-fabrication .route-line {
+  stroke-width: 2.2;
+  stroke-linejoin: miter;
+}
+
+.route-construction-fabrication .glyph-route,
+.route-construction-fabrication .glyph-secondary {
+  animation-name: glyph-assemble-converge;
+}
+
+.route-construction-fabrication .glyph-route {
+  stroke-width: 1.45;
+}
+
+.route-construction-fabrication .glyph-secondary {
+  stroke-width: 1.1;
+  opacity: 0.62;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  transform-origin: 62% 50%;
+}
+
+.route-construction-fabrication .glyph-secondary {
+  animation-name: route-dash;
+}
+
+.route-construction-fabrication .route-node {
+  animation-name: route-assembly-lock;
+  animation-duration: 1.85s;
+}
+
+.route-robotics .route-line {
+  stroke-width: 1.5;
+  stroke-linecap: square;
+  stroke-linejoin: bevel;
+}
+
+.route-robotics .glyph-route,
+.route-robotics .glyph-secondary {
+  stroke-linecap: square;
+  stroke-linejoin: bevel;
+}
+
+.route-robotics .glyph-secondary {
+  animation-name: glyph-feedback-draw;
+}
+
+.route-robotics .route-node {
+  animation-name: route-blink;
+  animation-duration: 1.15s;
+}
+
+.route-perception .route-line {
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.route-perception .glyph-secondary {
+  animation-name: route-dash;
+  opacity: 0.72;
+  stroke-width: 1.28;
+}
+
+.route-perception .glyph-route {
+  animation-name: glyph-lens-travel, route-dash;
+  animation-timing-function: linear, linear;
+  animation-iteration-count: infinite;
+}
+
+.route-perception .route-node {
+  animation-name: route-magnified-point;
+  animation-duration: 6.4s;
+}
+
+.route-new-media .route-line {
+  stroke-width: 1.8;
+  stroke-linejoin: bevel;
+}
+
+.route-new-media .glyph-route {
+  animation-name: glyph-data-curve, route-dash;
+  animation-timing-function: ease-in-out, linear;
+  animation-iteration-count: infinite;
+  opacity: 0.82;
+  stroke-width: 1.45;
+}
+
+.route-new-media .glyph-secondary {
+  animation-name: glyph-data-draw;
+  stroke-width: 1.05;
+}
+
+.route-new-media .glyph-secondary:nth-of-type(2) {
+  opacity: 0.56;
+  stroke-width: 1.2;
+}
+
+.route-new-media .glyph-secondary:nth-of-type(3) {
+  opacity: 0.38;
+  stroke-width: 0.95;
+}
+
+.route-new-media .glyph-secondary:nth-of-type(4) {
+  opacity: 0.24;
+  stroke-width: 0.8;
+}
+
+.route-new-media .route-node {
+  animation-name: route-data;
+  animation-duration: 1.4s;
+}
+
+.route-visualization .glyph-secondary {
+  animation-name: glyph-signal-draw;
+}
+
+.route-visualization .glyph-route {
+  opacity: 0.42;
+  stroke-width: 1.1;
+}
+
+.route-visualization .route-node {
+  animation-name: route-signal;
+  animation-duration: 1.65s;
+}
+
+.route-building .route-line {
+  stroke-width: 2;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.route-building .glyph-route,
+.route-building .glyph-secondary {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.route-building .glyph-secondary {
+  animation-name: route-dash;
+}
+
+.route-building .route-node {
+  animation-name: route-assemble;
+  animation-duration: 2.8s;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.category-index-item {
+  color: #111111;
+}
+
+.category-index-item .category-index-icon {
+  color: currentColor;
+  filter: drop-shadow(0 0 0 transparent);
+  height: 66px;
+}
+
+.category-index-item.is-active {
+  background: #111111;
+  color: #fbfaf7;
+}
+
+.category-index-item.is-active .category-index-icon {
+  color: currentColor;
+}
+
+.category-index-item:not(.is-active):hover {
+  background: #f0eee8;
+  color: #111111;
+}
+
+.category-index-item span {
+  color: #111111;
+}
+
+.category-index-item.is-active span {
+  color: #fbfaf7;
+}
+
+.category-index-icon .glyph-route,
+.category-index-icon .glyph-secondary,
+.category-index-icon .glyph-bar {
+  animation-name: route-index-flow;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.category-index-icon .glyph-route {
+  opacity: 1;
+}
+
+.category-index-icon .glyph-secondary {
+  opacity: 0.34;
+}
+
+.category-index-icon .glyph-secondary-underlay {
+  opacity: 0.08;
+  stroke-width: 1.18;
+}
+
+.category-index-icon .glyph-bar {
+  opacity: 1;
+}
+
+.category-index-icon.route-perception .glyph-route {
+  animation-name: glyph-lens-travel, route-dash;
+  animation-timing-function: linear, linear;
+  animation-iteration-count: infinite;
+  opacity: 1;
+  stroke-width: 1.25;
+}
+
+.category-index-icon.route-perception .glyph-secondary {
+  opacity: 0.42;
+  stroke-width: 0.95;
+}
+
+.category-index-icon.route-nature .glyph-route {
+  opacity: 1;
+  stroke-width: 0.65;
+}
+
+.category-index-icon.route-nature .glyph-secondary {
+  opacity: 0.36;
+  stroke-width: 0.82;
+}
+
+.category-index-icon.route-construction-fabrication .glyph-route {
+  opacity: 1;
+  stroke-width: 1.12;
+}
+
+.category-index-icon.route-construction-fabrication .glyph-secondary {
+  opacity: 0.36;
+  stroke-width: 0.86;
+}
+
+.category-index-icon.route-robotics .glyph-route {
+  opacity: 1;
+  stroke-width: 1.16;
+}
+
+.category-index-icon.route-robotics .glyph-secondary {
+  opacity: 0.38;
+  stroke-width: 0.88;
+}
+
+.category-index-icon.route-building .glyph-route {
+  opacity: 1;
+  stroke-width: 1.08;
+}
+
+.category-index-icon.route-building .glyph-secondary {
+  opacity: 0.34;
+  stroke-width: 0.82;
+}
+
+.category-index-icon.route-new-media .glyph-route {
+  opacity: 1;
+  stroke-width: 1.22;
+}
+
+.category-index-icon.route-new-media .glyph-secondary {
+  opacity: 0.34;
+  stroke-width: 0.94;
+}
+
+.category-index-icon.route-visualization .glyph-route,
+.category-index-icon.route-visualization .glyph-secondary {
+  opacity: 0.3;
+  stroke-width: 0.78;
+}
+
+.category-index-icon.route-visualization .glyph-bar {
+  animation-name: glyph-volume-bar;
+  animation-timing-function: ease-in-out;
+  stroke-width: 3.0;
+  transform-box: fill-box;
+  transform-origin: bottom;
+}
+
+.category-index-item.is-active .category-index-icon .glyph-route {
+  opacity: 1;
+}
+
+.category-index-item.is-active .category-index-icon .glyph-secondary {
+  opacity: 0.52;
+}
+
+.category-index-item.is-active .category-index-icon .glyph-secondary-underlay {
+  opacity: 0.16;
+}
+
+.category-index-item.is-active .category-index-icon .glyph-bar {
+  opacity: 0.9;
+}
+
+.category-index-item.is-active .category-index-icon.route-visualization .glyph-route,
+.category-index-item.is-active .category-index-icon.route-visualization .glyph-secondary {
+  opacity: 0.48;
+}
+
+.category-index-item.is-active .category-index-icon.route-visualization .glyph-bar {
+  animation-name: glyph-volume-bar;
+}
+
+.project-card-signal {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 240ms ease, transform 240ms ease;
+}
+
+.project-card:hover .project-card-signal {
+  opacity: 0.92;
+  transform: translateY(0);
+}
+
+.project-card-signal span {
+  border-top: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  animation: route-pulse 2.6s ease-in-out infinite;
+}
+
+.project-card.route-nature .project-card-signal span {
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  animation-name: route-grow;
+}
+
+.project-card.route-robotics .project-card-signal span {
+  animation-name: route-blink;
+  animation-duration: 1s;
+}
+
+.project-card.route-perception .project-card-signal span {
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  animation-name: route-flicker;
+}
+
+.project-card.route-new-media .project-card-signal span {
+  animation-name: glyph-signal;
+}
+
+.project-card.route-visualization .project-card-signal {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.project-card.route-visualization .project-card-signal span {
+  border: 1px solid currentColor;
+}
+
+.project-card.route-building .project-card-signal span {
+  border: 2px solid currentColor;
+  animation-name: route-assemble;
+}
+
+.glyph-route {
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: route-dash 7s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+  vector-effect: non-scaling-stroke;
+}
+
+.glyph-secondary {
+  opacity: 0.5;
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: route-dash 7s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+  vector-effect: non-scaling-stroke;
+}
+
+.glyph-secondary-underlay {
+  opacity: 0.1;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.glyph-trail {
+  display: none;
+}
+
+.glyph-bar {
+  opacity: 0.66;
+  stroke-width: 2.4;
+  stroke-linecap: square;
+  animation: glyph-bar-signal 1.5s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: bottom;
+}
+
+.route-overlay .glyph-route {
+  stroke-width: 1.45;
+}
+
+.route-overlay .glyph-secondary {
+  opacity: 0.42;
+  stroke-width: 0.95;
+}
+
+.route-overlay.route-nature .glyph-secondary {
+  opacity: 0.64;
+  stroke-width: 1.12;
+}
+
+.route-overlay.route-construction-fabrication .glyph-route {
+  stroke-width: 1.2;
+}
+
+.route-overlay.route-construction-fabrication .glyph-secondary {
+  stroke-width: 0.9;
+}
+
+.route-overlay.route-perception .glyph-secondary {
+  opacity: 0.62;
+  stroke-width: 1.08;
+}
+
+.route-overlay .glyph-bar {
+  opacity: 0.5;
+  stroke-width: 1.8;
+}
+
+@keyframes route-dash {
+  to {
+    stroke-dashoffset: -130;
+  }
+}
+
+@keyframes route-index-flow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: -92;
+  }
+}
+
+@keyframes glyph-grow-draw {
+  0% {
+    opacity: 0.2;
+    stroke-dashoffset: 70;
+  }
+
+  45% {
+    opacity: 0.62;
+  }
+
+  100% {
+    opacity: 0.32;
+    stroke-dashoffset: -110;
+  }
+}
+
+@keyframes glyph-organic-grow {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 520;
+  }
+
+  42% {
+    opacity: 0.78;
+  }
+
+  70% {
+    opacity: 0.94;
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    opacity: 0.66;
+    stroke-dashoffset: -88;
+  }
+}
+
+@keyframes glyph-organic-trail {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 520;
+  }
+
+  16% {
+    opacity: 0.78;
+  }
+
+  48% {
+    opacity: 0.34;
+  }
+
+  100% {
+    opacity: 0;
+    stroke-dashoffset: -120;
+  }
+}
+
+@keyframes glyph-assemble-draw {
+  0% {
+    opacity: 0.22;
+    stroke-dashoffset: 96;
+  }
+
+  52% {
+    opacity: 0.64;
+  }
+
+  100% {
+    opacity: 0.36;
+    stroke-dashoffset: -96;
+  }
+}
+
+@keyframes glyph-assemble-snap {
+  0% {
+    opacity: 0.18;
+    transform: translateX(-10px);
+    stroke-dashoffset: 96;
+  }
+
+  42% {
+    opacity: 0.7;
+    transform: translateX(0);
+  }
+
+  100% {
+    opacity: 0.36;
+    transform: translateX(0);
+    stroke-dashoffset: -96;
+  }
+}
+
+@keyframes glyph-assemble-converge {
+  0% {
+    opacity: 0.14;
+    transform: scale(1.18);
+    stroke-dashoffset: 110;
+  }
+
+  38% {
+    opacity: 0.72;
+    transform: scale(0.98);
+  }
+
+  68% {
+    opacity: 0.54;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0.34;
+    transform: scale(1);
+    stroke-dashoffset: -96;
+  }
+}
+
+@keyframes glyph-feedback-draw {
+  0%,
+  100% {
+    opacity: 0.22;
+    stroke-dashoffset: 82;
+  }
+
+  50% {
+    opacity: 0.72;
+    stroke-dashoffset: -20;
+  }
+}
+
+@keyframes glyph-aperture-draw {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: scaleX(0.9);
+    stroke-dashoffset: 64;
+  }
+
+  50% {
+    opacity: 0.68;
+    transform: scaleX(1.04);
+    stroke-dashoffset: -64;
+  }
+}
+
+/* @keyframes glyph-search-sweep {
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: translateX(-10px) scaleX(0.96);
+    stroke-dashoffset: 72;
+  }
+
+  48% {
+    opacity: 0.86;
+    transform: translateX(12px) scaleX(1.03);
+    stroke-dashoffset: -56;
+  }
+} */
+@keyframes glyph-search-sweep {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: translateX(-8px) scaleX(0.96);
+    stroke-dashoffset: 72;
+  }
+
+  48% {
+    opacity: 0.72;
+    transform: translateX(8px) scaleX(1.03);
+    stroke-dashoffset: -56;
+  }
+}
+
+@keyframes glyph-lens-travel {
+  0% {
+    opacity: 0.72;
+    transform: translateX(0);
+  }
+
+  12% {
+    opacity: 1;
+    transform: translateX(68px);
+  }
+
+  32% {
+    opacity: 1;
+    transform: translateX(142px);
+  }
+
+  49% {
+    opacity: 1;
+    transform: translateX(204px);
+  }
+
+  65% {
+    opacity: 1;
+    transform: translateX(260px);
+  }
+
+  80% {
+    opacity: 1;
+    transform: translateX(316px);
+  }
+
+  86%,
+  88% {
+    opacity: 0.9;
+    transform: translateX(338px);
+  }
+
+  96%,
+  100% {
+    opacity: 0.72;
+    transform: translateX(0);
+  }
+}
+
+@keyframes glyph-signal-draw {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: translateY(2px);
+    stroke-dashoffset: 80;
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: translateY(-2px);
+    stroke-dashoffset: -40;
+  }
+}
+
+@keyframes glyph-data-draw {
+  0% {
+    opacity: 0.18;
+    stroke-dashoffset: 110;
+  }
+
+  55% {
+    opacity: 0.66;
+  }
+
+  100% {
+    opacity: 0.34;
+    stroke-dashoffset: -90;
+  }
+}
+
+@keyframes glyph-data-curve {
+  0%,
+  100% {
+    opacity: 0.72;
+    stroke-dashoffset: 130;
+  }
+
+  50% {
+    opacity: 1;
+    stroke-dashoffset: -32;
+  }
+}
+
+@keyframes glyph-bar-signal {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scaleY(0.62);
+  }
+
+  35% {
+    opacity: 0.9;
+    transform: scaleY(1.02);
+  }
+
+  68% {
+    opacity: 0.58;
+    transform: scaleY(0.78);
+  }
+}
+
+@keyframes glyph-volume-bar {
+  0%,
+  100% {
+    opacity: 0.26;
+    transform: scaleY(0.38);
+  }
+
+  28% {
+    opacity: 0.92;
+    transform: scaleY(1.16);
+  }
+
+  52% {
+    opacity: 0.44;
+    transform: scaleY(0.66);
+  }
+
+  76% {
+    opacity: 0.78;
+    transform: scaleY(0.96);
+  }
+}
+
+@keyframes glyph-massing-draw {
+  0%,
+  100% {
+    opacity: 0.24;
+    transform: translateY(3px);
+    stroke-dashoffset: 88;
+  }
+
+  50% {
+    opacity: 0.64;
+    transform: translateY(0);
+    stroke-dashoffset: -44;
+  }
+}
+
+@keyframes route-pulse {
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: scale(0.82);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes route-grow {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(0.7);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes route-neuron-grow {
+  0% {
+    opacity: 0;
+    transform: scale(0.15);
+  }
+
+  38% {
+    opacity: 1;
+    transform: scale(1.28);
+  }
+
+  100% {
+    opacity: 0.46;
+    transform: scale(0.86);
+  }
+}
+
+@keyframes route-coral-bloom {
+  0% {
+    opacity: 0.12;
+    transform: scale(0.58);
+  }
+
+  20% {
+    opacity: 0.92;
+    transform: scale(1.28);
+  }
+
+  44% {
+    opacity: 0.64;
+    transform: scale(0.98);
+  }
+
+  100% {
+    opacity: 0.24;
+    transform: scale(0.74);
+  }
+}
+
+@keyframes route-colony-source {
+  0% {
+    opacity: 0.32;
+    transform: scale(0.92);
+  }
+
+  24% {
+    opacity: 1;
+    transform: scale(1.48);
+  }
+
+  56% {
+    opacity: 0.78;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 0.48;
+    transform: scale(0.92);
+  }
+}
+
+@keyframes route-build {
+  0%,
+  100% {
+    opacity: 0.56;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes route-assembly-lock {
+  0% {
+    opacity: 0.24;
+    transform: scale(0.62);
+  }
+
+  46% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+
+  100% {
+    opacity: 0.56;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes route-blink {
+  0%,
+  48%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+
+  50%,
+  70% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes route-flicker {
+  0%,
+  100% {
+    opacity: 0.34;
+    transform: scale(0.72);
+  }
+
+  30% {
+    opacity: 0.9;
+    transform: scale(1.08);
+  }
+
+  62% {
+    opacity: 0.52;
+    transform: scale(1.42);
+  }
+}
+
+@keyframes route-search-found {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: scale(0.72);
+  }
+
+  42% {
+    opacity: 1;
+    transform: scale(1.34);
+  }
+
+  58% {
+    opacity: 0.48;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes route-magnified-point {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: scale(0.58);
+  }
+
+  7% {
+    opacity: 0.42;
+    transform: scale(0.78);
+  }
+
+  12% {
+    opacity: 1;
+    transform: scale(1.82);
+  }
+
+  20% {
+    opacity: 0.34;
+    transform: scale(0.72);
+  }
+}
+
+@keyframes route-signal {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: scale(0.65);
+  }
+
+  35%,
+  58% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+@keyframes route-data {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.82);
+  }
+
+  50% {
+    opacity: 0.95;
+    transform: scale(1.25);
+  }
+}
+
+@keyframes route-assemble {
+  0%,
+  100% {
+    opacity: 0.46;
+    transform: scale(0.76);
+  }
+
+  45% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes glyph-signal {
+  0%,
+  100% {
+    transform: scaleY(0.45);
+    opacity: 0.45;
+  }
+
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .route-line,
+  .route-node,
+  .glyph-route,
+  .glyph-secondary,
+  .glyph-trail,
+  .glyph-bar {
+    animation: none;
+  }
 }
 
 /* pagination, nevigation color */
@@ -37,8 +1257,9 @@ body {
   .swiper-button-next,
   .swiper-button-prev {
     color: white !important;            /* 箭頭顏色 */
-    background: rgba(0, 0, 0, 0.2);     /* 半透明黑底 */
-    border-radius: 50%;                 /* 圓形 */
+    background: rgba(0, 0, 0, 0.45);    /* 半透明黑底 */
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 0;
     width: 44px !important;
     height: 44px !important;
     display: flex;
@@ -53,7 +1274,7 @@ body {
 
   .swiper-button-next:hover,
   .swiper-button-prev:hover {
-    background: rgba(0, 0, 0, 0.4);     /* hover 時更深 */
+    background: rgba(0, 0, 0, 0.7);     /* hover 時更深 */
   }
 
   .swiper-pagination-bullet {
@@ -64,4 +1285,3 @@ body {
     background: white !important;
   } 
 }
-
