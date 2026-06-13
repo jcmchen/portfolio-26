@@ -365,12 +365,17 @@ async function resolveRegion(region: FieldLocation["region"]) {
     throw new Error(`Wikipedia category pool is empty for ${region}`);
   }
 
+  const resolvedPlaces: FieldLocation[] = [];
+
   for (let index = 0; index < Math.min(members.length, 150); index += 50) {
     const batchedPlaces = await fetchWikiPages(members.slice(index, index + 50), region).catch(
       () => []
     );
-    const resolvedPlace = batchedPlaces.find(hasResolvedWikiDetail);
-    if (resolvedPlace) return resolvedPlace;
+    resolvedPlaces.push(...batchedPlaces.filter(hasResolvedWikiDetail));
+  }
+
+  if (resolvedPlaces.length) {
+    return selectDaily(resolvedPlaces, `${region}-${dateKey()}-resolved-place`);
   }
 
   for (const member of members.slice(0, 12)) {
