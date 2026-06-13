@@ -87,6 +87,16 @@ html {
   position: relative;
   overflow: hidden;
   background: #fbfaf7;
+  cursor: pointer;
+  transition: background 180ms ease;
+}
+
+.field-image-reveal:hover {
+  background: #f0eee8;
+}
+
+.field-image-reveal:hover .field-image-reveal-label {
+  text-decoration: underline;
 }
 
 .field-image-reveal.is-unavailable {

@@ -246,6 +246,7 @@ type RouteGlyphSpec = {
   nodes: [number, number][];
   dash: string;
   duration: string;
+  lineDuration?: string;
   nodeSize: number;
   nodeDelay: number;
   nodeDelays?: number[];
@@ -283,10 +284,12 @@ const routeGlyphs: Record<string, RouteGlyphSpec> = {
     nodes: [[76, 98], [128, 42], [128, 114], [230, 72], [306, 72], [392, 72]],
     dash: "3 3",
     duration: "5s",
+    lineDuration: "16s",
     nodeSize: 2.9,
-    nodeDelay: 95,
+    nodeDelay: 5,
     nodeDelays: [0, 300, 600, 900, 1200, 1500],
   },
+
   robotics: {
     path: "M28 70 H126 C168 70 168 28 210 28 H296 C338 28 338 112 380 112 H430",
     secondary: [
@@ -390,7 +393,7 @@ function CategoryGlyph({ category, className = "" }: { category: string; classNa
   const route = routeClass(category);
   const routeKey = route.replace("route-", "");
   const glyph = routeGlyphs[routeKey] || routeGlyphs.building;
-  const pathStyle = { animationDuration: glyph.duration };
+  const lineStyle = { animationDuration: glyph.lineDuration ?? glyph.duration };
   const morphValues = glyph.morph
     ? [glyph.path, ...glyph.morph, glyph.path].join(";")
     : undefined;
@@ -416,7 +419,7 @@ function CategoryGlyph({ category, className = "" }: { category: string; classNa
           fill="none"
           stroke="currentColor"
           strokeDasharray={glyph.dash}
-          style={pathStyle}
+          style={lineStyle}
         />
       ))}
       {glyph.bars?.map(([x, y1, y2], index) => (
@@ -440,7 +443,7 @@ function CategoryGlyph({ category, className = "" }: { category: string; classNa
         fill="none"
         stroke="currentColor"
         strokeDasharray={glyph.dash}
-        style={pathStyle}
+        style={lineStyle}
       >
         {morphValues ? (
           <animate
@@ -504,18 +507,7 @@ function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
           className={`field-image-reveal mt-4 w-full border border-black text-left ${
             isImageOpen ? "is-open" : ""
           }`}
-          onPointerDown={(event) => {
-            if (event.pointerType !== "mouse") {
-              setIsImageOpen((open) => !open);
-            }
-          }}
-          onMouseEnter={() => setIsImageOpen((open) => !open)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              setIsImageOpen((open) => !open);
-            }
-          }}
+          onClick={() => setIsImageOpen((open) => !open)}
         >
           <span className="field-image-reveal-label">Field image</span>
           <span className="field-image-reveal-mark">+</span>
@@ -570,7 +562,7 @@ function HighlightCard({
           unoptimized={imageIsAnimated}
           priority={priority}
           sizes={wide ? "(min-width: 1280px) 56vw, 82vw" : "(min-width: 1024px) 36vw, 100vw"}
-          className="object-cover transition duration-500 ease-out group-hover:scale-[1.025]"
+          className="object-cover transition duration-500 ease-out"
         />
         <span className="absolute left-4 top-4 border border-white/75 bg-black/15 px-4 py-2 text-[10px] font-normal uppercase tracking-[0.14em] text-white">
           {project.category}
@@ -838,7 +830,7 @@ export default function HomePage() {
               <span className="text-right">{now.toISOString().slice(0, 10)} UTC</span>
             </div>
           </div>
-          <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-2">
+          <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto no-scrollbar lg:pr-2">
             <div>
               {fieldNoteItems.map((note) => (
                 <FieldNoteCard key={note.id} note={note} now={now} />
@@ -903,14 +895,45 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="news-strip mt-2 px-2 py-2 text-[10px] uppercase tracking-[0.16em] text-neutral-500">
-            Apr 16, 2026 | Presented my first-authored paper <span className="text-black">Hygrometric</span> at <span className="text-black">CHI 2026 in Barcelona</span>!{" "}
-            <a href="/projects/hygrometric" className="border-b border-black text-black">
-              DOI
-            </a>{" "}
-            <a href="https://drive.google.com/file/d/1IWg_7bU3prEHDrfwdtIan9II6ElAlk5S/view?usp=share_link" target="_blank" rel="noreferrer" className="border-b border-black text-black">
-              PDF
-            </a>
+          <div className="news-strip mt-2 flex items-baseline gap-4 px-2 py-2 text-[10px] uppercase tracking-[0.16em] text-neutral-500">
+            <span className="shrink-0">Apr 16, 2026</span>
+
+            <span>
+              <span className="text-black">
+                I presented my first-authored paper{" "}
+                <a
+                  href="/projects/hygrometric"
+                  className="font-semibold text-black hover:text-neutral-500"
+                >
+                  Hygrometric
+                </a>{" "}
+                at{" "}
+                <a
+                  href="https://chi2026.acm.org/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-black hover:text-neutral-500"
+                >
+                  CHI 2026 in Barcelona!
+                </a>
+              </span>{" "}
+              <a
+                href="https://dl.acm.org/doi/10.1145/3772318.3791333"
+                target="_blank"
+                rel="noreferrer"
+                className="border-b border-black text-black hover:border-neutral-400 hover:text-neutral-500"
+              >
+                DOI
+              </a>{" "}
+              <a
+                href="https://dl.acm.org/doi/epdf/10.1145/3772318.3791333"
+                target="_blank"
+                rel="noreferrer"
+                className="border-b border-black text-black hover:border-neutral-400 hover:text-neutral-500"
+              >
+                PDF
+              </a>
+            </span>
           </div>
 
           <div className="mt-2 grid grid-cols-2 border-l border-t border-black md:grid-cols-4 xl:grid-cols-7">
@@ -995,7 +1018,7 @@ export default function HomePage() {
 
       <section id="projects-section" className="scroll-mt-24 px-4 py-8 md:px-8">
         <div className="mx-auto max-w-[1680px]">
-          <div className="mb-6 grid border-y border-black py-5 md:grid-cols-[minmax(0,1fr)_minmax(260px,0.38fr)] md:items-end">
+          <div className="mb-6 grid py-5 md:grid-cols-[minmax(0,1fr)_minmax(260px,0.38fr)] md:items-end">
             <div>
               <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-400">
                 Selected work
