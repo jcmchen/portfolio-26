@@ -18,6 +18,21 @@ export default function Header() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const scrollToProjectsSection = (behavior: ScrollBehavior = "smooth") => {
+    const target = document.getElementById("projects-section");
+    if (!target) return;
+
+    const header = document.querySelector("header");
+    const headerHeight = header?.offsetHeight ?? 0;
+    const top = target.getBoundingClientRect().top + window.scrollY - headerHeight;
+
+    window.scrollTo({ top, behavior });
+  };
+
+  const scrollToHome = (behavior: ScrollBehavior = "smooth") => {
+    window.scrollTo({ top: 0, behavior });
+  };
+
   const handleProjectScroll = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     setIsOpen(false);
@@ -28,9 +43,20 @@ export default function Header() {
     }
 
     router.replace("/?scrollTo=projects", { scroll: false });
-    document
-      .getElementById("projects-section")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => scrollToProjectsSection("smooth"), 0);
+  };
+
+  const handleHomeScroll = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setIsOpen(false);
+
+    if (pathname !== "/" || searchParams.has("scrollTo")) {
+      router.push("/", { scroll: false });
+      window.setTimeout(() => scrollToHome("smooth"), 150);
+      return;
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -41,11 +67,12 @@ export default function Header() {
 
     if (searchParams.get("scrollTo") === "projects") {
       window.setTimeout(() => {
-        document
-          .getElementById("projects-section")
-          ?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 160);
+        scrollToProjectsSection("smooth");
+      }, 200);
+      return;
     }
+
+    window.setTimeout(() => scrollToHome("auto"), 0);
   }, [pathname, searchParams]);
 
   const isCurrent = (href: string, scroll?: boolean) => {
@@ -80,6 +107,19 @@ export default function Header() {
                   key={item.name}
                   href={item.href}
                   onClick={handleProjectScroll}
+                  className={className}
+                >
+                  {item.name}
+                </Link>
+              );
+            }
+
+            if (item.href === "/") {
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={handleHomeScroll}
                   className={className}
                 >
                   {item.name}
@@ -136,6 +176,15 @@ export default function Header() {
                     key={item.name}
                     href={item.href}
                     onClick={handleProjectScroll}
+                    className="border-b border-black pb-4 text-3xl uppercase tracking-[0.12em]"
+                  >
+                    {item.name}
+                  </Link>
+                ) : item.href === "/" ? (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={handleHomeScroll}
                     className="border-b border-black pb-4 text-3xl uppercase tracking-[0.12em]"
                   >
                     {item.name}
