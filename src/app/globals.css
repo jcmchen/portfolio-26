@@ -828,7 +828,7 @@ html {
   }
 }
 
-@keyframes glyph-lens-travel {
+/* @keyframes glyph-lens-travel {
   0% {
     opacity: 0.72;
     transform: translateX(0);
@@ -866,6 +866,68 @@ html {
   }
 
   96%,
+  100% {
+    opacity: 0.72;
+    transform: translateX(0);
+  }
+} */
+
+@keyframes glyph-lens-travel {
+  0% {
+    opacity: 0.72;
+    transform: translateX(0);
+  }
+
+  10% {
+    opacity: 0.88;
+    transform: translateX(28px);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translateX(68px);
+  }
+
+  32% {
+    opacity: 1;
+    transform: translateX(128px);
+  }
+
+  44% {
+    opacity: 1;
+    transform: translateX(198px);
+  }
+
+  58% {
+    opacity: 1;
+    transform: translateX(268px);
+  }
+
+  72% {
+    opacity: 1;
+    transform: translateX(310px);
+  }
+
+  80% {
+    opacity: 1;
+    transform: translateX(320px);
+  }
+
+  86% {
+    opacity: 0.96;
+    transform: translateX(321px);
+  }
+
+  88% {
+    opacity: 0.92;
+    transform: translateX(320px);
+  }
+
+  94% {
+    opacity: 0.78;
+    transform: translateX(180px);
+  }
+
   100% {
     opacity: 0.72;
     transform: translateX(0);

@@ -319,7 +319,8 @@ const routeGlyphs: Record<string, RouteGlyphSpec> = {
     duration: "6.8s",
     nodeSize: 2.6,
     nodeDelay: 430,
-    nodeDelays: [0, 1360, 2520, 3600, 4620, 5030],
+    nodeDelays: [0, 850, 1790, 2780, 3760, 4200]
+    // nodeDelays: [0, 1360, 2520, 3600, 4620, 5030],
   },
 
   "new-media": {
