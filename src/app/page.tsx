@@ -470,8 +470,13 @@ function CategoryGlyph({ category, className = "" }: { category: string; classNa
 
 function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
   const [isImageOpen, setIsImageOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const timeLabel = note.region === "Taiwan" ? "GMT+8" : "Pacific Time";
   const hasImage = Boolean(note.imageUrl);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <article className="border-b border-black pb-2 pt-4">
@@ -525,7 +530,7 @@ function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
       ) : null}
       <dl className="mt-3 grid grid-cols-2 border-t border-black pb-1 pt-2 text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-400">
         <dt>{timeLabel}</dt>
-        <dd className="text-right text-neutral-700">{formatFieldTime(now, note.region)}</dd>
+        <dd className="text-right text-neutral-700">{mounted ? formatFieldTime(now, note.region) : "—"}</dd>
         <dt className="mt-1.5">Source</dt>
         <dd className="mt-1.5 text-right text-neutral-700">
           {note.url ? (
