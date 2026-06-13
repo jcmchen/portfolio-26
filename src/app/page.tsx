@@ -282,7 +282,7 @@ const routeGlyphs: Record<string, RouteGlyphSpec> = {
     ],
     nodes: [[76, 98], [128, 42], [128, 114], [230, 72], [306, 72], [392, 72]],
     dash: "3 3",
-    duration: "6.1s",
+    duration: "4.2s",
     nodeSize: 2.9,
     nodeDelay: 95,
   },
@@ -296,7 +296,7 @@ const routeGlyphs: Record<string, RouteGlyphSpec> = {
     ],
     nodes: [[28, 70], [126, 70], [210, 28], [296, 28], [296, 112], [380, 112], [430, 112]],
     dash: "1.5 5",
-    duration: "4.5s",
+    duration: "4.2s",
     nodeSize: 3.1,
     nodeDelay: 100,
   },
@@ -480,7 +480,7 @@ function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
         <span className="text-right text-black">{note.coordinates}</span>
       </div>
       {note.url ? (
-        <a href={note.url} target="_blank" rel="noreferrer" className="block">
+        <a href={note.url} target="_blank" rel="noreferrer" className="block transition-opacity hover:opacity-45">
           <h2 className="text-[25px] font-normal uppercase leading-[0.95] tracking-normal">
             {note.place}
           </h2>
@@ -571,7 +571,7 @@ function HighlightCard({
         </span>
         <CategoryGlyph
           category={project.category}
-          className={`route-overlay absolute bottom-6 left-6 h-14 w-40 ${routeClass(project.category)}`}
+          className={`route-overlay category-index-icon highlight-route-overlay absolute bottom-5 left-5 h-20 w-56 ${routeClass(project.category)}`}
         />
       </div>
       <div className="pt-0.5">
@@ -618,6 +618,7 @@ export default function HomePage() {
   const [fieldNoteItems, setFieldNoteItems] = useState<FieldNote[]>(fieldNotes);
   const [now, setNow] = useState(() => new Date());
   const highlightScrollerRef = useRef<HTMLDivElement>(null);
+  const highlightSettleTimerRef = useRef<number | undefined>(undefined);
   const dragStateRef = useRef({
     active: false,
     moved: false,
@@ -676,24 +677,37 @@ export default function HomePage() {
     const scroller = highlightScrollerRef.current;
     const nextIndex = wrapIndex(index, highlightProjects.length);
     const card = scroller?.querySelector<HTMLElement>(`[data-highlight-index="${nextIndex}"]`);
+    const firstCard = scroller?.querySelector<HTMLElement>("[data-highlight-card]");
 
-    if (!scroller || !card) return;
+    if (!scroller || !card || !firstCard) return;
 
     ignoreScrollSyncRef.current = true;
     scroller.scrollTo({
-      left: card.offsetLeft,
+      left: card.offsetLeft - firstCard.offsetLeft,
       behavior,
     });
     window.setTimeout(() => {
       ignoreScrollSyncRef.current = false;
-    }, 80);
+    }, behavior === "smooth" ? 520 : 80);
   };
 
-  const goToHighlight = (index: number, behavior: ScrollBehavior = "auto") => {
+  const goToHighlight = (index: number, behavior: ScrollBehavior = "auto", update: "now" | "settle" = "now") => {
     const nextIndex = wrapIndex(index, highlightProjects.length);
 
-    setHighlightIndex(nextIndex);
-    setPreviewIndex(nextIndex);
+    if (highlightSettleTimerRef.current) {
+      window.clearTimeout(highlightSettleTimerRef.current);
+    }
+
+    if (update === "now") {
+      setHighlightIndex(nextIndex);
+      setPreviewIndex(nextIndex);
+    } else {
+      highlightSettleTimerRef.current = window.setTimeout(() => {
+        setHighlightIndex(nextIndex);
+        setPreviewIndex(nextIndex);
+      }, 420);
+    }
+
     scrollToHighlight(nextIndex, behavior);
   };
 
@@ -705,16 +719,14 @@ export default function HomePage() {
         : highlightProjects.findIndex((project) => project.category === category);
 
     if (nextIndex >= 0) {
-      goToHighlight(nextIndex, "auto");
+      goToHighlight(nextIndex, "smooth", "settle");
     }
   };
 
   const slideHighlights = (step: 1 | -1) => {
     const nextIndex = wrapIndex(currentPreviewIndex + step, highlightProjects.length);
 
-    setHighlightIndex(nextIndex);
-    setPreviewIndex(nextIndex);
-    scrollToHighlight(nextIndex, "auto");
+    goToHighlight(nextIndex, "smooth", "settle");
   };
 
   const handleHighlightScroll = (event: UIEvent<HTMLDivElement>) => {
@@ -763,8 +775,30 @@ export default function HomePage() {
   };
 
   useEffect(() => {
+    if (highlightScrollerRef.current) {
+      highlightScrollerRef.current.scrollLeft = 0;
+    }
+    setHighlightIndex(initialHighlightIndex);
+    setPreviewIndex(initialHighlightIndex);
     scrollToHighlight(initialHighlightIndex, "auto");
+    window.requestAnimationFrame(() => {
+      if (highlightScrollerRef.current) {
+        highlightScrollerRef.current.scrollLeft = 0;
+      }
+      setHighlightIndex(initialHighlightIndex);
+      setPreviewIndex(initialHighlightIndex);
+      scrollToHighlight(initialHighlightIndex, "auto");
+    });
   }, []);
+
+  useEffect(
+    () => () => {
+      if (highlightSettleTimerRef.current) {
+        window.clearTimeout(highlightSettleTimerRef.current);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
@@ -791,25 +825,27 @@ export default function HomePage() {
   return (
     <main className="material-field">
       <section className="mx-auto grid max-w-[1680px] grid-cols-1 border-b border-black px-4 md:px-8 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <aside className="border-b border-black py-6 lg:min-h-[calc(100vh-57px)] lg:border-b-0 lg:border-r lg:pr-6">
+        <aside className="border-b border-black py-6 lg:flex lg:max-h-[calc(100vh-57px)] lg:min-h-[calc(100vh-57px)] lg:flex-col lg:border-b-0 lg:border-r lg:pr-6">
           <div className="border-y border-black py-3">
             <div className="grid grid-cols-2 text-[11px] font-normal uppercase tracking-[0.2em] text-neutral-400">
               <span>Daily field notes</span>
               <span className="text-right">{now.toISOString().slice(0, 10)} UTC</span>
             </div>
           </div>
-          <div>
-            {fieldNoteItems.map((note) => (
-              <FieldNoteCard key={note.id} note={note} now={now} />
-            ))}
-          </div>
-          <div className="mt-5 border-y border-black py-5">
-            <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-neutral-400">
-              Observation thread
-            </p>
-            <p className="mt-5 max-w-[250px] text-sm leading-6 text-neutral-800">
-              humidity as actuator / wood remembers water
-            </p>
+          <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-2">
+            <div>
+              {fieldNoteItems.map((note) => (
+                <FieldNoteCard key={note.id} note={note} now={now} />
+              ))}
+            </div>
+            <div className="mt-5 border-y border-black py-5">
+              <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-neutral-400">
+                Observation thread
+              </p>
+              <p className="mt-5 max-w-[250px] text-sm leading-6 text-neutral-800">
+                humidity as actuator / wood remembers water
+              </p>
+            </div>
           </div>
         </aside>
 
@@ -921,7 +957,7 @@ export default function HomePage() {
 
           <div className="mt-2 border-t border-black" />
 
-          <div className="mt-2 border-y border-black py-2">
+          <div className="mt-2 border-t border-black py-2">
             <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-500">
               <span>{String(currentPreviewIndex + 1).padStart(2, "0")}</span>
               <div
@@ -933,8 +969,7 @@ export default function HomePage() {
                     key={project.slug}
                     type="button"
                     aria-label={`Show ${project.title}`}
-                    onClick={() => goToHighlight(index, "auto")}
-                    onFocus={() => previewHighlight(index)}
+                    onClick={() => goToHighlight(index, "smooth", "settle")}
                     className={`h-2 border border-black transition-colors ${
                       index === currentPreviewIndex ? "bg-black" : "bg-transparent hover:bg-neutral-300"
                     }`}

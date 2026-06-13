@@ -33,15 +33,19 @@ html {
 }
 
 .route-overlay {
-  filter: drop-shadow(0 1px 10px rgba(0, 0, 0, 0.34));
-  opacity: 0.9;
+  filter: drop-shadow(0 1px 10px rgba(0, 0, 0, 0.32));
+  opacity: 0.95;
   transition: opacity 300ms ease, transform 600ms ease;
   color: #fbfaf7;
 }
 
 .highlight-card:hover .route-overlay {
-  opacity: 0.9;
+  opacity: 0.95;
   transform: none;
+}
+
+.highlight-route-overlay.category-index-icon {
+  height: 96px;
 }
 
 .highlight-carousel {
@@ -612,38 +616,6 @@ html {
   animation: glyph-bar-signal 1.5s ease-in-out infinite;
   transform-box: fill-box;
   transform-origin: bottom;
-}
-
-.route-overlay .glyph-route {
-  stroke-width: 1.45;
-}
-
-.route-overlay .glyph-secondary {
-  opacity: 0.42;
-  stroke-width: 0.95;
-}
-
-.route-overlay.route-nature .glyph-secondary {
-  opacity: 0.64;
-  stroke-width: 1.12;
-}
-
-.route-overlay.route-construction-fabrication .glyph-route {
-  stroke-width: 1.2;
-}
-
-.route-overlay.route-construction-fabrication .glyph-secondary {
-  stroke-width: 0.9;
-}
-
-.route-overlay.route-perception .glyph-secondary {
-  opacity: 0.62;
-  stroke-width: 1.08;
-}
-
-.route-overlay .glyph-bar {
-  opacity: 0.5;
-  stroke-width: 1.8;
 }
 
 @keyframes route-dash {
