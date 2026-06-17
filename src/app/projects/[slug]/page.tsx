@@ -94,9 +94,11 @@ function projectTypeLabel(source: string) {
 }
 
 function yearLabel(year: Frontmatter["year"], source: string) {
-  if (year) return String(year);
+  const matches = `${year || ""} ${source}`.match(/\b(?:20\d{2}|19\d{2})(?:\s*[-\u2013]\s*(?:20\d{2}|19\d{2}))?\b/g);
 
-  return source.match(/\b(20\d{2}|19\d{2})(?:\s*[-\u2013]\s*(20\d{2}|19\d{2}))?\b/)?.[0];
+  if (!matches) return undefined;
+
+  return Array.from(new Set(matches.map((match) => match.replace(/\s*[-\u2013]\s*/g, "-")))).join(" / ");
 }
 
 export function generateStaticParams() {
