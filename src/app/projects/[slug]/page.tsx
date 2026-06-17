@@ -1,67 +1,10 @@
-// export default function ProjectDetail({ params }) {
-//   const { slug } = params;
-
-//   // 模擬作品資料庫
-//   const projectData = {
-//     "morphing-wood": {
-//       title: "Morphing Wood",
-//       description: "A humidity-responsive morphing wood prototype.",
-//       img: "/images/p1.jpg",
-//     },
-//     "energy-retrofit": {
-//       title: "Energy Retrofit",
-//       description: "A study on sustainable building retrofits.",
-//       img: "/images/p2.jpg",
-//     },
-//     "data-visualization": {
-//       title: "Data Visualization",
-//       description: "Interactive visualization of urban housing data.",
-//       img: "/images/p3.jpg",
-//     },
-//   };
-
-//   const project = projectData[slug];
-
-//   if (!project) return <h1>Project Not Found</h1>;
-
-//   return (
-//     <div className="p-8 max-w-3xl mx-auto">
-//       <h1 className="text-4xl font-bold mb-4">{project.title}</h1>
-//       <img src={project.img} alt={project.title} className="rounded-lg mb-6" />
-//       <p className="text-lg">{project.description}</p>
-//     </div>
-//   );
-// }
-
-// import fs from "fs";
-// import path from "path";
-// import matter from "gray-matter";
-// import { serialize } from "next-mdx-remote/serialize";
-// import ProjectContent from "@/components/ProjectContent";
-
-// export default async function ProjectPage({ params }: { params: { slug: string } }) {
-//   const filePath = path.join(process.cwd(), "content/projects", `${params.slug}.mdx`);
-//   const fileContents = fs.readFileSync(filePath, "utf-8");
-
-//   const { content, data } = matter(fileContents);
-//   const mdxSource = await serialize(content);
-
-//   return (
-//     <div className="max-w-5xl mx-auto px-6 py-12">
-//       <h1 className="text-4xl font-bold mb-6">{data.title}</h1>
-//       <ProjectContent source={mdxSource} />
-//     </div>
-//   );
-// }
-
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-// import { serialize } from "next-mdx-remote/serialize";
 import { notFound } from "next/navigation";
-import ProjectContent from "@/components/ProjectContent";
 import Image from "next/image";
 import Link from "next/link";
+import ProjectContent from "@/components/ProjectContent";
 
 type PageProps = {
   params: Promise<{
@@ -111,6 +54,51 @@ const projectCovers: Record<string, string> = {
   "boolean-auditorium": "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg",
 };
 
+function removeProjectPageChrome(content: string) {
+  return content
+    .replace(/^\s*\[\u2190\s*Back to Projects\]\(\/\?scrollTo=projects\)\s*$/gim, "")
+    .replace(/^\s*<div className="row h-6" \/>\s*$/gim, "");
+}
+
+function mediaLabel(content: string, hasCover: boolean) {
+  const media = [];
+
+  if (hasCover || /(!\[|<img|\bsrc=["']\/images)/i.test(content)) media.push("Images");
+  if (/(<iframe|youtube\.com|youtu\.be|vimeo\.com)/i.test(content)) media.push("Video");
+  media.push("Text");
+
+  return media.join(" / ");
+}
+
+function formatInfoDetail(source: string) {
+  return source
+    .replace(/<br\s*\/?>/gi, " / ")
+    .replace(/&#58;/g, ":")
+    .replace(/&emsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function projectTypeLabel(source: string) {
+  const normalized = source.toLowerCase();
+
+  if (/personal interest/.test(normalized)) return "Personal Interest";
+  if (/(chi|acadia|research|lab|ncree|intern|publication|paper)/.test(normalized)) {
+    return "Research Project";
+  }
+  if (/(instructor|course|class|workshop|seminar|studio|foundation|fundamentals|uc berkeley|ntu|eth)/.test(normalized)) {
+    return "Class Project";
+  }
+
+  return "Project";
+}
+
+function yearLabel(year: Frontmatter["year"], source: string) {
+  if (year) return String(year);
+
+  return source.match(/\b(20\d{2}|19\d{2})(?:\s*[-\u2013]\s*(20\d{2}|19\d{2}))?\b/)?.[0];
+}
+
 export function generateStaticParams() {
   const projectsDir = path.join(process.cwd(), "src/app/projects");
   const files = fs.readdirSync(projectsDir);
@@ -123,153 +111,91 @@ export function generateStaticParams() {
 }
 
 export default async function ProjectPage({ params }: PageProps) {
-  // const { slug } = await params;
-  // const filePath = path.join(process.cwd(), "src/app/projects", `${slug}.mdx`);
-  // const fileContent = fs.readFileSync(filePath, "utf8");
-
-  // const { content, data } = matter(fileContent) as { content: string; data: Frontmatter };
-  // const mdxSource = await serialize(content);
   const { slug } = await Promise.resolve(params);
-
   const filePath = path.join(process.cwd(), "src/app/projects", `${slug}.mdx`);
+
   if (!fs.existsSync(filePath)) notFound();
 
   const fileContent = fs.readFileSync(filePath, "utf8");
   const { content, data } = matter(fileContent) as { content: string; data: Frontmatter };
-
-
-  const headerTitle = data.title || slug.replace(/-/g, " ");
-  const headerMeta = data.category || "Project";
-  const headerDesc = data.description || data.description_in || "";
+  const title = data.title || slug.replace(/-/g, " ");
+  const infoDetail = formatInfoDetail(data.description || data.description_in || "");
+  const infoSource = [data.description, data.description_in].filter(Boolean).join(" ");
+  const category = data.category || "Project";
+  const type = projectTypeLabel(infoSource);
+  const showInfoDetail = infoDetail && infoDetail.toLowerCase() !== type.toLowerCase();
+  const year = yearLabel(data.year, infoSource);
   const cover = projectCovers[slug];
+  const bodyContent = removeProjectPageChrome(content);
+  const media = mediaLabel(bodyContent, Boolean(cover));
 
   return (
     <main className="bg-[#fbfaf7] px-4 py-8 md:px-8 md:py-12">
-      <header className="mx-auto grid max-w-[1680px] gap-6 border-b border-black pb-8 md:grid-cols-[0.78fr_1.22fr] md:gap-8">
-        <div className="grid content-between gap-8 border-black md:border-r md:pr-8">
-          <div>
-            <Link
-              href="/?scrollTo=projects"
-              className="inline-block border-b border-black pb-1 text-xs uppercase tracking-[0.14em] hover:border-neutral-400 hover:text-neutral-500"
-            >
-              Back to projects
-            </Link>
-            <p className="mt-8 text-xs uppercase tracking-[0.18em] text-neutral-500">
-              {headerMeta}
+      <header className="mx-auto max-w-[1680px]">
+        <Link
+          href="/?scrollTo=projects"
+          className="inline-block text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-500 transition hover:text-black hover:underline hover:underline-offset-4"
+        >
+          Back to projects
+        </Link>
+
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-end">
+          <div className="max-w-[680px]">
+            <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-neutral-500">
+              {category}
             </p>
-            <h1 className="mt-3 text-[clamp(3rem,8vw,8.5rem)] font-light leading-[0.9] tracking-normal">
-              {headerTitle}
+            <h1 className="mt-3 text-[clamp(2.5rem,6vw,6.5rem)] font-light leading-[0.95] tracking-normal">
+              {title}
             </h1>
           </div>
 
-          {headerDesc ? (
-            <p className="max-w-2xl whitespace-pre-line border-t border-black pt-4 text-base leading-7 text-neutral-700">
-              {headerDesc}
-            </p>
-          ) : null}
-        </div>
-
-        <div className="grid gap-3">
           {cover ? (
-            <div className="project-hero-image relative min-h-[44vh] overflow-hidden bg-[#e8e6df] md:min-h-[72vh]">
+            <div className="relative aspect-[3/2] overflow-hidden bg-[#e8e6df]">
               <Image
                 src={cover}
-                alt={headerTitle}
+                alt={title}
                 fill
                 priority
-                sizes="(max-width: 768px) 100vw, 58vw"
+                sizes="(max-width: 1024px) 100vw, 54vw"
                 className="object-cover"
               />
             </div>
           ) : null}
-          <div className="grid grid-cols-3 border-y border-black py-3 text-[10px] uppercase tracking-[0.14em] text-neutral-500">
-            <span>{data.year || "Project"}</span>
-            <span className="text-center">Archive</span>
-            <span className="text-right">{slug}</span>
-          </div>
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[1680px] gap-10 py-10 md:grid-cols-[0.26fr_0.74fr] md:py-14">
-        <aside className="hidden md:block">
-          <div className="sticky top-24 grid gap-5 border-t border-black pt-4 text-xs uppercase tracking-[0.14em]">
-            <div className="grid grid-cols-[1fr_auto] border-b border-neutral-300 pb-3">
-              <span>Category</span>
-              <span className="text-neutral-500">{headerMeta}</span>
+      <div className="mx-auto mt-12 grid max-w-[1680px] gap-10 md:mt-16 lg:grid-cols-[minmax(280px,0.32fr)_minmax(0,0.68fr)] lg:gap-12">
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <a
+            href="#project-content"
+            className="mb-5 inline-block text-[11px] font-normal uppercase tracking-[0.14em] text-black hover:underline hover:underline-offset-4"
+          >
+            Read documentation
+          </a>
+          <dl className="grid max-w-[520px] gap-3 text-[11px] font-normal uppercase leading-5 tracking-[0.14em]">
+            <div className="grid grid-cols-[96px_1fr] gap-4 border-t border-neutral-300 pt-3">
+              <dt className="text-neutral-400">Type</dt>
+              <dd className="text-neutral-700">
+                {showInfoDetail ? `${type} / ${infoDetail}` : type}
+              </dd>
             </div>
-            <div className="grid grid-cols-[1fr_auto] border-b border-neutral-300 pb-3">
-              <span>Media</span>
-              <span className="text-neutral-500">Images / Text</span>
+            {year ? (
+              <div className="grid grid-cols-[96px_1fr] gap-4 border-t border-neutral-300 pt-3">
+                <dt className="text-neutral-400">Year</dt>
+                <dd className="text-neutral-700">{year}</dd>
+              </div>
+            ) : null}
+            <div className="grid grid-cols-[96px_1fr] gap-4 border-t border-neutral-300 pt-3">
+              <dt className="text-neutral-400">Media</dt>
+              <dd className="text-neutral-700">{media}</dd>
             </div>
-            <a href="#project-content" className="border-b border-neutral-300 pb-3 hover:underline">
-              Read documentation
-            </a>
-          </div>
+          </dl>
         </aside>
 
-        <ProjectContent source={content} />
+        <div className="min-w-0">
+          <ProjectContent source={bodyContent} />
+        </div>
       </div>
     </main>
   );
 }
-
-
-// import fs from "fs";
-// import path from "path";
-// import matter from "gray-matter";
-// import { serialize } from "next-mdx-remote/serialize";
-// import ProjectContent from "@/components/ProjectContent";
-// import Link from "next/link";
-
-// type ProjectPageProps = {
-//   params: {
-//     slug: string;
-//   };
-// };
-
-// // 🔹 告訴 Next：有哪些 slug 要在 build 時預先輸出
-// export function generateStaticParams() {
-//   // 依照你放 MDX 的路徑調整，如果你確定放在 src/app/projects 就用這個
-//   const projectsDir = path.join(process.cwd(), "src/app/projects");
-
-//   // 讀資料夾底下所有檔案
-//   const files = fs.readdirSync(projectsDir);
-
-//   // 只抓 .mdx / .md 檔，轉成 { slug } 陣列
-//   return files
-//     .filter((file) => file.endsWith(".mdx") || file.endsWith(".md"))
-//     .map((file) => ({
-//       slug: file.replace(/\.mdx?$/, ""),
-//     }));
-// }
-
-// export default async function ProjectPage({ params }: ProjectPageProps) {
-//   const filePath = path.join(
-//     process.cwd(),
-//     "src/app/projects",
-//     `${params.slug}.mdx`
-//   );
-
-//   const fileContent = fs.readFileSync(filePath, "utf8");
-//   const { content, data } = matter(fileContent);
-//   const mdxSource = await serialize(content);
-
-//   return (
-//     <div className="max-w-5xl mx-auto px-6 py-16">
-//       {/* Back to Projects */}
-//       <Link
-//         href="/?scrollTo=projects"
-//         className="inline-block mb-6 px-4 py-2 rounded bg-[rgb(50,116,216)] text-white hover:bg-[rgb(40,100,190)] transition"
-//       >
-//         ← Back to Projects
-//       </Link>
-
-//       {/* optional: frontmatter title */}
-//       {data?.title && (
-//         <h1 className="text-4xl font-normal mb-6">{data.title}</h1>
-//       )}
-
-//       <ProjectContent source={mdxSource} />
-//     </div>
-//   );
-// }

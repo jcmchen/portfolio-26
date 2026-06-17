@@ -8,7 +8,7 @@ const contactLinks = [
 ];
 
 const textLinkClass =
-  "font-bold text-black transition hover:underline hover:underline-offset-4";
+  "font-bold text-black transition hover:underline hover:decoration-[0.5px] hover:underline-offset-2";
 
 export default function AboutPage() {
   return (
@@ -16,10 +16,13 @@ export default function AboutPage() {
       <section className="mx-auto grid max-w-[1120px] gap-10 pb-12 pt-2 md:pt-6 lg:grid-cols-[minmax(0,640px)_minmax(300px,360px)] lg:gap-16">
         <article className="grid max-w-[640px] content-start gap-10">
           <div>
-            <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-400">
+            <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500">
               About
             </p>
-            <h1 className="mt-8 max-w-[640px] text-[24px] font-light leading-[1.32] tracking-normal text-black md:text-[27px]">
+            <h1
+              className="mt-8 max-w-[600px] text-[26px] leading-[1.22] tracking-normal text-neutral-800 md:text-[32px]"
+              style={{ fontFamily: '"Helvetica Neue", Arial, sans-serif', fontWeight: 300 }}
+            >
               <span className="block md:whitespace-nowrap">
                 Playing with the tangible and the intangible,
               </span>

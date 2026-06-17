@@ -12,8 +12,11 @@ type MDXImageProps = Omit<ImageProps, "src" | "alt"> & {
   alt?: string;
 };
 
-const MDXImage = ({ className, alt, width, height, ...rest }: MDXImageProps) => (
-  <figure className="group my-10 border-t border-black pt-3">
+const MDXImage = ({ className, alt, width, height, ...rest }: MDXImageProps) => {
+  const showCaption = alt && alt.trim().toLowerCase() !== "cover";
+
+  return (
+    <figure className="group my-12">
     <Image
       {...rest}
       src={rest.src}
@@ -22,13 +25,14 @@ const MDXImage = ({ className, alt, width, height, ...rest }: MDXImageProps) => 
       height={height ?? 950}
       className={`relative h-auto w-full object-contain transition duration-500 group-hover:grayscale-0 md:grayscale-[8%] ${className ?? ""}`}
     />
-    {alt ? (
-      <figcaption className="mt-2 text-[10px] uppercase tracking-[0.14em] text-neutral-500">
+    {showCaption ? (
+      <figcaption className="mt-2 text-[10px] font-normal uppercase tracking-[0.14em] text-neutral-500">
         {alt}
       </figcaption>
     ) : null}
   </figure>
-);
+  );
+};
 
 const hasBlockChild = (children: ParagraphProps["children"]) =>
   Children.toArray(children).some((child) => {
@@ -41,13 +45,13 @@ const components = {
   h1: (props: HeadingProps) => (
     <h1
       {...props}
-      className={`mt-16 border-t border-black pt-4 text-4xl font-light leading-tight shadow-none md:text-6xl ${props.className ?? ""}`}
+      className={`mt-16 text-3xl font-light leading-tight shadow-none md:text-5xl ${props.className ?? ""}`}
     />
   ),
   h2: (props: SubheadingProps) => (
     <h2
       {...props}
-      className={`mt-14 border-t border-black pt-4 text-2xl font-light uppercase tracking-[0.04em] shadow-none md:text-4xl ${props.className ?? ""}`}
+      className={`mt-14 text-2xl font-light uppercase tracking-[0.04em] shadow-none md:text-3xl ${props.className ?? ""}`}
     />
   ),
   h3: (props: SubheadingProps) => (
@@ -57,7 +61,7 @@ const components = {
     />
   ),
   p: ({ children, className, ...rest }: ParagraphProps) => {
-    const classes = `mb-5 max-w-3xl text-base font-light leading-7 text-neutral-700 shadow-none md:text-lg ${className ?? ""}`;
+    const classes = `mb-5 max-w-[760px] text-[15px] font-normal leading-7 text-neutral-700 shadow-none ${className ?? ""}`;
 
     if (hasBlockChild(children)) {
       return (
@@ -76,11 +80,11 @@ const components = {
   a: (props: AnchorProps) => (
     <a
       {...props}
-      className={`border-b border-black text-black transition hover:border-neutral-400 hover:text-neutral-500 ${props.className ?? ""}`}
+      className={`font-bold text-black transition hover:underline hover:underline-offset-4 ${props.className ?? ""}`}
     />
   ),
   iframe: ({ className, ...rest }: IframeProps) => (
-    <div className="my-10 border-y border-black py-4">
+    <div className="my-12">
       <iframe
         {...rest}
         className={`aspect-video w-full border-0 ${className ?? ""}`}

@@ -532,7 +532,7 @@ function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
 
   return (
     <article className="border-b border-black pb-2 pt-4">
-      <div className="mb-3 grid grid-cols-2 gap-2 text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-400">
+      <div className="mb-3 grid grid-cols-2 gap-2 text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
         <span>{note.region}</span>
         <span className="text-right text-black">{note.coordinates}</span>
       </div>
@@ -569,7 +569,7 @@ function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
           </span>
         </button>
       ) : null}
-      <dl className="mt-3 grid grid-cols-2 border-t border-black pb-1 pt-2 text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-400">
+      <dl className="mt-3 grid grid-cols-2 border-t border-black pb-1 pt-2 text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
         <dt>{timeLabel}</dt>
         <dd className="text-right text-neutral-700">{mounted ? formatFieldTime(now, note.region) : "—"}</dd>
         <dt className="mt-1.5">Source</dt>
@@ -623,7 +623,7 @@ function HighlightCard({
         />
       </div>
       <div className="pt-0.5">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-400">{project.category}</p>
+        <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">{project.category}</p>
         <h3 className="mt-0.5 border-b border-black pb-1.5 text-[31px] font-normal uppercase leading-none tracking-normal">
           {project.title}
         </h3>
@@ -895,7 +895,7 @@ export default function HomePage() {
       <section className="mx-auto grid max-w-[1680px] grid-cols-1 border-b border-black px-4 md:px-8 lg:grid-cols-[320px_minmax(0,1fr)]">
         <aside className="border-b border-black py-6 lg:flex lg:max-h-[calc(100vh-57px)] lg:min-h-[calc(100vh-57px)] lg:flex-col lg:border-b-0 lg:border-r lg:pr-6">
           <div className="border-y border-black py-3">
-            <div className="grid grid-cols-2 text-[11px] font-normal uppercase tracking-[0.2em] text-neutral-400">
+            <div className="grid grid-cols-2 text-[11px] font-normal uppercase tracking-[0.2em] text-neutral-500">
               <span>Daily field notes</span>
               <span className="text-right">{now.toISOString().slice(0, 10)} UTC</span>
             </div>
@@ -907,10 +907,10 @@ export default function HomePage() {
               ))}
             </div>
             <div className="mt-5 border-y border-black py-5">
-              <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-neutral-400">
+              <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-neutral-500">
                 Observation thread
               </p>
-              <p className="mt-5 max-w-[250px] text-sm leading-6 text-neutral-800">
+              <p className="mt-5 max-w-[250px] text-sm leading-6 text-neutral-700">
                 humidity as actuator / wood remembers water
               </p>
             </div>
@@ -921,7 +921,7 @@ export default function HomePage() {
           <div className="border-y border-black py-1.5">
             <div className="grid gap-3 md:grid-cols-[minmax(0,0.46fr)_minmax(220px,0.44fr)_auto] md:items-center">
               <div>
-                <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-400">
+                <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500">
                   Highlights
                 </p>
                 <h1 className="mt-2 text-4xl font-normal uppercase leading-none tracking-normal">
@@ -932,7 +932,7 @@ export default function HomePage() {
                 <span aria-hidden className="hidden h-[34px] border-l border-black md:block" />
                 <div className="leading-[1.35]">
                   <p>{activeCategory === "Perception" ? "Perceptual study" : activeCategory}</p>
-                  <p className="mt-1 text-neutral-400">{categoryLead[activeCategory] || "Selected study"}</p>
+                  <p className="mt-1 text-neutral-500">{categoryLead[activeCategory] || "Selected study"}</p>
                 </div>
               </div>
               <div className="flex justify-self-end gap-2">
@@ -964,7 +964,7 @@ export default function HomePage() {
                 I presented my first-authored paper{" "}
                 <a
                   href="/projects/hygrometric"
-                  className="font-semibold text-black hover:text-neutral-500"
+                  className="font-semibold text-black hover:underline hover:underline-offset-4"
                 >
                   Hygrometric
                 </a>{" "}
@@ -973,7 +973,7 @@ export default function HomePage() {
                   href="https://chi2026.acm.org/"
                   target="_blank"
                   rel="noreferrer"
-                  className="font-semibold text-black hover:text-neutral-500"
+                  className="font-semibold text-black hover:underline hover:underline-offset-4"
                 >
                   CHI 2026 in Barcelona!
                 </a>
@@ -982,7 +982,7 @@ export default function HomePage() {
                 href="https://dl.acm.org/doi/10.1145/3772318.3791333"
                 target="_blank"
                 rel="noreferrer"
-                className="border-b border-black text-black hover:border-neutral-400 hover:text-neutral-500"
+                className="border-b border-black text-black hover:underline hover:underline-offset-4"
               >
                 DOI
               </a>{" "}
@@ -990,7 +990,7 @@ export default function HomePage() {
                 href="https://dl.acm.org/doi/epdf/10.1145/3772318.3791333"
                 target="_blank"
                 rel="noreferrer"
-                className="border-b border-black text-black hover:border-neutral-400 hover:text-neutral-500"
+                className="border-b border-black text-black hover:underline hover:underline-offset-4"
               >
                 PDF
               </a>
@@ -1081,7 +1081,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1680px]">
           {/* <div className="mb-6 grid py-5 md:grid-cols-[minmax(0,1fr)_minmax(260px,0.38fr)] md:items-end">
             <div>
-              <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-400">
+              <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500">
                 Selected work
               </p>
               <h2 className="mt-2 text-[44px] font-normal uppercase leading-none tracking-normal md:text-[64px]">
