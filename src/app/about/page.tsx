@@ -16,7 +16,7 @@ export default function AboutPage() {
       <section className="mx-auto grid max-w-[1120px] gap-10 pb-12 pt-2 md:pt-6 lg:grid-cols-[minmax(0,640px)_minmax(300px,360px)] lg:gap-16">
         <article className="grid max-w-[640px] content-start gap-10">
           <div>
-            <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500">
+            <p className="mb-3 text-[13px] font-normal uppercase tracking-[0.28em] text-neutral-500">
               About
             </p>
             <h1

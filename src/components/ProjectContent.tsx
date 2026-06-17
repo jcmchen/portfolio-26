@@ -77,12 +77,19 @@ const components = {
       </p>
     );
   },
-  a: (props: AnchorProps) => (
-    <a
-      {...props}
-      className={`font-bold text-black transition hover:underline hover:underline-offset-4 ${props.className ?? ""}`}
-    />
-  ),
+  a: ({ href, ...props }: AnchorProps) => {
+    const isExternal = typeof href === "string" && /^https?:\/\//.test(href);
+
+    return (
+      <a
+        {...props}
+        href={href}
+        target={isExternal ? "_blank" : props.target}
+        rel={isExternal ? "noreferrer" : props.rel}
+        className={`font-bold text-black transition hover:underline hover:underline-offset-4 ${props.className ?? ""}`}
+      />
+    );
+  },
   iframe: ({ className, ...rest }: IframeProps) => (
     <div className="my-12">
       <iframe

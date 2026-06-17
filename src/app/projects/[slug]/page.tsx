@@ -136,15 +136,15 @@ export default async function ProjectPage({ params }: PageProps) {
           href="/?scrollTo=projects"
           className="inline-block text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-500 transition hover:text-black hover:underline hover:underline-offset-4"
         >
-          Back to projects
+          {"\u2190"} Back to projects
         </Link>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-end">
           <div className="max-w-[680px]">
-            <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-neutral-500">
+            <p className="mb-3 text-[13px] font-normal uppercase tracking-[0.28em] text-neutral-500">
               {category}
             </p>
-            <h1 className="mt-3 text-[clamp(2.5rem,6vw,6.5rem)] font-light leading-[0.95] tracking-normal">
+            <h1 className="text-[clamp(2.5rem,6vw,6.5rem)] font-light leading-[0.95] tracking-normal">
               {title}
             </h1>
           </div>

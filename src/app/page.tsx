@@ -262,9 +262,9 @@ const projectOrderByCategory: Record<string, string[]> = {
   Perception: [
     "micro-macro",
     "sacred-light",
+    "yuan",
     "fold-and-cut",
     "illustrations",
-    "yuan",
   ],
   "New Media": [
     "moment-cube",
