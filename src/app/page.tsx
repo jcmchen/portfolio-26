@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   useEffect,
   useMemo,
@@ -236,6 +235,54 @@ const categoryLead: Record<string, string> = {
   "New Media": "Tangible interface / signal",
   Visualization: "Maps / data / image",
   Building: "Mass / threshold / envelope",
+};
+
+const projectOrderByCategory: Record<string, string[]> = {
+  Nature: [
+    "hygrometric",
+    "seeds-starter-kit",
+    "bio-inspired-composite",
+    "botani-plan",
+    "floating-structures",
+    "the-nature-of-growth",
+  ],
+  "Construction / Fabrication": [
+    "form-force-matter",
+    "bridges",
+    "unidentified-funicular-objects",
+    "interlace",
+    "slime-spring-structure",
+    "hanger-games",
+    "bridge-x",
+  ],
+  Robotics: [
+    "resource-rush",
+    "task-and-motion-planning",
+  ],
+  Perception: [
+    "micro-macro",
+    "sacred-light",
+    "fold-and-cut",
+    "illustrations",
+    "yuan",
+  ],
+  "New Media": [
+    "moment-cube",
+    "our-grandmas-fridge",
+    "tangi-growth",
+    "capacitive-salad",
+    "recycled-crawler",
+    "granola-cuckoo-clock",
+  ],
+  Visualization: [
+    "mobility-and-housing-taipei",
+    "computer-graphics-imaging",
+  ],
+  Building: [
+    "the-rotary-vagary",
+    "assembled-living",
+    "boolean-auditorium",
+  ],
 };
 
 type RouteGlyphSpec = {
@@ -628,19 +675,39 @@ export default function HomePage() {
   });
   const ignoreScrollSyncRef = useRef(false);
 
-  const categories = useMemo(
-    () => [
-      { name: "Show All", count: projects.length },
-      ...Array.from(new Set(projects.map((project) => project.category))).map((category) => ({
-        name: category,
-        count: projects.filter((project) => project.category === category).length,
-      })),
-    ],
+  const projectGroups = useMemo(
+    () =>
+      categoryOrder
+        .map((category) => ({
+          category,
+          projects: projects
+            .filter((project) => project.category === category)
+            .sort((a, b) => {
+              const order = projectOrderByCategory[category] || [];
+              const aIndex = order.indexOf(a.slug);
+              const bIndex = order.indexOf(b.slug);
+
+              if (aIndex === -1 && bIndex === -1) return 0;
+              if (aIndex === -1) return 1;
+              if (bIndex === -1) return -1;
+
+              return aIndex - bIndex;
+            }),
+        }))
+        .filter((group) => group.projects.length > 0),
     []
   );
 
-  const filtered =
-    active === "Show All" ? projects : projects.filter((project) => project.category === active);
+  const categories = useMemo(
+    () => [
+      { name: "Show All", count: projects.length },
+      ...projectGroups.map((group) => ({
+        name: group.category,
+        count: group.projects.length,
+      })),
+    ],
+    [projectGroups]
+  );
 
   const highlightProjects = featuredProjects;
   const currentPreviewIndex = wrapIndex(previewIndex, highlightProjects.length);
@@ -1043,21 +1110,31 @@ export default function HomePage() {
           </div>
           <FilterBar categories={categories} active={active} setActive={setCategory} />
 
-          <div className="mt-8 columns-1 gap-6 sm:columns-2 lg:columns-3">
-            <AnimatePresence>
-              {filtered.map((project) => (
-                <motion.div
-                  key={project.slug}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
-                  className="mb-6 break-inside-avoid"
-                >
-                  <ProjectCard project={project} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+          <div className="mt-8 overflow-x-auto pb-4">
+            <div
+              className="grid min-w-[1380px] gap-4 2xl:min-w-0"
+              style={{ gridTemplateColumns: `repeat(${projectGroups.length}, minmax(0, 1fr))` }}
+            >
+              {projectGroups.map((group) => {
+                const isSelected = active === group.category;
+                const isMuted = active !== "Show All" && !isSelected;
+
+                return (
+                  <section key={group.category} className="min-w-0 border-l border-black pl-3">
+                    <div className="grid gap-4">
+                      {group.projects.map((project, projectIndex) => (
+                        <ProjectCard
+                          key={project.slug}
+                          project={project}
+                          muted={isMuted}
+                          priority={isSelected && projectIndex === 0}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
