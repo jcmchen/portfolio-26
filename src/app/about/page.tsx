@@ -1,85 +1,42 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const links = [
+const contactLinks = [
   { label: "LinkedIn", href: "https://www.linkedin.com/in/jeremy-chen-4b4356167/" },
   { label: "Medium", href: "https://medium.com/@jcmchen" },
-  { label: "Berkeley Wood Lab", href: "https://www.berkeleywoodlab.com/" },
-  { label: "Morphing Matter Lab", href: "https://morphingmatter.org/" },
+  { label: "jcmchen [at] berkeley [dot] edu", href: "mailto:jcmchen@berkeley.edu" },
 ];
 
-const focusAreas = [
-  "Architecture",
-  "Human-computer interaction",
-  "Robotic assembly",
-  "Material systems",
-  "Applied data science",
-  "Ecological behavior",
-];
+const textLinkClass =
+  "font-bold text-black transition hover:underline hover:underline-offset-4";
 
 export default function AboutPage() {
   return (
     <main className="bg-[#fbfaf7] px-4 py-10 md:px-8 md:py-14">
-      <div className="mx-auto max-w-[1680px]">
-        <section className="grid gap-8 border-b border-black pb-10 md:grid-cols-[1fr_0.52fr] md:gap-12">
-          <div className="grid content-between gap-12">
-            <div className="grid gap-4">
-              <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">
-                About
-              </p>
-              <h1 className="max-w-6xl text-[clamp(3.1rem,8vw,9.5rem)] font-light leading-[0.9] tracking-normal">
-                Playing with the tangible and the intangible.
-              </h1>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-[0.8fr_1.2fr]">
-              <div className="border-y border-black py-4 text-xs uppercase tracking-[0.14em] text-neutral-500">
-                <p>Berkeley, CA, USA</p>
-                <p className="mt-2">Taipei, Taiwan</p>
-                <p className="mt-6 normal-case tracking-normal text-black">
-                  jcmchen [at] berkeley [dot] edu
-                </p>
-              </div>
-
-              <p className="text-lg leading-8 text-neutral-700">
-                Jeremy Chen works across architecture, design, human-computer
-                interaction, environmental policy, business, and mechanical
-                engineering. His practice studies how data, computation, and
-                material systems intersect in the built environment and beyond.
-              </p>
-            </div>
+      <section className="mx-auto grid max-w-[1120px] gap-10 pb-12 pt-2 md:pt-6 lg:grid-cols-[minmax(0,640px)_minmax(300px,360px)] lg:gap-16">
+        <article className="grid max-w-[640px] content-start gap-10">
+          <div>
+            <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-400">
+              About
+            </p>
+            <h1 className="mt-8 max-w-[640px] text-[24px] font-light leading-[1.32] tracking-normal text-black md:text-[27px]">
+              <span className="block md:whitespace-nowrap">
+                Playing with the tangible and the intangible,
+              </span>
+              <span className="block md:whitespace-nowrap">
+                the visible and the invisible.
+              </span>
+            </h1>
           </div>
 
-          <div className="grid gap-4">
-            <div className="relative aspect-[4/5] overflow-hidden bg-[#e8e6df]">
-              <Image
-                src="/images/prof_pic.jpg"
-                alt="Jeremy Chen"
-                fill
-                sizes="(max-width: 768px) 100vw, 38vw"
-                className="object-cover grayscale-[20%]"
-                priority
-              />
-            </div>
-            <div className="grid grid-cols-2 border-t border-black pt-3 text-xs uppercase tracking-[0.12em] text-neutral-500">
-              <span>Material</span>
-              <span className="text-right">Perception</span>
-            </div>
-          </div>
-        </section>
-
-        <section className="grid gap-10 border-b border-black py-10 md:grid-cols-[0.45fr_1fr] md:py-14">
-          <h2 className="text-xs uppercase tracking-[0.16em] text-neutral-500">
-            Biography
-          </h2>
-          <div className="grid max-w-5xl gap-6 text-base leading-8 text-neutral-700 md:text-lg">
+          <div className="grid max-w-[620px] gap-6 text-[15px] font-normal leading-7 text-neutral-700">
             <p>
-              Jeremy holds a Master of{" "}
+              Jeremy Chen holds a Master of{" "}
               <a
                 href="https://ced.berkeley.edu/"
                 target="_blank"
                 rel="noreferrer"
-                className="text-black underline underline-offset-4"
+                className={textLinkClass}
               >
                 Architecture
               </a>{" "}
@@ -88,7 +45,7 @@ export default function AboutPage() {
                 href="https://bcnm.berkeley.edu/"
                 target="_blank"
                 rel="noreferrer"
-                className="text-black underline underline-offset-4"
+                className={textLinkClass}
               >
                 New Media
               </a>
@@ -97,7 +54,7 @@ export default function AboutPage() {
                 href="https://www.ischool.berkeley.edu/programs/data-science-certificate"
                 target="_blank"
                 rel="noreferrer"
-                className="text-black underline underline-offset-4"
+                className={textLinkClass}
               >
                 Applied Data Science
               </a>
@@ -106,20 +63,49 @@ export default function AboutPage() {
                 href="https://ced.berkeley.edu/academics/degrees-certificates/certificates"
                 target="_blank"
                 rel="noreferrer"
-                className="text-black underline underline-offset-4"
+                className={textLinkClass}
               >
                 Geographic Information Science and Technology
               </a>
-              .
+              . His work spans architecture, design, and human-computer
+              interaction, as well as environmental policy, business, and
+              mechanical engineering, exploring how data, computation, and
+              material systems intersect in the built environment and beyond.
+              He works with the{" "}
+              <a
+                href="https://www.berkeleywoodlab.com/"
+                target="_blank"
+                rel="noreferrer"
+                className={textLinkClass}
+              >
+                Berkeley Wood Lab
+              </a>
+              , the Haas School of Business, and the{" "}
+              <a
+                href="https://morphingmatter.org/"
+                target="_blank"
+                rel="noreferrer"
+                className={textLinkClass}
+              >
+                Morphing Matter Lab
+              </a>
+              . At the Morphing Matter Lab, he focuses on embedding digital
+              information into the physical world, integrating emerging
+              technologies with nature to create sustainable, responsive, and
+              ecologically aware systems.
             </p>
 
             <p>
-              At the Morphing Matter Lab, he focuses on embedding digital
-              information into the physical world, integrating emerging
-              technologies with nature to create sustainable, responsive, and
-              ecologically aware systems. His design philosophy is quantitative
-              and qualitative in its approach, poetic and artistic in its
-              expression, and innovative in its form.
+              His design philosophy is{" "}
+              <strong className="font-bold text-black">
+                quantitative and qualitative in its approach, poetic and
+                artistic in its expression, and innovative in its form
+              </strong>
+              , reflecting a balance between analytical rigor and creative
+              exploration. He believes data-informed decision-making opens up
+              new possibilities for better design and is equally committed to
+              crafting immersive, perceptually rich experiences that engage and
+              augment all senses.
             </p>
 
             <p>
@@ -128,7 +114,7 @@ export default function AboutPage() {
                 href="https://www.ce.ntu.edu.tw/en/home/"
                 target="_blank"
                 rel="noreferrer"
-                className="text-black underline underline-offset-4"
+                className={textLinkClass}
               >
                 Civil Engineering
               </a>{" "}
@@ -136,51 +122,42 @@ export default function AboutPage() {
               engineering, computer-aided engineering, and tectonics.
             </p>
           </div>
-        </section>
+        </article>
 
-        <section className="grid gap-10 py-10 md:grid-cols-[0.45fr_1fr] md:py-14">
-          <h2 className="text-xs uppercase tracking-[0.16em] text-neutral-500">
-            Index
-          </h2>
-          <div className="grid gap-10 md:grid-cols-2">
-            <div>
-              <h3 className="border-b border-black pb-3 text-xs uppercase tracking-[0.14em]">
-                Focus
-              </h3>
-              <div className="grid">
-                {focusAreas.map((area) => (
-                  <div
-                    key={area}
-                    className="grid grid-cols-[1fr_auto] border-b border-neutral-300 py-3 text-sm"
-                  >
-                    <span>{area}</span>
-                    <span className="text-neutral-400">+</span>
-                  </div>
-                ))}
-              </div>
+        <aside className="grid content-start gap-8">
+          <div className="group relative aspect-square max-w-[360px] overflow-hidden bg-[#e8e6df] shadow-[0_14px_28px_rgba(17,17,17,0.08)]">
+            <Image
+              src="/images/prof_pic.jpg"
+              alt="Jeremy Chen in a snowy landscape"
+              fill
+              sizes="(max-width: 768px) 92vw, 420px"
+              className="object-cover transition duration-500 ease-out group-hover:scale-[1.025] group-hover:contrast-110"
+              priority
+            />
+          </div>
+
+          <div className="grid max-w-[360px] gap-7">
+            <div className="text-[11px] font-normal uppercase leading-5 tracking-[0.14em] text-neutral-600">
+              <p>Berkeley, CA, USA</p>
+              <p className="mt-1">Taipei, Taiwan</p>
             </div>
 
-            <div>
-              <h3 className="border-b border-black pb-3 text-xs uppercase tracking-[0.14em]">
-                Links
-              </h3>
-              <div className="grid">
-                {links.map((item) => (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    target="_blank"
-                    className="grid grid-cols-[1fr_auto] border-b border-neutral-300 py-3 text-sm hover:underline"
-                  >
-                    <span>{item.label}</span>
-                    <span>Open</span>
-                  </Link>
-                ))}
-              </div>
+            <div className="grid gap-2">
+              {contactLinks.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  target={item.href.startsWith("mailto:") ? undefined : "_blank"}
+                  rel={item.href.startsWith("mailto:") ? undefined : "noreferrer"}
+                  className="w-fit text-[11px] font-normal uppercase tracking-[0.14em] text-black transition hover:underline hover:underline-offset-4"
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </div>
-        </section>
-      </div>
+        </aside>
+      </section>
     </main>
   );
 }
