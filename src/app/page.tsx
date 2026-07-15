@@ -975,7 +975,7 @@ export default function HomePage() {
                   rel="noreferrer"
                   className="font-semibold text-black hover:underline hover:underline-offset-4"
                 >
-                  CHI 2026 in Barcelona!
+                  ACM CHI Conference on Human Factors in Computing Systemss (CHI 2026) in Barcelona!
                 </a>
               </span>{" "}
               <a
