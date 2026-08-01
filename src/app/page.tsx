@@ -174,6 +174,15 @@ const categoryOrder = [
   "Building",
 ];
 
+const highlightIndicesByCategory = Object.fromEntries(
+  categoryOrder.map((category) => [
+    category,
+    featuredProjects.flatMap((project, index) =>
+      project.category === category ? [index] : []
+    ),
+  ])
+) as Record<string, number[]>;
+
 const categoryLead: Record<string, string> = {
   Nature: "Living matter / atmosphere",
   "Construction / Fabrication": "Material systems / assembly",
@@ -389,9 +398,6 @@ function CategoryGlyph({ category, className = "" }: { category: string; classNa
   const routeKey = route.replace("route-", "");
   const glyph = routeGlyphs[routeKey] || routeGlyphs.building;
   const lineStyle = { animationDuration: glyph.lineDuration ?? glyph.duration };
-  const morphValues = glyph.morph
-    ? [glyph.path, ...glyph.morph, glyph.path].join(";")
-    : undefined;
 
   return (
     <svg viewBox="0 0 460 140" aria-hidden="true" className={`${route} ${className}`}>
@@ -439,16 +445,7 @@ function CategoryGlyph({ category, className = "" }: { category: string; classNa
         stroke="currentColor"
         strokeDasharray={glyph.dash}
         style={lineStyle}
-      >
-        {morphValues ? (
-          <animate
-            attributeName="d"
-            dur="15s"
-            repeatCount="indefinite"
-            values={morphValues}
-          />
-        ) : null}
-      </path>
+      />
       {glyph.nodes.map(([cx, cy], index) => (
         <circle
           key={`${category}-node-${index}`}
@@ -536,11 +533,13 @@ function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
 
 function HighlightCard({
   project,
+  active = false,
   wide = false,
   priority = false,
   onActivate,
 }: {
   project: HighlightProject;
+  active?: boolean;
   wide?: boolean;
   priority?: boolean;
   onActivate?: () => void;
@@ -548,7 +547,10 @@ function HighlightCard({
   const imageIsAnimated = project.img.toLowerCase().endsWith(".gif");
 
   return (
-    <article className="group highlight-card relative" onFocus={onActivate}>
+    <article
+      className={`group highlight-card relative ${active ? "is-active" : ""}`}
+      onFocus={onActivate}
+    >
       <div className="relative aspect-[1.78/1] overflow-hidden bg-neutral-100">
         <Image
           src={project.img}
@@ -561,10 +563,8 @@ function HighlightCard({
           sizes={wide ? "(min-width: 1280px) 56vw, 82vw" : "(min-width: 1024px) 36vw, 100vw"}
           className="object-cover transition duration-500 ease-out group-hover:opacity-90"
         />
-        <span className="absolute left-4 top-4 border border-white/75 bg-black/15 px-4 py-2 text-[10px] font-normal uppercase tracking-[0.14em] text-white">
-          {project.category}
-        </span>
         <CategoryGlyph
+          key={`${project.slug}-${active ? "active" : "idle"}`}
           category={project.category}
           className={`route-overlay category-index-icon highlight-route-overlay absolute bottom-5 left-5 h-20 w-56 ${routeClass(project.category)}`}
         />
@@ -619,6 +619,7 @@ export default function HomePage() {
   const [now, setNow] = useState(() => new Date());
   const highlightScrollerRef = useRef<HTMLDivElement>(null);
   const highlightSettleTimerRef = useRef<number | undefined>(undefined);
+  const scrollSyncReleaseTimerRef = useRef<number | undefined>(undefined);
   const dragStateRef = useRef({
     active: false,
     moved: false,
@@ -626,6 +627,7 @@ export default function HomePage() {
     startX: 0,
   });
   const ignoreScrollSyncRef = useRef(false);
+  const categoryCycleRef = useRef<{ category: string; position: number } | null>(null);
 
   const projectGroups = useMemo(
     () =>
@@ -665,8 +667,12 @@ export default function HomePage() {
   const currentPreviewIndex = wrapIndex(previewIndex, highlightProjects.length);
   const previewProject = highlightProjects[currentPreviewIndex] || highlightProjects[0] || projects[0];
   const activeCategory = previewProject.category;
+  const activeCategoryPosition = (highlightIndicesByCategory[activeCategory] || []).indexOf(
+    currentPreviewIndex
+  );
 
   const previewHighlight = (index: number) => {
+    categoryCycleRef.current = null;
     setPreviewIndex(wrapIndex(index, highlightProjects.length));
   };
 
@@ -701,12 +707,16 @@ export default function HomePage() {
 
     if (!scroller || !card || !firstCard) return;
 
+    if (scrollSyncReleaseTimerRef.current) {
+      window.clearTimeout(scrollSyncReleaseTimerRef.current);
+    }
+
     ignoreScrollSyncRef.current = true;
     scroller.scrollTo({
       left: card.offsetLeft - firstCard.offsetLeft,
       behavior,
     });
-    window.setTimeout(() => {
+    scrollSyncReleaseTimerRef.current = window.setTimeout(() => {
       ignoreScrollSyncRef.current = false;
     }, behavior === "smooth" ? 520 : 80);
   };
@@ -731,19 +741,23 @@ export default function HomePage() {
     scrollToHighlight(nextIndex, behavior);
   };
 
-  const setCategory = (category: string) => {
-    setActive(category);
-    const nextIndex =
-      category === "Show All"
-        ? initialHighlightIndex
-        : highlightProjects.findIndex((project) => project.category === category);
+  const setHighlightCategory = (category: string) => {
+    const categoryIndices = highlightIndicesByCategory[category] || [];
+    const previousCycle = categoryCycleRef.current;
+    const nextPosition =
+      previousCycle?.category === category
+        ? (previousCycle.position + 1) % categoryIndices.length
+        : 0;
+    const nextIndex = categoryIndices[nextPosition];
 
-    if (nextIndex >= 0) {
-      goToHighlight(nextIndex, "smooth", "settle");
+    if (Number.isInteger(nextIndex)) {
+      categoryCycleRef.current = { category, position: nextPosition };
+      goToHighlight(nextIndex, "smooth", "now");
     }
   };
 
   const slideHighlights = (step: 1 | -1) => {
+    categoryCycleRef.current = null;
     const nextIndex = wrapIndex(currentPreviewIndex + step, highlightProjects.length);
 
     goToHighlight(nextIndex, "smooth", "settle");
@@ -762,6 +776,7 @@ export default function HomePage() {
     if (event.button !== 0) return;
     if (event.target instanceof Element && event.target.closest("a")) return;
 
+    categoryCycleRef.current = null;
     dragStateRef.current = {
       active: true,
       moved: false,
@@ -816,6 +831,9 @@ export default function HomePage() {
       if (highlightSettleTimerRef.current) {
         window.clearTimeout(highlightSettleTimerRef.current);
       }
+      if (scrollSyncReleaseTimerRef.current) {
+        window.clearTimeout(scrollSyncReleaseTimerRef.current);
+      }
     },
     []
   );
@@ -843,14 +861,14 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="material-field">
-      <section aria-label="Latest news" className="border-b border-neutral-300 bg-[#ece9e1] text-black">
-        <div className="mx-auto flex max-w-[1680px] flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-2.5 text-[10px] font-normal uppercase tracking-[0.16em] md:flex-nowrap md:px-8">
-          <span className="shrink-0 font-medium text-black">News</span>
-          <time dateTime="2026-04-16" className="shrink-0 text-neutral-500">
+    <main className="material-field lg:flex lg:min-h-[calc(100svh-53px)] lg:flex-col">
+      <section aria-label="Latest news" className="shrink-0 border-b border-neutral-300 bg-[#ece9e1] text-black">
+        <div className="mx-auto flex max-w-[1680px] flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-2.5 text-[10px] font-normal md:flex-nowrap md:px-8">
+          <span className="shrink-0 font-medium uppercase tracking-[0.16em] text-black">News</span>
+          <time dateTime="2026-04-16" className="shrink-0 uppercase tracking-[0.16em] text-neutral-500">
             Apr 16, 2026
           </time>
-          <p className="min-w-0 basis-full text-neutral-700 md:basis-auto md:flex-1">
+          <p className="min-w-0 basis-full text-[11px] tracking-[0.08em] text-neutral-700 md:basis-auto md:flex-1">
             I presented my first-authored paper{" "}
             <a
               href="/projects/hygrometric"
@@ -893,9 +911,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-[1680px] grid-cols-1 border-b border-black px-4 md:px-8 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <aside className="border-b border-black py-6 lg:flex lg:max-h-[calc(100vh-57px)] lg:min-h-[calc(100vh-57px)] lg:flex-col lg:border-b-0 lg:border-r lg:pr-6">
-          <div className="border-y border-black py-3">
+      <section className="mx-auto grid w-full max-w-[1680px] grid-cols-1 border-b border-black px-4 md:px-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:pt-4">
+        <div aria-hidden="true" className="hidden lg:col-span-2 lg:block lg:border-t lg:border-black" />
+        <aside className="border-b border-black py-3 lg:flex lg:min-h-0 lg:flex-col lg:border-b-0 lg:border-r lg:pb-3 lg:pt-0 lg:pr-6">
+          <div className="border-y border-black py-3 lg:border-t-0">
             <div className="grid grid-cols-2 text-[11px] font-normal uppercase tracking-[0.2em] text-neutral-500">
               <span>Daily field notes</span>
               <span className="text-right">{now.toISOString().slice(0, 10)} UTC</span>
@@ -918,8 +937,8 @@ export default function HomePage() {
           </div>
         </aside>
 
-        <section className="pt-6 pb-4 lg:pl-6">
-          <div className="border-y border-black py-1.5">
+        <section className="pb-4 pt-3 lg:pb-3 lg:pt-0 lg:pl-6">
+          <div className="border-y border-black py-1.5 lg:border-t-0">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
               <div>
                 <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500">
@@ -955,14 +974,32 @@ export default function HomePage() {
               <button
                 key={category}
                 type="button"
-                onClick={() => setCategory(category)}
+                aria-pressed={category === activeCategory}
+                aria-label={`${category}: ${highlightIndicesByCategory[category].length} highlights. Activate repeatedly to cycle through this category.`}
+                onClick={() => setHighlightCategory(category)}
                 className={`category-index-item ${
                   category === activeCategory
                     ? "is-active"
                     : ""
                 } min-h-[94px] border-b border-r border-black p-1.5 text-left`}
               >
-                <CategoryGlyph category={category} className="category-index-icon h-14 w-full" />
+                <span aria-hidden="true" className="category-index-marker">
+                  {highlightIndicesByCategory[category].map((_, index) => (
+                    <span
+                      key={index}
+                      className={`category-index-marker-segment ${
+                        category === activeCategory && index === activeCategoryPosition
+                          ? "is-current"
+                          : ""
+                      }`}
+                    />
+                  ))}
+                </span>
+                <CategoryGlyph
+                  key={`${category}-${category === activeCategory ? currentPreviewIndex : "idle"}`}
+                  category={category}
+                  className="category-index-icon h-14 w-full"
+                />
                 <span className="block text-[10px] font-normal uppercase leading-4 tracking-[0.14em]">
                   {category}
                 </span>
@@ -977,6 +1014,9 @@ export default function HomePage() {
             onPointerMove={handleHighlightPointerMove}
             onPointerUp={handleHighlightPointerUp}
             onPointerCancel={handleHighlightPointerUp}
+            onWheel={() => {
+              categoryCycleRef.current = null;
+            }}
             onScroll={handleHighlightScroll}
           >
             <div className="flex gap-4">
@@ -989,6 +1029,7 @@ export default function HomePage() {
                 >
                   <HighlightCard
                     project={project}
+                    active={index === currentPreviewIndex}
                     wide
                     priority={index < 2}
                     onActivate={() => previewHighlight(index)}
@@ -1012,7 +1053,10 @@ export default function HomePage() {
                     key={project.slug}
                     type="button"
                     aria-label={`Show ${project.title}`}
-                    onClick={() => goToHighlight(index, "smooth", "settle")}
+                    onClick={() => {
+                      categoryCycleRef.current = null;
+                      goToHighlight(index, "smooth", "settle");
+                    }}
                     className={`h-2 border border-black transition-colors ${
                       index === currentPreviewIndex ? "bg-black" : "bg-transparent hover:bg-neutral-300"
                     }`}
@@ -1061,7 +1105,11 @@ export default function HomePage() {
               This body of work explores research, computation, material systems, and perception.
             </p>
           </div>
-          <FilterBar categories={categories} active={active} setActive={setCategory} />
+          <FilterBar
+            categories={categories}
+            active={active}
+            setActive={(category) => setActive(category)}
+          />
 
           <div className="mt-8 overflow-x-auto pb-4">
             <div

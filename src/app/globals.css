@@ -375,7 +375,9 @@ html {
 }
 
 .category-index-item {
-  color: #111111;
+  position: relative;
+  color: #737373;
+  transition: background-color 180ms ease, color 180ms ease;
 }
 
 .category-index-item .category-index-icon {
@@ -385,8 +387,8 @@ html {
 }
 
 .category-index-item.is-active {
-  background: #111111;
-  color: #fbfaf7;
+  background: #fbfaf7;
+  color: #111111;
 }
 
 .category-index-item.is-active .category-index-icon {
@@ -399,11 +401,30 @@ html {
 }
 
 .category-index-item span {
-  color: #111111;
+  color: currentColor;
 }
 
 .category-index-item.is-active span {
-  color: #fbfaf7;
+  color: #111111;
+}
+
+.category-index-marker {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: flex;
+  gap: 2px;
+}
+
+.category-index-marker-segment {
+  width: 5px;
+  height: 5px;
+  background: #d1cfc9;
+  transition: background-color 180ms ease;
+}
+
+.category-index-marker-segment.is-current {
+  background: #111111;
 }
 
 .category-index-icon .glyph-route,
@@ -530,6 +551,71 @@ html {
 }
 
 .category-index-item.is-active .category-index-icon.route-visualization .glyph-bar {
+  animation-name: glyph-volume-bar;
+}
+
+.category-index-item .category-index-icon .glyph-route,
+.category-index-item .category-index-icon .glyph-secondary,
+.category-index-item .category-index-icon .glyph-bar,
+.category-index-item .category-index-icon .route-node,
+.highlight-card .highlight-route-overlay .glyph-route,
+.highlight-card .highlight-route-overlay .glyph-secondary,
+.highlight-card .highlight-route-overlay .glyph-bar,
+.highlight-card .highlight-route-overlay .route-node {
+  animation-name: none;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon .glyph-route,
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon .glyph-secondary {
+  animation-name: route-index-flow;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon .route-node {
+  animation-name: route-pulse;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon .glyph-bar {
+  animation-name: glyph-bar-signal;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon.route-perception .glyph-route {
+  animation-name: glyph-lens-travel, route-dash;
+  animation-timing-function: linear, linear;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon.route-new-media .glyph-route {
+  animation-name: glyph-data-curve, route-dash;
+  animation-timing-function: ease-in-out, linear;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon.route-visualization .glyph-bar {
   animation-name: glyph-volume-bar;
 }
 
@@ -1280,7 +1366,7 @@ html {
   .glyph-secondary,
   .glyph-trail,
   .glyph-bar {
-    animation: none;
+    animation: none !important;
   }
 }
 
