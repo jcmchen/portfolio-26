@@ -844,6 +844,55 @@ export default function HomePage() {
 
   return (
     <main className="material-field">
+      <section aria-label="Latest news" className="border-b border-neutral-300 bg-[#ece9e1] text-black">
+        <div className="mx-auto flex max-w-[1680px] flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-2.5 text-[10px] font-normal uppercase tracking-[0.16em] md:flex-nowrap md:px-8">
+          <span className="shrink-0 font-medium text-black">News</span>
+          <time dateTime="2026-04-16" className="shrink-0 text-neutral-500">
+            Apr 16, 2026
+          </time>
+          <p className="min-w-0 basis-full text-neutral-700 md:basis-auto md:flex-1">
+            I presented my first-authored paper{" "}
+            <a
+              href="/projects/hygrometric"
+              className="font-semibold text-black hover:underline hover:underline-offset-4"
+            >
+              HygroMetric
+            </a>{" "}
+            at{" "}
+            <a
+              href="https://chi2026.acm.org/"
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-black hover:underline hover:underline-offset-4"
+            >
+              ACM CHI 2026 in Barcelona
+            </a>
+            !{" "}
+            <a
+              href="https://dl.acm.org/doi/10.1145/3772318.3791333"
+              target="_blank"
+              rel="noreferrer"
+              className="border-b border-black transition-colors hover:border-neutral-500 hover:text-neutral-500"
+            >
+              DOI
+            </a>
+            {" "}
+            <span aria-hidden="true" className="text-neutral-400">
+              |
+            </span>
+            {" "}
+            <a
+              href="https://dl.acm.org/doi/epdf/10.1145/3772318.3791333"
+              target="_blank"
+              rel="noreferrer"
+              className="border-b border-black transition-colors hover:border-neutral-500 hover:text-neutral-500"
+            >
+              PDF
+            </a>
+          </p>
+        </div>
+      </section>
+
       <section className="mx-auto grid max-w-[1680px] grid-cols-1 border-b border-black px-4 md:px-8 lg:grid-cols-[320px_minmax(0,1fr)]">
         <aside className="border-b border-black py-6 lg:flex lg:max-h-[calc(100vh-57px)] lg:min-h-[calc(100vh-57px)] lg:flex-col lg:border-b-0 lg:border-r lg:pr-6">
           <div className="border-y border-black py-3">
@@ -871,7 +920,7 @@ export default function HomePage() {
 
         <section className="pt-6 pb-4 lg:pl-6">
           <div className="border-y border-black py-1.5">
-            <div className="grid gap-3 md:grid-cols-[minmax(0,0.46fr)_minmax(220px,0.44fr)_auto] md:items-center">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
               <div>
                 <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500">
                   Highlights
@@ -879,13 +928,6 @@ export default function HomePage() {
                 <h1 className="mt-2 text-4xl font-normal uppercase leading-none tracking-normal">
                   {previewProject.title}
                 </h1>
-              </div>
-              <div className="flex items-center gap-5 text-[13px] font-normal uppercase tracking-[0.16em] md:self-center">
-                <span aria-hidden className="hidden h-[34px] border-l border-black md:block" />
-                <div className="leading-[1.35]">
-                  <p>{activeCategory === "Perception" ? "Perceptual study" : activeCategory}</p>
-                  <p className="mt-1 text-neutral-500">{categoryLead[activeCategory] || "Selected study"}</p>
-                </div>
               </div>
               <div className="flex justify-self-end gap-2">
                 <button
@@ -906,47 +948,6 @@ export default function HomePage() {
                 </button>
               </div>
             </div>
-          </div>
-
-          <div className="news-strip mt-2 flex items-baseline gap-4 px-2 py-2 text-[10px] uppercase tracking-[0.16em] text-neutral-500">
-            <span className="shrink-0">Apr 16, 2026</span>
-
-            <span>
-              <span className="text-black">
-                I presented my first-authored paper{" "}
-                <a
-                  href="/projects/hygrometric"
-                  className="font-semibold text-black hover:underline hover:underline-offset-4"
-                >
-                  Hygrometric
-                </a>{" "}
-                at{" "}
-                <a
-                  href="https://chi2026.acm.org/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-semibold text-black hover:underline hover:underline-offset-4"
-                >
-                  ACM CHI Conference on Human Factors in Computing Systemss (CHI 2026) in Barcelona!
-                </a>
-              </span>{" "}
-              <a
-                href="https://dl.acm.org/doi/10.1145/3772318.3791333"
-                target="_blank"
-                rel="noreferrer"
-                className="border-b border-black text-black hover:underline hover:underline-offset-4"
-              >
-                DOI
-              </a>{" "}
-              <a
-                href="https://dl.acm.org/doi/epdf/10.1145/3772318.3791333"
-                target="_blank"
-                rel="noreferrer"
-                className="border-b border-black text-black hover:underline hover:underline-offset-4"
-              >
-                PDF
-              </a>
-            </span>
           </div>
 
           <div className="mt-2 grid grid-cols-2 border-l border-t border-black md:grid-cols-4 xl:grid-cols-7">
