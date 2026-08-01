@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import ProjectContent from "@/components/ProjectContent";
+import { getProject } from "@/data/projects";
 
 type PageProps = {
   params: Promise<{
@@ -17,41 +18,8 @@ type Frontmatter = {
   description?: string;
   description_in?: string;
   category?: string;
+  type?: string;
   year?: string | number;
-};
-
-const projectCovers: Record<string, string> = {
-  hygrometric: "/images/hygrometric/cover_long.jpg",
-  bridges: "/images/CNV000021-ed.jpg",
-  "form-force-matter": "/images/DSC_9959_ed.jpg",
-  "resource-rush": "/images/resource-main.png",
-  "hanger-games": "/images/sss19-00-ps-ai-bg.png",
-  "slime-spring-structure": "/images/sss18-01-c-ai-bg.png",
-  interlace: "/images/IMG_1259-ed.jpg",
-  "bridge-x": "/images/bridge-x_300ppi.png",
-  "fold-and-cut": "/images/DSC_3370-ed.jpg",
-  illustrations: "/images/DSC_8999-PS3_BW-c.jpg",
-  "sacred-light": "/images/IMG_5087_BW-c.jpg",
-  "unidentified-funicular-objects": "/images/IMG_0003-ed.jpg",
-  "moment-cube": "/images/moment-cube/DSC08012_REDUCED.jpg",
-  yuan: "/images/portfolio/p_Page_38.png",
-  "task-and-motion-planning": "/images/chair/0160.png",
-  "the-nature-of-growth": "/images/Tree%2001-c.jpeg",
-  "mobility-and-housing-taipei": "/images/housing01.png",
-  "bio-inspired-composite": "/images/BICM-00.png",
-  "botani-plan": "/images/DSC_8958-c.jpg",
-  "floating-structures": "/images/IMG_8809-c2.png",
-  "tangi-growth": "/images/TUI/Tangi05-ed.jpg",
-  "our-grandmas-fridge": "/images/fridge/ogf_mol_2024.png",
-  "seeds-starter-kit": "/images/Seed/DSC_7539_bright_02-c3.jpeg",
-  "micro-macro": "/images/DSC_9100-c.jpg",
-  "capacitive-salad": "/images/TUI/salad-ed.png",
-  "computer-graphics-imaging": "/images/cg/cg02.png",
-  "recycled-crawler": "/images/TUI/DSC_6518_ED.jpg",
-  "granola-cuckoo-clock": "/images/TUI/DSC_6529_ED.jpg",
-  "the-rotary-vagary": "/images/1.png",
-  "assembled-living": "/images/DSC_7022-c.jpg",
-  "boolean-auditorium": "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg",
 };
 
 function removeProjectPageChrome(content: string) {
@@ -75,10 +43,12 @@ function formatInfoDetail(source: string) {
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/&#58;/g, ":")
     .replace(/&emsp;/g, " ")
-    .split(/\s*\|\s*|\r?\n+/)
+    .replace(/\s*\|\s*/g, "\n")
+    .split(/\r?\n/)
     .map((line) => line.replace(/\s+/g, " ").trim())
-    .filter(Boolean)
-    .join("\n");
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function projectTypeLabel(source: string) {
@@ -129,10 +99,11 @@ export default async function ProjectPage({ params }: PageProps) {
   const infoDetail = formatInfoDetail(data.description || data.description_in || "");
   const infoSource = [data.description, data.description_in].filter(Boolean).join(" ");
   const category = data.category || "Project";
-  const type = projectTypeLabel(infoSource);
+  const type = data.type || projectTypeLabel(infoSource);
   const showInfoDetail = infoDetail && infoDetail.toLowerCase() !== type.toLowerCase();
   const year = yearLabel(data.year, infoSource);
-  const cover = projectCovers[slug];
+  const project = getProject(slug);
+  const cover = project?.cover;
   const bodyContent = removeProjectPageChrome(content);
   const media = mediaLabel(bodyContent, Boolean(cover));
 
@@ -174,6 +145,7 @@ export default async function ProjectPage({ params }: PageProps) {
                 priority
                 sizes="(max-width: 1024px) 100vw, 54vw"
                 className="object-cover"
+                style={{ objectPosition: project?.coverPosition ?? "center" }}
               />
             </div>
           ) : null}

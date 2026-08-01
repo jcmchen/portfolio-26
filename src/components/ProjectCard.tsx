@@ -1,13 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-
-type Project = {
-  slug: string;
-  title: string;
-  year: string | number;
-  category: string;
-  img: string;
-};
+import type { Project } from "@/data/projects";
 
 type ProjectCardProps = {
   project: Project;
@@ -37,12 +30,13 @@ export default function ProjectCard({
           }`}
         >
           <Image
-            src={project.img}
+            src={project.thumbnail}
             alt={project.title}
             fill
             priority={priority}
             sizes={sizes}
             className="object-cover transition duration-500 ease-out group-hover:scale-[1.025]"
+            style={{ objectPosition: project.thumbnailPosition ?? "center" }}
           />
         </div>
         <div

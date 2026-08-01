@@ -12,15 +12,7 @@ import {
 } from "react";
 import FilterBar from "@/components/FilterBar";
 import ProjectCard from "@/components/ProjectCard";
-
-type Project = {
-  slug: string;
-  title: string;
-  year: string | number;
-  category: string;
-  img: string;
-  label?: string;
-};
+import { projects, type Project } from "@/data/projects";
 
 type ProjectLink = {
   text: string;
@@ -28,6 +20,7 @@ type ProjectLink = {
 };
 
 type HighlightProject = Project & {
+  img: string;
   links: ProjectLink[];
 };
 
@@ -42,47 +35,6 @@ type FieldNote = {
   imageAlt?: string;
   url?: string;
 };
-
-const projects: Project[] = [
-  {
-    slug: "hygrometric",
-    title: "Hygrometric",
-    year: 2026,
-    category: "Nature",
-    img: "/images/hygrometric/cover_long.jpg",
-    label: "Computational framework for hygromorphic shape-morphing.",
-  },
-  { slug: "micro-macro", title: "Micro Macro", year: "2019-2020", category: "Perception", img: "/images/DSC_9100-c.jpg", label: "Scale shifts, perception, and spatial ambiguity." },
-  { slug: "bridges", title: "Bridges", year: "2017-2018", category: "Construction / Fabrication", img: "/images/CNV000021-ed.jpg" },
-  { slug: "form-force-matter", title: "Form Force Matter", year: 2021, category: "Construction / Fabrication", img: "/images/DSC_9959_ed.jpg" },
-  { slug: "resource-rush", title: "Resource Rush", year: 2023, category: "Robotics", img: "/images/resource-main.png" },
-  { slug: "hanger-games", title: "Hanger Games", year: 2019, category: "Construction / Fabrication", img: "/images/sss19-00-ps-ai-bg.png" },
-  { slug: "slime-spring-structure", title: "Slime Spring Structure", year: 2018, category: "Construction / Fabrication", img: "/images/sss18-01-c-ai-bg.png" },
-  { slug: "interlace", title: "Interlace", year: 2018, category: "Construction / Fabrication", img: "/images/IMG_1259-ed.jpg" },
-  { slug: "bridge-x", title: "Bridge X", year: 2021, category: "Construction / Fabrication", img: "/images/bridge-x_300ppi.png" },
-  { slug: "fold-and-cut", title: "Fold & Cut", year: 2017, category: "Perception", img: "/images/DSC_3370-ed.jpg" },
-  { slug: "illustrations", title: "Illustrations", year: "2019-2021", category: "Perception", img: "/images/DSC_8999-PS3_BW-c.jpg" },
-  { slug: "sacred-light", title: "Sacred Light", year: 2020, category: "Perception", img: "/images/IMG_5087_BW-c.jpg" },
-  { slug: "unidentified-funicular-objects", title: "Unidentified Funicular Objects", year: "2017", category: "Construction / Fabrication", img: "/images/IMG_0003-ed.jpg" },
-  { slug: "moment-cube", title: "MomentCube", year: 2022, category: "New Media", img: "/images/moment-cube/DSC08012_REDUCED.jpg" },
-  { slug: "yuan", title: "Yuan", year: 2023, category: "Perception", img: "/images/portfolio/p_Page_38.png" },
-  { slug: "task-and-motion-planning", title: "Task and Motion Planning for Robotic Assembly", year: 2023, category: "Robotics", img: "/images/chair/0160.png" },
-  { slug: "the-nature-of-growth", title: "The Nature of Growth", year: 2019, category: "Nature", img: "/images/Tree%2001-c.jpeg" },
-  { slug: "mobility-and-housing-taipei", title: "Mobility and Housing in Taipei", year: 2024, category: "Visualization", img: "/images/housing01.png" },
-  { slug: "bio-inspired-composite", title: "Bio-Inspired Composite Materials", year: 2019, category: "Nature", img: "/images/BICM-00.png" },
-  { slug: "botani-plan", title: "Botani Plan: Second Nature", year: 2020, category: "Nature", img: "/images/DSC_8958-c.jpg" },
-  { slug: "floating-structures", title: "Floating Structures", year: "2019-2020", category: "Nature", img: "/images/IMG_8809-c2.png" },
-  { slug: "tangi-growth", title: "TangiGrowth", year: 2022, category: "New Media", img: "/images/TUI/Tangi05-ed.jpg" },
-  { slug: "our-grandmas-fridge", title: "Our Grandma's Fridge", year: 2023, category: "New Media", img: "/images/fridge/ogf_mol_2024.png" },
-  { slug: "capacitive-salad", title: "Capacitive Salad", year: 2022, category: "New Media", img: "/images/TUI/salad-ed.png" },
-  { slug: "seeds-starter-kit", title: "Seeds Starter Kit", year: 2023, category: "Nature", img: "/images/Seed/DSC_7539_bright_02-c3.jpeg" },
-  { slug: "computer-graphics-imaging", title: "Computer Graphics and Imaging", year: 2024, category: "Visualization", img: "/images/cg/cg02.png" },
-  { slug: "recycled-crawler", title: "Recycled Crawler", year: 2022, category: "New Media", img: "/images/TUI/DSC_6518_ED.jpg" },
-  { slug: "granola-cuckoo-clock", title: "Granola Cuckoo Clock", year: 2022, category: "New Media", img: "/images/TUI/DSC_6529_ED.jpg" },
-  { slug: "the-rotary-vagary", title: "The Rotary Vagary", year: 2023, category: "Building", img: "/images/1.png" },
-  { slug: "assembled-living", title: "Assembled Living", year: 2022, category: "Building", img: "/images/DSC_7022-c.jpg" },
-  { slug: "boolean-auditorium", title: "Boolean Auditorium", year: 2022, category: "Building", img: "/images/boolean-auditorium/0425_R_Ext_3200_level light 1.42.jpg" },
-];
 
 const projectPageLink = (slug: string) => ({ text: "Project Page", href: `/projects/${slug}` });
 
@@ -180,7 +132,7 @@ const featuredProjects = featuredProjectSpecs
 
     return {
       ...project,
-      img: spec.img || project.img,
+      img: spec.img || project.thumbnail,
       title: spec.title || project.title,
       links: spec.links || [projectPageLink(project.slug)],
     };
