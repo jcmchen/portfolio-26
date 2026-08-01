@@ -72,11 +72,13 @@ function mediaLabel(content: string, hasCover: boolean) {
 
 function formatInfoDetail(source: string) {
   return source
-    .replace(/<br\s*\/?>/gi, " / ")
+    .replace(/<br\s*\/?>/gi, "\n")
     .replace(/&#58;/g, ":")
     .replace(/&emsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+    .split(/\s*\|\s*|\r?\n+/)
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .join("\n");
 }
 
 function projectTypeLabel(source: string) {
@@ -94,7 +96,10 @@ function projectTypeLabel(source: string) {
 }
 
 function yearLabel(year: Frontmatter["year"], source: string) {
-  const matches = `${year || ""} ${source}`.match(/\b(?:20\d{2}|19\d{2})(?:\s*[-\u2013]\s*(?:20\d{2}|19\d{2}))?\b/g);
+  const explicitYear = year === undefined || year === null ? "" : String(year).trim();
+  const matches = (explicitYear || source).match(
+    /\b(?:20\d{2}|19\d{2})(?:\s*[-\u2013]\s*(?:20\d{2}|19\d{2}))?\b/g
+  );
 
   if (!matches) return undefined;
 
@@ -136,9 +141,18 @@ export default async function ProjectPage({ params }: PageProps) {
       <header className="mx-auto max-w-[1680px]">
         <Link
           href="/?scrollTo=projects"
-          className="inline-block text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-500 transition hover:text-black hover:underline hover:underline-offset-4"
+          aria-label="Back to projects"
+          className="group inline-flex items-center gap-1.5 text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-500 transition-colors hover:text-black"
         >
-          {"\u2190"} Back to projects
+          <span
+            aria-hidden="true"
+            className="transition-transform duration-200 group-hover:-translate-x-px group-focus-visible:-translate-x-px"
+          >
+            {"\u2190"}
+          </span>
+          <span className="group-hover:underline group-hover:underline-offset-4 group-focus-visible:underline group-focus-visible:underline-offset-4">
+            Back to projects
+          </span>
         </Link>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-end">
@@ -166,35 +180,50 @@ export default async function ProjectPage({ params }: PageProps) {
         </div>
       </header>
 
-      <div className="mx-auto mt-12 grid max-w-[1680px] gap-10 md:mt-16 lg:grid-cols-[minmax(280px,0.32fr)_minmax(0,0.68fr)] lg:gap-12">
+      <div className="mx-auto mt-12 grid max-w-[1680px] gap-10 md:mt-16 lg:grid-cols-[minmax(220px,280px)_minmax(0,1fr)] lg:gap-12 xl:gap-16">
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <a
             href="#project-content"
-            className="mb-5 inline-block text-[11px] font-normal uppercase tracking-[0.14em] text-black hover:underline hover:underline-offset-4"
+            aria-label="Jump to project content"
+            className="group mb-5 inline-flex items-center gap-1.5 text-[11px] font-normal uppercase tracking-[0.14em] text-neutral-500 transition-colors hover:text-black"
           >
-            Read documentation
+            <span className="group-hover:underline group-hover:underline-offset-4 group-focus-visible:underline group-focus-visible:underline-offset-4">
+              Project Details
+            </span>
+            <span
+              aria-hidden="true"
+              className="transition-transform duration-200 group-hover:translate-x-px group-focus-visible:translate-x-px"
+            >
+              {"\u2192"}
+            </span>
           </a>
-          <dl className="grid max-w-[520px] gap-3 text-[11px] font-normal uppercase leading-5 tracking-[0.14em]">
-            <div className="grid grid-cols-[96px_1fr] gap-4 border-t border-neutral-300 pt-3">
-              <dt className="text-neutral-400">Type</dt>
-              <dd className="text-neutral-700">
-                {showInfoDetail ? `${type} / ${infoDetail}` : type}
-              </dd>
+          <dl className="grid w-full font-normal">
+            <div className="grid grid-cols-[52px_1fr] gap-3 border-t border-neutral-300 py-3">
+              <dt className="text-[10px] uppercase tracking-[0.16em] text-neutral-400">Type</dt>
+              <dd className="text-xs leading-5 text-neutral-700">{type}</dd>
             </div>
             {year ? (
-              <div className="grid grid-cols-[96px_1fr] gap-4 border-t border-neutral-300 pt-3">
-                <dt className="text-neutral-400">Year</dt>
-                <dd className="text-neutral-700">{year}</dd>
+              <div className="grid grid-cols-[52px_1fr] gap-3 border-t border-neutral-300 py-3">
+                <dt className="text-[10px] uppercase tracking-[0.16em] text-neutral-400">Year</dt>
+                <dd className="text-xs leading-5 text-neutral-700">{year}</dd>
               </div>
             ) : null}
-            <div className="grid grid-cols-[96px_1fr] gap-4 border-t border-neutral-300 pt-3">
+            {showInfoDetail ? (
+              <div className="grid grid-cols-[52px_1fr] gap-3 border-t border-neutral-300 py-3">
+                <dt className="text-[10px] uppercase tracking-[0.16em] text-neutral-400">Info</dt>
+                <dd className="whitespace-pre-line text-xs leading-5 text-neutral-700">
+                  {infoDetail}
+                </dd>
+              </div>
+            ) : null}
+            {/* <div className="grid grid-cols-[96px_1fr] gap-4 border-t border-neutral-300 pt-3">
               <dt className="text-neutral-400">Media</dt>
               <dd className="text-neutral-700">{media}</dd>
-            </div>
+            </div> */}
           </dl>
         </aside>
 
-        <div className="min-w-0">
+        <div className="min-w-0 w-full max-w-[1120px] lg:justify-self-center">
           <ProjectContent source={bodyContent} />
         </div>
       </div>

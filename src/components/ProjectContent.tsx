@@ -12,25 +12,28 @@ type MDXImageProps = Omit<ImageProps, "src" | "alt"> & {
   alt?: string;
 };
 
+const readingColumn = "max-w-[680px]";
+const headingColumn = "max-w-[720px]";
+
 const MDXImage = ({ className, alt, width, height, ...rest }: MDXImageProps) => {
   const showCaption = alt && alt.trim().toLowerCase() !== "cover";
 
   return (
-    <figure className="group my-12">
-    <Image
-      {...rest}
-      src={rest.src}
-      alt={alt ?? ""}
-      width={width ?? 1400}
-      height={height ?? 950}
-      className={`relative h-auto w-full object-contain transition duration-500 group-hover:grayscale-0 md:grayscale-[8%] ${className ?? ""}`}
-    />
-    {showCaption ? (
-      <figcaption className="mt-2 text-[10px] font-normal uppercase tracking-[0.14em] text-neutral-500">
-        {alt}
-      </figcaption>
-    ) : null}
-  </figure>
+    <figure className="group my-10 w-full md:my-14">
+      <Image
+        {...rest}
+        src={rest.src}
+        alt={alt ?? ""}
+        width={width ?? 1400}
+        height={height ?? 950}
+        className={`relative h-auto w-full object-contain transition duration-500 group-hover:grayscale-0 md:grayscale-[8%] ${className ?? ""}`}
+      />
+      {showCaption ? (
+        <figcaption className="mt-2 text-[10px] font-normal uppercase tracking-[0.14em] text-neutral-500">
+          {alt}
+        </figcaption>
+      ) : null}
+    </figure>
   );
 };
 
@@ -45,34 +48,35 @@ const components = {
   h1: (props: HeadingProps) => (
     <h1
       {...props}
-      className={`mt-16 text-3xl font-light leading-tight shadow-none md:text-5xl ${props.className ?? ""}`}
+      className={`${headingColumn} mt-16 text-3xl font-light leading-tight shadow-none md:text-5xl ${props.className ?? ""}`}
     />
   ),
   h2: (props: SubheadingProps) => (
     <h2
       {...props}
-      className={`mt-14 text-2xl font-light uppercase tracking-[0.04em] shadow-none md:text-3xl ${props.className ?? ""}`}
+      className={`${headingColumn} mt-14 text-2xl font-light uppercase tracking-[0.04em] shadow-none md:text-3xl ${props.className ?? ""}`}
     />
   ),
   h3: (props: SubheadingProps) => (
     <h3
       {...props}
-      className={`mt-8 text-sm font-normal uppercase tracking-[0.14em] text-neutral-500 shadow-none ${props.className ?? ""}`}
+      className={`${headingColumn} mt-8 text-sm font-normal uppercase tracking-[0.14em] text-neutral-500 shadow-none ${props.className ?? ""}`}
     />
   ),
   p: ({ children, className, ...rest }: ParagraphProps) => {
-    const classes = `mb-5 max-w-[760px] text-[15px] font-normal leading-7 text-neutral-700 shadow-none ${className ?? ""}`;
-
     if (hasBlockChild(children)) {
       return (
-        <div {...rest} className={classes}>
+        <div {...rest} className={`mb-5 w-full ${className ?? ""}`}>
           {children}
         </div>
       );
     }
 
     return (
-      <p {...rest} className={classes}>
+      <p
+        {...rest}
+        className={`${readingColumn} mb-5 text-[15px] font-normal leading-7 text-neutral-700 shadow-none md:text-base ${className ?? ""}`}
+      >
         {children}
       </p>
     );
@@ -105,7 +109,7 @@ const components = {
 
 export default function ProjectContent({ source }: { source: string }) {
   return (
-    <section id="project-content" className="project-content w-full">
+    <section id="project-content" className="project-content w-full scroll-mt-24">
       <MDXRemote source={source} components={components} />
     </section>
   );
