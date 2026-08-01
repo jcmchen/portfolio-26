@@ -188,6 +188,30 @@ export default async function ProjectPage({ params }: PageProps) {
                 </dd>
               </div>
             ) : null}
+            {project?.resources?.length ? (
+              <div className="grid grid-cols-[52px_1fr] gap-3 border-t border-neutral-300 py-3">
+                <dt className="text-[10px] uppercase tracking-[0.16em] text-neutral-400">Links</dt>
+                <dd className="flex flex-wrap items-center gap-x-1.5 text-xs leading-5 text-neutral-700">
+                  {project.resources.map((resource, index) => (
+                    <span key={resource.href} className="inline-flex items-center gap-1.5">
+                      {index > 0 ? (
+                        <span aria-hidden="true" className="text-neutral-400">
+                          |
+                        </span>
+                      ) : null}
+                      <a
+                        href={resource.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="border-b border-neutral-500 transition-colors hover:border-black hover:text-black"
+                      >
+                        {resource.text}
+                      </a>
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            ) : null}
             {/* <div className="grid grid-cols-[96px_1fr] gap-4 border-t border-neutral-300 pt-3">
               <dt className="text-neutral-400">Media</dt>
               <dd className="text-neutral-700">{media}</dd>

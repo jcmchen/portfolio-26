@@ -44,7 +44,9 @@ const featuredProjectSpecs: Array<{
   img?: string;
   links?: ProjectLink[];
 }> = [
-  { slug: "hygrometric" },
+  {
+    slug: "hygrometric",
+  },
   {
     slug: "micro-macro",
     img: "/images/DSC_9100-c.jpg",
@@ -69,13 +71,6 @@ const featuredProjectSpecs: Array<{
     slug: "moment-cube",
     img: "/images/moment-cube/cube_compressed2.gif",
     title: "MomentCube",
-    links: [
-      projectPageLink("moment-cube"),
-      {
-        text: "Report",
-        href: "https://drive.google.com/file/d/1IWg_7bU3prEHDrfwdtIan9II6ElAlk5S/view?usp=share_link",
-      },
-    ],
   },
   {
     slug: "bio-inspired-composite",
@@ -134,7 +129,7 @@ const featuredProjects = featuredProjectSpecs
       ...project,
       img: spec.img || project.thumbnail,
       title: spec.title || project.title,
-      links: spec.links || [projectPageLink(project.slug)],
+      links: spec.links || [projectPageLink(project.slug), ...(project.resources || [])],
     };
   })
   .filter((project): project is HighlightProject => Boolean(project));
@@ -583,28 +578,33 @@ function HighlightCard({
           <p>{project.label || categoryLead[project.category]}</p>
           <span>{project.year}</span>
         </div>
-        <div className="mt-0 flex flex-wrap gap-x-5 gap-y-1 pb-1.5">
-          {project.links.map((link) =>
-            link.href.startsWith("/") ? (
-              <Link
-                key={`${project.slug}-${link.text}`}
-                href={link.href}
-                className="inline-block border-b border-black text-[11px] font-normal uppercase tracking-[0.14em] text-neutral-700"
-              >
-                {link.text}
-              </Link>
-            ) : (
-              <a
-                key={`${project.slug}-${link.text}`}
-                href={link.href}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-block border-b border-black text-[11px] font-normal uppercase tracking-[0.14em] text-neutral-700"
-              >
-                {link.text}
-              </a>
-            )
-          )}
+        <div className="mt-0 flex flex-wrap items-center gap-x-1.5 gap-y-1 pb-1.5">
+          {project.links.map((link, index) => (
+            <span key={`${project.slug}-${link.text}`} className="inline-flex items-center gap-1.5">
+              {index > 0 ? (
+                <span aria-hidden="true" className="text-[11px] text-neutral-400">
+                  |
+                </span>
+              ) : null}
+              {link.href.startsWith("/") ? (
+                <Link
+                  href={link.href}
+                  className="inline-block border-b border-black text-[11px] font-normal uppercase tracking-[0.14em] text-neutral-700"
+                >
+                  {link.text}
+                </Link>
+              ) : (
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-block border-b border-black text-[11px] font-normal uppercase tracking-[0.14em] text-neutral-700"
+                >
+                  {link.text}
+                </a>
+              )}
+            </span>
+          ))}
         </div>
       </div>
     </article>

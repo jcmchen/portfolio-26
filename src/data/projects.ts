@@ -8,6 +8,10 @@ export type Project = {
   thumbnailPosition?: string;
   coverPosition?: string;
   label?: string;
+  resources?: Array<{
+    text: string;
+    href: string;
+  }>;
 };
 
 export const projects: Project[] = [
@@ -19,6 +23,10 @@ export const projects: Project[] = [
     thumbnail: "/images/hygrometric/cover_long.jpg",
     cover: "/images/hygrometric/cover_long.jpg",
     label: "Computational framework for hygromorphic shape-morphing.",
+    resources: [
+      { text: "DOI", href: "https://dl.acm.org/doi/10.1145/3772318.3791333" },
+      { text: "PDF", href: "https://dl.acm.org/doi/epdf/10.1145/3772318.3791333" },
+    ],
   },
   { slug: "micro-macro", title: "Micro Macro", year: "2019-2020", category: "Perception", thumbnail: "/images/DSC_9100-c.jpg", cover: "/images/DSC_9100-c.jpg", label: "Scale shifts, perception, and spatial ambiguity." },
   { slug: "bridges", title: "Bridges", year: "2017-2018", category: "Construction / Fabrication", thumbnail: "/images/CNV000021-ed.jpg", cover: "/images/CNV000021-ed.jpg" },
@@ -32,7 +40,20 @@ export const projects: Project[] = [
   { slug: "illustrations", title: "Illustrations", year: "2019-2021", category: "Perception", thumbnail: "/images/DSC_8999-PS3_BW-c.jpg", cover: "/images/DSC_8999-PS3_BW-c.jpg" },
   { slug: "sacred-light", title: "Sacred Light", year: 2020, category: "Perception", thumbnail: "/images/IMG_5087_BW-c.jpg", cover: "/images/IMG_5087_BW-c.jpg" },
   { slug: "unidentified-funicular-objects", title: "Unidentified Funicular Objects", year: "2017", category: "Construction / Fabrication", thumbnail: "/images/IMG_0003-ed.jpg", cover: "/images/IMG_0003-ed.jpg" },
-  { slug: "moment-cube", title: "MomentCube", year: 2022, category: "New Media", thumbnail: "/images/moment-cube/DSC08012_REDUCED.jpg", cover: "/images/moment-cube/DSC08012_REDUCED.jpg" },
+  {
+    slug: "moment-cube",
+    title: "MomentCube",
+    year: 2022,
+    category: "New Media",
+    thumbnail: "/images/moment-cube/DSC08012_REDUCED.jpg",
+    cover: "/images/moment-cube/DSC08012_REDUCED.jpg",
+    resources: [
+      {
+        text: "Full Report",
+        href: "https://drive.google.com/file/d/1IWg_7bU3prEHDrfwdtIan9II6ElAlk5S/view?usp=share_link",
+      },
+    ],
+  },
   { slug: "yuan", title: "Yuan", year: 2023, category: "Perception", thumbnail: "/images/portfolio/p_Page_38.png", cover: "/images/portfolio/p_Page_38.png" },
   { slug: "task-and-motion-planning", title: "Task and Motion Planning for Robotic Assembly", year: 2023, category: "Robotics", thumbnail: "/images/chair/0160.png", cover: "/images/chair/animate_200_p01.gif" },
   { slug: "the-nature-of-growth", title: "The Nature of Growth", year: 2019, category: "Nature", thumbnail: "/images/Tree%2001-c.jpeg", cover: "/images/Tree%2001-c.jpeg" },
