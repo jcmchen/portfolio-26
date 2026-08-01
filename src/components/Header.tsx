@@ -89,7 +89,7 @@ export default function Header() {
         </Link>
 
         <div className="hidden text-center text-[10px] uppercase tracking-[0.22em] text-neutral-400 md:block">
-          Material / Data / Perception
+          Matter / Computation / Perception
         </div>
 
         <nav className="hidden justify-self-end md:flex md:items-center md:gap-7">
