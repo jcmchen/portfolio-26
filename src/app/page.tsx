@@ -149,8 +149,7 @@ const fieldNotes: FieldNote[] = [
     region: "Taiwan",
     coordinates: "coordinate pending",
     place: "North Coast and Guanyinshan National Scenic Area",
-    prompt:
-      "How might climate and everyday infrastructure shape this place, and what could weathering or repair reveal on site?",
+    prompt: "How has climate shaped the way this place is used and changed?",
     source: "Wikipedia / Taiwan",
   },
   {
@@ -158,8 +157,7 @@ const fieldNotes: FieldNote[] = [
     region: "SF Bay Area",
     coordinates: "coordinate pending",
     place: "San Francisco Maritime National Park Association",
-    prompt:
-      "How might terrain and civic infrastructure shape this place, and what could edges or movement reveal on site?",
+    prompt: "How has the landscape shaped the way people move through this place?",
     source: "Wikipedia / SF Bay Area",
   },
 ];
@@ -378,21 +376,6 @@ function wrapIndex(index: number, length: number) {
   return ((index % length) + length) % length;
 }
 
-function formatFieldTime(date: Date, region: FieldNote["region"]) {
-  const timeZone = region === "Taiwan" ? "Asia/Taipei" : "America/Los_Angeles";
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "2-digit",
-    day: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-    timeZone,
-  }).format(date);
-}
-
 function CategoryGlyph({ category, className = "" }: { category: string; className?: string }) {
   const route = routeClass(category);
   const routeKey = route.replace("route-", "");
@@ -464,30 +447,41 @@ function CategoryGlyph({ category, className = "" }: { category: string; classNa
   );
 }
 
-function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
+function FieldNoteCard({ note }: { note: FieldNote }) {
   const [isPromptVisible, setIsPromptVisible] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const timeLabel = note.region === "Taiwan" ? "GMT+8" : "Pacific Time";
+  const [isPromptDismissed, setIsPromptDismissed] = useState(false);
   const hasImage = Boolean(note.imageUrl);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const promptId = `field-note-prompt-${note.id}`;
+  const sourceLabel = note.source.split(" / ")[0];
 
   return (
     <article className="border-b border-black pb-2 pt-4">
-      <div className="mb-3 grid grid-cols-2 gap-2 text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
+      <div className="mb-2.5 grid grid-cols-2 items-baseline gap-2 text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
         <span>{note.region}</span>
-        <span className="text-right text-black">{note.coordinates}</span>
+        <span className="text-right">{note.coordinates}</span>
       </div>
       {note.url ? (
-        <a href={note.url} target="_blank" rel="noreferrer" className="block transition-opacity hover:opacity-45">
-          <h2 className="text-[25px] font-normal uppercase leading-[0.95] tracking-normal">
-            {note.place}
-          </h2>
-        </a>
+        <h2 className="text-[26px] font-normal uppercase leading-[0.98] tracking-normal">
+          <a
+            href={note.url}
+            target="_blank"
+            rel="noreferrer"
+            className="group inline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+          >
+            <span className="underline decoration-transparent underline-offset-[0.14em] transition-[text-decoration-color] group-hover:decoration-current group-focus-visible:decoration-current">
+              {note.place}
+            </span>{" "}
+            <span
+              aria-hidden="true"
+              className="inline-block text-[0.62em] align-top transition-transform group-hover:-translate-y-px group-hover:translate-x-px"
+            >
+              ↗
+            </span>
+            <span className="sr-only"> Opens Wikipedia in a new tab.</span>
+          </a>
+        </h2>
       ) : (
-        <h2 className="text-[25px] font-normal uppercase leading-[0.95] tracking-normal">
+        <h2 className="text-[26px] font-normal uppercase leading-[0.98] tracking-normal">
           {note.place}
         </h2>
       )}
@@ -495,11 +489,18 @@ function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
         <button
           type="button"
           aria-expanded={isPromptVisible}
-          aria-label={`${isPromptVisible ? "Hide" : "Show"} prompt for ${note.place}. ${note.prompt}`}
-          className={`field-note-image mt-4 w-full border border-black text-left ${
+          aria-controls={promptId}
+          aria-label={`${isPromptVisible ? "Hide" : "Show"} a closer look at ${note.place}`}
+          aria-describedby={promptId}
+          className={`field-note-image mt-4 w-full text-left ${
             isPromptVisible ? "is-prompt-visible" : ""
-          }`}
-          onClick={() => setIsPromptVisible((visible) => !visible)}
+          } ${isPromptDismissed ? "is-prompt-dismissed" : ""}`}
+          onClick={() => {
+            setIsPromptVisible(!isPromptVisible);
+            setIsPromptDismissed(isPromptVisible);
+          }}
+          onPointerLeave={() => setIsPromptDismissed(false)}
+          onBlur={() => setIsPromptDismissed(false)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -507,25 +508,17 @@ function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
             alt={note.imageAlt || note.place}
             className="h-full w-full object-cover"
           />
-          <span aria-hidden="true" className="field-note-prompt-overlay">
+          <span id={promptId} className="field-note-prompt-overlay">
             <span className="field-note-prompt-text">{note.prompt}</span>
           </span>
         </button>
       ) : (
         <p className="mt-4 text-sm leading-6 text-neutral-700">{note.prompt}</p>
       )}
-      <dl className="mt-3 grid grid-cols-2 border-t border-black pb-1 pt-2 text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
-        <dt>{timeLabel}</dt>
-        <dd className="text-right text-neutral-700">{mounted ? formatFieldTime(now, note.region) : "—"}</dd>
-        <dt className="mt-1.5">Source</dt>
-        <dd className="mt-1.5 text-right text-neutral-700">
-          {note.url ? (
-            <a href={note.url} target="_blank" rel="noreferrer">
-              {note.source}
-            </a>
-          ) : (
-            note.source
-          )}
+      <dl className="mt-3 grid grid-cols-2 border-t border-black pb-1 pt-2 text-[10px] font-normal uppercase tracking-[0.14em] text-neutral-500">
+        <dt>Source</dt>
+        <dd className="text-right text-neutral-500">
+          {note.url ? sourceLabel : note.source}
         </dd>
       </dl>
     </article>
@@ -840,7 +833,7 @@ export default function HomePage() {
   );
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(new Date()), 1000);
+    const timer = window.setInterval(() => setNow(new Date()), 60_000);
 
     return () => window.clearInterval(timer);
   }, []);
@@ -915,19 +908,26 @@ export default function HomePage() {
       <section className="mx-auto grid w-full max-w-[1680px] grid-cols-1 border-b border-black px-4 md:px-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:pt-4">
         <div aria-hidden="true" className="hidden lg:col-span-2 lg:block lg:border-t lg:border-black" />
         <aside className="border-b border-black py-3 lg:flex lg:min-h-0 lg:flex-col lg:border-b-0 lg:border-r lg:pb-3 lg:pt-0 lg:pr-6">
-          <div className="border-y border-black py-3 lg:border-t-0">
-            <div className="grid grid-cols-2 text-[11px] font-normal uppercase tracking-[0.2em] text-neutral-500">
-              <span>Daily place reading</span>
-              <span className="text-right">{now.toISOString().slice(0, 10)} UTC</span>
+          <div className="border-y border-black pb-3 pt-1.5 lg:border-t-0">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
+              <h2 className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500">
+                Daily place reading
+              </h2>
+              <time className="text-right text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
+                {now.toISOString().slice(0, 10)} UTC
+              </time>
             </div>
-            <p className="mt-3 max-w-[270px] text-[12px] leading-[1.45] tracking-[0.01em] text-neutral-600">
-              Taiwan and the SF Bay Area are both part of my life. Each day, we explore one new place in each, noticing its environment, materials, and spaces.
+            <p className="mt-3 max-w-[276px] text-[12px] leading-[1.5] tracking-[0.01em] text-neutral-600">
+              Taiwan and the SF Bay Area are both part of my life. Each day, we explore one new place in each, noticing its environment, materials, spaces, and histories.
+            </p>
+            <p className="mt-2.5 max-w-[276px] text-[10px] leading-[1.5] tracking-[0.03em] text-neutral-500">
+              Explore the images for a closer reading.
             </p>
           </div>
-          <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto no-scrollbar lg:pr-2">
+          <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-2">
             <div>
               {fieldNoteItems.map((note) => (
-                <FieldNoteCard key={note.id} note={note} now={now} />
+                <FieldNoteCard key={note.id} note={note} />
               ))}
             </div>
           </div>
