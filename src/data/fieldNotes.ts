@@ -1,3 +1,5 @@
+import type { FieldPromptResult } from "@/lib/fieldNotePrompt";
+
 export type FieldLocation = {
   id: string;
   region: "Taiwan" | "SF Bay Area";
@@ -8,6 +10,7 @@ export type FieldLocation = {
   imageAlt?: string;
   source: string;
   url?: string;
+  promptMeta?: FieldPromptResult["meta"];
 };
 
 export const fieldLocations: FieldLocation[] = [

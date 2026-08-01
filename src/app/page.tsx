@@ -150,7 +150,7 @@ const fieldNotes: FieldNote[] = [
     coordinates: "coordinate pending",
     place: "North Coast and Guanyinshan National Scenic Area",
     prompt:
-      "Read North Coast and Guanyinshan National Scenic Area through material aging, heat, thresholds, commerce.",
+      "How might climate and everyday infrastructure shape this place, and what could weathering or repair reveal on site?",
     source: "Wikipedia / Taiwan",
   },
   {
@@ -159,7 +159,7 @@ const fieldNotes: FieldNote[] = [
     coordinates: "coordinate pending",
     place: "San Francisco Maritime National Park Association",
     prompt:
-      "Read San Francisco Maritime National Park Association through landscape occupation, material aging, wind, thresholds.",
+      "How might terrain and civic infrastructure shape this place, and what could edges or movement reveal on site?",
     source: "Wikipedia / SF Bay Area",
   },
 ];
@@ -465,7 +465,7 @@ function CategoryGlyph({ category, className = "" }: { category: string; classNa
 }
 
 function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
-  const [isImageOpen, setIsImageOpen] = useState(false);
+  const [isPromptVisible, setIsPromptVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
   const timeLabel = note.region === "Taiwan" ? "GMT+8" : "Pacific Time";
   const hasImage = Boolean(note.imageUrl);
@@ -491,28 +491,29 @@ function FieldNoteCard({ note, now }: { note: FieldNote; now: Date }) {
           {note.place}
         </h2>
       )}
-      <p className="mt-4 text-sm leading-6 text-neutral-700">{note.prompt}</p>
       {hasImage ? (
         <button
           type="button"
-          aria-expanded={isImageOpen}
-          className={`field-image-reveal mt-4 w-full border border-black text-left ${
-            isImageOpen ? "is-open" : ""
+          aria-expanded={isPromptVisible}
+          aria-label={`${isPromptVisible ? "Hide" : "Show"} prompt for ${note.place}. ${note.prompt}`}
+          className={`field-note-image mt-4 w-full border border-black text-left ${
+            isPromptVisible ? "is-prompt-visible" : ""
           }`}
-          onClick={() => setIsImageOpen((open) => !open)}
+          onClick={() => setIsPromptVisible((visible) => !visible)}
         >
-          <span className="field-image-reveal-label">Field image</span>
-          <span className="field-image-reveal-mark">+</span>
-          <span className="field-image-reveal-panel">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={note.imageUrl}
-              alt={note.imageAlt || note.place}
-              className="h-full w-full object-cover"
-            />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={note.imageUrl}
+            alt={note.imageAlt || note.place}
+            className="h-full w-full object-cover"
+          />
+          <span aria-hidden="true" className="field-note-prompt-overlay">
+            <span className="field-note-prompt-text">{note.prompt}</span>
           </span>
         </button>
-      ) : null}
+      ) : (
+        <p className="mt-4 text-sm leading-6 text-neutral-700">{note.prompt}</p>
+      )}
       <dl className="mt-3 grid grid-cols-2 border-t border-black pb-1 pt-2 text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
         <dt>{timeLabel}</dt>
         <dd className="text-right text-neutral-700">{mounted ? formatFieldTime(now, note.region) : "—"}</dd>
@@ -916,23 +917,18 @@ export default function HomePage() {
         <aside className="border-b border-black py-3 lg:flex lg:min-h-0 lg:flex-col lg:border-b-0 lg:border-r lg:pb-3 lg:pt-0 lg:pr-6">
           <div className="border-y border-black py-3 lg:border-t-0">
             <div className="grid grid-cols-2 text-[11px] font-normal uppercase tracking-[0.2em] text-neutral-500">
-              <span>Daily field notes</span>
+              <span>Daily place reading</span>
               <span className="text-right">{now.toISOString().slice(0, 10)} UTC</span>
             </div>
+            <p className="mt-3 max-w-[270px] text-[12px] leading-[1.45] tracking-[0.01em] text-neutral-600">
+              Taiwan and the SF Bay Area are both part of my life. Each day, we explore one new place in each, noticing its environment, materials, and spaces.
+            </p>
           </div>
           <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto no-scrollbar lg:pr-2">
             <div>
               {fieldNoteItems.map((note) => (
                 <FieldNoteCard key={note.id} note={note} now={now} />
               ))}
-            </div>
-            <div className="mt-5 border-y border-black py-5">
-              <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-neutral-500">
-                Observation thread
-              </p>
-              <p className="mt-5 max-w-[250px] text-sm leading-6 text-neutral-700">
-                humidity as actuator / wood remembers water
-              </p>
             </div>
           </div>
         </aside>

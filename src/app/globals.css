@@ -81,82 +81,57 @@ html {
   }
 }
 
-.field-image-reveal {
+.field-note-image {
   position: relative;
-  overflow: hidden;
-  background: #fbfaf7;
-  cursor: pointer;
-  transition: background 180ms ease;
-}
-
-.field-image-reveal:hover {
-  background: #f0eee8;
-}
-
-.field-image-reveal:hover .field-image-reveal-label {
-  text-decoration: underline;
-}
-
-.field-image-reveal.is-unavailable {
-  cursor: default;
-  background:
-    repeating-linear-gradient(
-      -45deg,
-      rgba(17, 17, 17, 0.035) 0,
-      rgba(17, 17, 17, 0.035) 1px,
-      transparent 1px,
-      transparent 7px
-    ),
-    #fbfaf7;
-}
-
-.field-image-reveal-label,
-.field-image-reveal-mark {
-  display: inline-block;
-  color: #111111;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  line-height: 1;
-  padding: 0.65rem 0.7rem;
-  text-transform: uppercase;
-}
-
-.field-image-reveal-mark {
-  float: right;
-  transition: transform 220ms ease;
-}
-
-.field-image-reveal.is-unavailable .field-image-reveal-label {
-  color: #737373;
-}
-
-.field-image-reveal-panel {
-  clear: both;
   display: block;
-  height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: height 320ms ease, opacity 220ms ease;
-}
-
-.field-image-reveal-panel img {
-  filter: grayscale(1) contrast(0.96);
-  transform: scale(1.01);
-  transition: filter 260ms ease, transform 420ms ease;
-}
-
-.field-image-reveal.is-open .field-image-reveal-panel {
   height: 168px;
+  overflow: hidden;
+  background: #e8e6df;
+  cursor: pointer;
+}
+
+.field-note-image:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+.field-note-image > img {
+  display: block;
+  filter: grayscale(1) contrast(0.96);
+  transform: none;
+  transition: filter 220ms ease;
+}
+
+.field-note-prompt-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px;
+  background: rgba(17, 17, 17, 0.76);
+  color: #fbfaf7;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+.field-note-prompt-text {
+  display: block;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  line-height: 1.45;
+}
+
+.field-note-image.is-prompt-visible .field-note-prompt-overlay,
+.field-note-image:focus-visible .field-note-prompt-overlay {
   opacity: 1;
 }
 
-.field-image-reveal.is-open .field-image-reveal-mark {
-  transform: rotate(45deg);
-}
-
-.field-image-reveal.is-open .field-image-reveal-panel img {
-  filter: grayscale(1) contrast(1.02);
-  transform: scale(1.035);
+@media (hover: hover) and (pointer: fine) {
+  .field-note-image:hover .field-note-prompt-overlay {
+    opacity: 1;
+  }
 }
 
 .route-line {
