@@ -381,6 +381,9 @@ function CategoryGlyph({ category, className = "" }: { category: string; classNa
   const routeKey = route.replace("route-", "");
   const glyph = routeGlyphs[routeKey] || routeGlyphs.building;
   const lineStyle = { animationDuration: glyph.lineDuration ?? glyph.duration };
+  const morphValues = glyph.morph
+    ? [glyph.path, ...glyph.morph, glyph.path].join(";")
+    : undefined;
 
   return (
     <svg viewBox="0 0 460 140" aria-hidden="true" className={`${route} ${className}`}>
@@ -422,13 +425,30 @@ function CategoryGlyph({ category, className = "" }: { category: string; classNa
         />
       ))}
       <path
-        className="glyph-route"
+        className={`glyph-route ${morphValues ? "glyph-route-static" : ""}`}
         d={glyph.path}
         fill="none"
         stroke="currentColor"
         strokeDasharray={glyph.dash}
         style={lineStyle}
       />
+      {morphValues ? (
+        <path
+          className="glyph-route glyph-route-morph"
+          d={glyph.path}
+          fill="none"
+          stroke="currentColor"
+          strokeDasharray={glyph.dash}
+          style={lineStyle}
+        >
+          <animate
+            attributeName="d"
+            dur="15s"
+            repeatCount="indefinite"
+            values={morphValues}
+          />
+        </path>
+      ) : null}
       {glyph.nodes.map(([cx, cy], index) => (
         <circle
           key={`${category}-node-${index}`}

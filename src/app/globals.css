@@ -427,6 +427,10 @@ html {
   opacity: 1;
 }
 
+.category-index-icon .glyph-route-morph {
+  display: none;
+}
+
 .category-index-icon.route-perception .glyph-route {
   animation-name: glyph-lens-travel, route-dash;
   animation-timing-function: linear, linear;
@@ -560,6 +564,76 @@ html {
   animation-name: route-pulse;
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon .glyph-route-static {
+  display: none;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon .glyph-route-morph {
+  display: block;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon.route-nature .route-node {
+  animation-name: route-coral-blooming;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon.route-nature .route-node:nth-of-type(-n + 3) {
+  animation-name: route-colony-source;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon.route-construction-fabrication .route-node {
+  animation-name: route-assembly-lock;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon.route-robotics .route-node {
+  animation-name: route-blink;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon.route-perception .route-node {
+  animation-name: route-magnified-point;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon.route-new-media .route-node {
+  animation-name: route-data;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon.route-visualization .route-node {
+  animation-name: route-signal;
+}
+
+:is(
+  .category-index-item:is(.is-active, :hover, :focus-visible),
+  .highlight-card:is(.is-active, :hover, :focus-within)
+) .category-index-icon.route-building .route-node {
+  animation-name: route-assemble;
 }
 
 :is(
@@ -1342,6 +1416,14 @@ html {
   .glyph-trail,
   .glyph-bar {
     animation: none !important;
+  }
+
+  .category-index-icon .glyph-route-static {
+    display: block !important;
+  }
+
+  .category-index-icon .glyph-route-morph {
+    display: none !important;
   }
 }
 
