@@ -353,6 +353,34 @@ async function fetchWikiPages(members: WikiMember[], region: FieldLocation["regi
     .filter((place): place is WikiFieldLocation => Boolean(place));
 }
 
+async function fetchWikiPageByTitle(
+  rawTitle: string,
+  region: FieldLocation["region"]
+): Promise<WikiFieldLocation | null> {
+  const title = rawTitle.replace(/_/g, " ").trim().slice(0, 160);
+  if (!title) return null;
+
+  const params = new URLSearchParams({
+    action: "query",
+    format: "json",
+    redirects: "1",
+    prop: "pageimages|coordinates|pageprops",
+    titles: title,
+    piprop: "thumbnail|name",
+    pithumbsize: "900",
+    colimit: "max",
+    ppprop: "wikibase_item",
+  });
+  const data = await fetchJson<WikiPageResponse>(
+    `https://en.wikipedia.org/w/api.php?${params}`
+  );
+  const page = Object.values(data.query?.pages || {}).find(
+    (candidate) => candidate.pageid > 0
+  );
+
+  return page ? wikiPageToFieldLocation(page, undefined, region) : null;
+}
+
 function evidencePlace(place: WikiFieldLocation): EvidencePlace {
   return {
     placeId: place.id,
@@ -422,42 +450,68 @@ function unavailable(
   };
 }
 
-async function resolveRegion(region: FieldLocation["region"]): Promise<RegionResolution> {
-  const categories = rotateDaily(
-    REGION_CONFIG[region].categories,
-    `${region}-category`
-  ).slice(0, 4);
-  const [categoryResult, geoResult] = await Promise.allSettled([
-    fetchCategoryPool(categories),
-    fetchGeoPool(region),
-  ]);
-  const categoryMembers = categoryResult.status === "fulfilled" ? categoryResult.value : [];
-  const geoMembers = geoResult.status === "fulfilled" ? geoResult.value : [];
-  const members = rotateDaily(
-    interleaveMembers(categoryMembers, geoMembers),
-    `${region}-${dateKey()}-candidate`
-  );
+async function resolveRegion(
+  region: FieldLocation["region"],
+  overrideTitle?: string
+): Promise<RegionResolution> {
+  let candidates: WikiFieldLocation[];
 
-  if (!members.length) return { ok: false, unavailable: unavailable(region, "EVIDENCE_FETCH_FAILED") };
+  if (overrideTitle) {
+    try {
+      const overridePlace = await fetchWikiPageByTitle(overrideTitle, region);
+      candidates = overridePlace ? [overridePlace] : [];
+    } catch (error) {
+      console.warn({
+        event: "local-field-note-development-override-failed",
+        region,
+        title: overrideTitle,
+        error: error instanceof Error ? error.message : "Unknown override error",
+      });
+      candidates = [];
+    }
+  } else {
+    const categories = rotateDaily(
+      REGION_CONFIG[region].categories,
+      `${region}-category`
+    ).slice(0, 4);
+    const [categoryResult, geoResult] = await Promise.allSettled([
+      fetchCategoryPool(categories),
+      fetchGeoPool(region),
+    ]);
+    const categoryMembers = categoryResult.status === "fulfilled" ? categoryResult.value : [];
+    const geoMembers = geoResult.status === "fulfilled" ? geoResult.value : [];
+    const members = rotateDaily(
+      interleaveMembers(categoryMembers, geoMembers),
+      `${region}-${dateKey()}-candidate`
+    );
 
-  const batches: WikiMember[][] = [];
-  for (let index = 0; index < Math.min(members.length, 150); index += 50) {
-    batches.push(members.slice(index, index + 50));
+    if (!members.length) {
+      return { ok: false, unavailable: unavailable(region, "EVIDENCE_FETCH_FAILED") };
+    }
+
+    const batches: WikiMember[][] = [];
+    for (let index = 0; index < Math.min(members.length, 150); index += 50) {
+      batches.push(members.slice(index, index + 50));
+    }
+    const settledPages = await Promise.allSettled(
+      batches.map((batch) => fetchWikiPages(batch, region))
+    );
+    const resolvedPlaces = settledPages.flatMap((result) =>
+      result.status === "fulfilled" ? result.value : []
+    );
+    candidates = rotateDaily(
+      resolvedPlaces,
+      `${region}-${dateKey()}-resolved-place`
+    )
+      .map((place, index) => ({ place, index, priority: candidateTitlePriority(place) }))
+      .sort((a, b) => b.priority - a.priority || a.index - b.index)
+      .map((item) => item.place)
+      .slice(0, MAX_EVIDENCE_CANDIDATES);
   }
-  const settledPages = await Promise.allSettled(
-    batches.map((batch) => fetchWikiPages(batch, region))
-  );
-  const resolvedPlaces = settledPages.flatMap((result) =>
-    result.status === "fulfilled" ? result.value : []
-  );
-  const candidates = rotateDaily(
-    resolvedPlaces,
-    `${region}-${dateKey()}-resolved-place`
-  )
-    .map((place, index) => ({ place, index, priority: candidateTitlePriority(place) }))
-    .sort((a, b) => b.priority - a.priority || a.index - b.index)
-    .map((item) => item.place)
-    .slice(0, MAX_EVIDENCE_CANDIDATES);
+
+  if (!candidates.length) {
+    return { ok: false, unavailable: unavailable(region, "EVIDENCE_FETCH_FAILED") };
+  }
   const selection = await selectFirstEvidenceBackedCandidate(candidates, async (place) => {
     const fetched = await fetchWikipediaEvidence(evidencePlace(place));
     if (!hasUsableFetchedEvidence(fetched)) {
@@ -542,7 +596,7 @@ function secondsUntilNextUtcDay() {
   return Math.max(60, Math.ceil((next - now.getTime()) / 1000));
 }
 
-function jsonResponse(response: DailyFieldNotesResponse) {
+function jsonResponse(response: DailyFieldNotesResponse, developmentOverride = false) {
   const policy = fieldNoteCachePolicy(
     response.status,
     secondsUntilNextUtcDay(),
@@ -551,23 +605,48 @@ function jsonResponse(response: DailyFieldNotesResponse) {
   return NextResponse.json(response, {
     status: policy.httpStatus,
     headers: {
-      "Cache-Control": policy.cacheControl,
+      "Cache-Control": developmentOverride ? "no-store" : policy.cacheControl,
+      ...(developmentOverride
+        ? { "X-Field-Note-Override": "development" }
+        : {}),
       ...(policy.retryAfter ? { "Retry-After": policy.retryAfter } : {}),
     },
   });
 }
 
-export async function GET() {
-  if (dailyCache?.date === dateKey() && dailyCache.cacheVersion === CACHE_VERSION) {
+function readDevelopmentOverrides(request: Request) {
+  if (process.env.NODE_ENV === "production") return {};
+
+  const searchParams = new URL(request.url).searchParams;
+  const readTitle = (key: string) => {
+    const value = searchParams.get(key)?.trim();
+    return value ? value.slice(0, 160) : undefined;
+  };
+
+  return {
+    taiwan: readTitle("tw"),
+    sfBay: readTitle("sf"),
+  };
+}
+
+export async function GET(request: Request) {
+  const overrides = readDevelopmentOverrides(request);
+  const hasDevelopmentOverride = Boolean(overrides.taiwan || overrides.sfBay);
+
+  if (
+    !hasDevelopmentOverride &&
+    dailyCache?.date === dateKey() &&
+    dailyCache.cacheVersion === CACHE_VERSION
+  ) {
     return jsonResponse(dailyCache);
   }
-  if (shortCache && shortCache.expiresAt > Date.now()) {
+  if (!hasDevelopmentOverride && shortCache && shortCache.expiresAt > Date.now()) {
     return jsonResponse(shortCache.response);
   }
 
   const [taiwanResult, sfResult] = await Promise.all([
-    resolveRegion("Taiwan"),
-    resolveRegion("SF Bay Area"),
+    resolveRegion("Taiwan", overrides.taiwan),
+    resolveRegion("SF Bay Area", overrides.sfBay),
   ]);
   const taiwan = taiwanResult.ok ? taiwanResult.location : null;
   const sfBay = sfResult.ok ? sfResult.location : null;
@@ -597,12 +676,14 @@ export async function GET() {
     unavailable: unavailableRegions,
   };
 
-  if (status === "success") {
-    dailyCache = response;
-    shortCache = undefined;
-  } else {
-    shortCache = { expiresAt: Date.now() + SHORT_RETRY_SECONDS * 1000, response };
+  if (!hasDevelopmentOverride) {
+    if (status === "success") {
+      dailyCache = response;
+      shortCache = undefined;
+    } else {
+      shortCache = { expiresAt: Date.now() + SHORT_RETRY_SECONDS * 1000, response };
+    }
   }
 
-  return jsonResponse(response);
+  return jsonResponse(response, hasDevelopmentOverride);
 }

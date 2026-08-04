@@ -851,7 +851,19 @@ export default function HomePage() {
   useEffect(() => {
     let isMounted = true;
 
-    fetch("/api/local-field-notes")
+    const apiParams = new URLSearchParams();
+    if (process.env.NODE_ENV !== "production") {
+      const pageParams = new URLSearchParams(window.location.search);
+      const taiwanOverride = pageParams.get("tw");
+      const sfBayOverride = pageParams.get("sf");
+      if (taiwanOverride) apiParams.set("tw", taiwanOverride);
+      if (sfBayOverride) apiParams.set("sf", sfBayOverride);
+    }
+    const fieldNotesEndpoint = apiParams.size
+      ? `/api/local-field-notes?${apiParams.toString()}`
+      : "/api/local-field-notes";
+
+    fetch(fieldNotesEndpoint)
       .then((response) =>
         response.ok || response.status === 503 ? response.json() : Promise.reject(new Error("Field notes request failed"))
       )
