@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import type { FieldLocation } from "@/data/fieldNotes";
 import {
   FIELD_NOTE_ALGORITHM_VERSION,
+  FIELD_NOTE_ROTATION_DAYS,
   createFieldNoteFromEvidence,
   fieldNoteCachePolicy,
   fetchWikipediaEvidence,
   hasUsableFetchedEvidence,
+  isPreferredDailyCandidate,
   selectFirstEvidenceBackedCandidate,
   type CandidateRejectionReason,
   type EvidenceFetchReport,
@@ -91,8 +93,8 @@ type RegionResolution =
   | { ok: false; unavailable: TemporaryUnavailable };
 
 const SHORT_RETRY_SECONDS = 600;
-const MAX_EVIDENCE_CANDIDATES = 18;
-const CACHE_VERSION = `daily-place-reading-${FIELD_NOTE_ALGORITHM_VERSION}-v1`;
+const MAX_EVIDENCE_CANDIDATES = 24;
+const CACHE_VERSION = `daily-place-reading-${FIELD_NOTE_ALGORITHM_VERSION}-v2`;
 let dailyCache: DailyFieldNotesResponse | undefined;
 let shortCache: { expiresAt: number; response: DailyFieldNotesResponse } | undefined;
 
@@ -176,33 +178,10 @@ function formatCoordinates(lat?: number, lon?: number) {
 
 function isLikelyPlace(member: WikiMember) {
   const title = member.title.toLocaleLowerCase();
-  return ![
-    " association",
-    " foundation",
-    " society",
-    " organization",
-    " organisation",
-    " institute",
-    " bureau",
-    " department",
-    " ministry",
-    " agency",
-    " company",
-    " corporation",
-    " council",
-    " committee",
-    " club",
-    " festival",
-    " event",
-    " award",
-    " competition",
-    " university",
-    " school",
-    " casino",
-    " hotel",
-    " attacks",
-    "list of ",
-  ].some((term) => title.includes(term));
+  return !(
+    /^(?:list of|\d{4}\b)/i.test(member.title) ||
+    /\b(?:association|foundation|society|organization|organisation|institute|bureau|department|ministry|agency|company|corporation|council|committee|club|office|festival|event|award|competition|university|college|school|casino|hotel|area codes?|attacks?|explosions?|administration)\b/i.test(title)
+  );
 }
 
 function isLikelyPlaceImage(filename?: string) {
@@ -403,9 +382,63 @@ function fetchWasRateLimited(report: EvidenceFetchReport) {
 
 function candidateTitlePriority(place: WikiFieldLocation) {
   const title = place.place.toLocaleLowerCase();
-  if (/\b(?:scenic area|park|beach|river|creek|bridge|port|harbou?r|market|street|mine|mining)\b/.test(title)) return 5;
-  if (/\b(?:station|museum|house|mansion|church|temple|civic center|landmark)\b/.test(title)) return 4;
+  if (/\b(?:river|creek|bridge|port|harbou?r|market|commercial street|mine|mining|quarry|wetland|marsh|station|airport|terminal|house|mansion)\b/.test(title)) return 6;
+  if (/\b(?:beach|bay|lake|mountain|mount|hill|valley|canyon|scenic area)\b/.test(title)) return 5;
+  if (/\b(?:park|garden|museum|church|cathedral|temple|lighthouse|civic center|library|landmark)\b/.test(title)) return 4;
   return 1;
+}
+
+function candidateFamily(place: WikiFieldLocation) {
+  const title = place.place.toLocaleLowerCase();
+  if (/\b(?:river|creek|bay|beach|lake|wetland|marsh|waterfront|wharf)\b/.test(title)) return "water-ecology";
+  if (/\b(?:station|airport|terminal|bridge|port|harbou?r)\b/.test(title)) return "transportation";
+  if (/\b(?:market|commercial street|shopping district)\b/.test(title)) return "commerce";
+  if (/\b(?:house|mansion|residence|villa)\b/.test(title)) return "residential";
+  if (/\b(?:mine|mining|quarry|mountain|mount|hill|valley|canyon|scenic area)\b/.test(title)) return "terrain-industry";
+  if (/\b(?:park|garden|plaza)\b/.test(title)) return "public-space";
+  if (/\b(?:museum|church|cathedral|temple|lighthouse|civic center|library|landmark)\b/.test(title)) return "institutional";
+  return "other";
+}
+
+function stratifyCandidates(places: WikiFieldLocation[], key: string) {
+  const ranked = places.map((place, index) => ({
+    place,
+    index,
+    priority:
+      candidateTitlePriority(place) +
+      (isPreferredDailyCandidate(place.wikiPageId) ? 10 : 0),
+    family: candidateFamily(place),
+  }));
+  const ordered: WikiFieldLocation[] = [];
+  const priorities = Array.from(new Set(ranked.map((item) => item.priority))).sort(
+    (a, b) => b - a
+  );
+
+  priorities.forEach((priority) => {
+    const atPriority = ranked.filter((item) => item.priority === priority);
+    const families = rotateDaily(
+      Array.from(new Set(atPriority.map((item) => item.family))),
+      `${key}-${priority}-families`
+    );
+    const byFamily = new Map(
+      families.map((family) => [
+        family,
+        atPriority
+          .filter((item) => item.family === family)
+          .sort((a, b) => a.index - b.index)
+          .map((item) => item.place),
+      ])
+    );
+
+    while (families.some((family) => (byFamily.get(family)?.length || 0) > 0)) {
+      families.forEach((family) => {
+        const next = byFamily.get(family)?.shift();
+        if (next) ordered.push(next);
+      });
+    }
+  });
+
+  return ordered;
 }
 
 function logCandidateRejected(input: {
@@ -432,7 +465,7 @@ function logCandidateRejected(input: {
     evidenceCount: input.evidenceCount || 0,
     ownedEvidenceCount: input.ownedEvidenceCount || 0,
     selectedFrameType: input.selectedFrameType,
-    generatorMode: process.env.FIELD_NOTE_GENERATOR || "template",
+    generatorMode: process.env.FIELD_NOTE_GENERATOR || "hybrid",
     details: input.details,
   });
 }
@@ -499,13 +532,10 @@ async function resolveRegion(
     const resolvedPlaces = settledPages.flatMap((result) =>
       result.status === "fulfilled" ? result.value : []
     );
-    candidates = rotateDaily(
-      resolvedPlaces,
-      `${region}-${dateKey()}-resolved-place`
+    candidates = stratifyCandidates(
+      rotateDaily(resolvedPlaces, `${region}-${dateKey()}-resolved-place`),
+      `${region}-${dateKey()}-${FIELD_NOTE_ROTATION_DAYS}-day-candidate-order`
     )
-      .map((place, index) => ({ place, index, priority: candidateTitlePriority(place) }))
-      .sort((a, b) => b.priority - a.priority || a.index - b.index)
-      .map((item) => item.place)
       .slice(0, MAX_EVIDENCE_CANDIDATES);
   }
 
@@ -546,6 +576,7 @@ async function resolveRegion(
       algorithmVersion: FIELD_NOTE_ALGORITHM_VERSION,
       generator: pipeline.generated.generator,
       templateId: pipeline.generated.templateId,
+      operator: pipeline.generated.operator,
       primaryTheme: pipeline.frame.primaryTheme,
       secondaryThemes: pipeline.frame.secondaryThemes,
       confidence: pipeline.frame.confidence,

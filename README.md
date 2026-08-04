@@ -1,5 +1,16 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Daily Place Reading generator
+
+The default `hybrid` pipeline keeps specific evidence-backed templates, then uses
+Structured Outputs for places without a useful template. Every generated candidate
+must cite Wikipedia evidence IDs and pass local grounding, observability, specificity,
+and length checks. If no API key is configured or the model request fails, the server
+uses deterministic cross-place observation operators instead.
+
+Copy `.env.example` to `.env.local` and set `OPENAI_API_KEY` to enable model-backed
+generation. Use `FIELD_NOTE_GENERATOR=operator` to force the deterministic path.
+
 ## Getting Started
 
 First, run the development server:

@@ -130,6 +130,9 @@ function reportFromResult<T>(result: FetchResult<T>, itemCount = 0): EvidenceFet
 const SECTION_PRIORITIES: Array<{ pattern: RegExp; score: number }> = [
   { pattern: /\b(?:architecture|design|construction|structure|buildings?)\b/i, score: 5 },
   { pattern: /\b(?:geography|geology|environment|ecology|climate|landscape)\b/i, score: 5 },
+  { pattern: /\b(?:description|features?|layout|grounds?|site|setting)\b/i, score: 4.75 },
+  { pattern: /\b(?:trails?|paths?|gardens?|facilities|public space|recreation)\b/i, score: 4.75 },
+  { pattern: /\b(?:collections?|exhibitions?|displays?|flora|fauna|wildlife|habitat|hydrology|natural history)\b/i, score: 4.75 },
   { pattern: /\b(?:history|origins?|development|conversion|preservation)\b/i, score: 4.5 },
   { pattern: /\b(?:commerce|trade|economy|industry|mining|transport|infrastructure|land use)\b/i, score: 4.25 },
   { pattern: /\b(?:station layout|facilities|service|operations?|access)\b/i, score: 3.75 },

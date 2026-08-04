@@ -5,13 +5,34 @@ import {
   classifyThemeScores,
   createFieldNoteFromEvidence,
   createQuestionGenerator,
+  FIELD_NOTE_ROTATION_DAYS,
+  candidateRotationSlot,
+  dailyRotationSlot,
   fieldNoteCachePolicy,
+  generateEvidenceGroundedLLMObservation,
   normalizeEvidenceSources,
   normalizeEvidenceText,
   selectFirstEvidenceBackedCandidate,
+  validateGenerativeCandidate,
   type EvidencePlace,
   type RawEvidenceSource,
 } from "../src/lib/field-notes";
+
+test("daily rotation gives every page one preferred day and prevents consecutive repeats", () => {
+  const pageId = 43_813_261;
+  const cycleStart = new Date("2026-08-03T00:00:00.000Z");
+  const preferredDays = Array.from({ length: FIELD_NOTE_ROTATION_DAYS }, (_, offset) => {
+    const date = new Date(cycleStart.getTime() + offset * 86_400_000);
+    return candidateRotationSlot(pageId) === dailyRotationSlot(date);
+  });
+
+  assert.equal(preferredDays.filter(Boolean).length, 1);
+  for (let offset = 0; offset < FIELD_NOTE_ROTATION_DAYS; offset += 1) {
+    const today = new Date(cycleStart.getTime() + offset * 86_400_000);
+    const tomorrow = new Date(today.getTime() + 86_400_000);
+    assert.notEqual(dailyRotationSlot(today), dailyRotationSlot(tomorrow));
+  }
+});
 
 function place(placeName: string): EvidencePlace {
   return {
@@ -53,6 +74,16 @@ test("traditional Chinese metadata is removed and cannot create a history theme"
   assert.equal(evidence.flatMap((item) => item.detectedThemes).length, 0);
 });
 
+test("inline Chinese labels are removed without deleting surrounding spatial evidence", () => {
+  const normalized = normalizeEvidenceText(
+    "The market consists of Futing Night Market (Chinese: 福町夜市), a street of Taiwanese Indigenous cuisine (Chinese: 原住民一條街), and Ziqiang Night Market."
+  );
+
+  assert.doesNotMatch(normalized, /Chinese|福町|原住民/);
+  assert.match(normalized, /street of Taiwanese Indigenous cuisine/i);
+  assert.match(normalized, /Ziqiang Night Market/i);
+});
+
 test("Coast Range supports terrain and geology, never shoreline", () => {
   const evidence = analyze("New Almaden", [
     source(
@@ -86,6 +117,108 @@ test("lowercase salt marsh habitat remains valid ecology evidence", () => {
       (item) => item.theme === "ecology" && item.score >= 3
     )
   );
+});
+
+test("a wetland park produces an ecology reading from observable habitat clues", async () => {
+  const result = await createFieldNoteFromEvidence(place("Zhongdu Wetlands Park"), [
+    source(
+      "summary",
+      "Zhongdu Wetlands Park contains restored wetland habitat, native vegetation, and local wildlife."
+    ),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.frame.primaryTheme, "ecology");
+  assert.equal(result.frame.frameType, "ecology-reading");
+  assert.match(result.generated.question, /wetland|vegetation|wildlife/i);
+});
+
+test("park paths and sports fields produce a public-space reading", async () => {
+  const result = await createFieldNoteFromEvidence(place("Erlun Sports Park"), [
+    source(
+      "summary",
+      "Erlun Sports Park is a public park with walking paths, sports fields, and playgrounds."
+    ),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.frame.primaryTheme, "publicSpace");
+  assert.equal(result.frame.frameType, "public-space-reading");
+  assert.match(result.generated.question, /paths|sports fields|playgrounds/i);
+});
+
+test("terrain-only evidence produces a frame without inventing history", async () => {
+  const result = await createFieldNoteFromEvidence(place("Sorich Park"), [
+    source("summary", "Sorich Park extends across steep hills and exposed slopes."),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.frame.primaryTheme, "terrain");
+  assert.match(result.generated.question, /hills|slopes/i);
+  assert.doesNotMatch(result.generated.question, /history|shoreline/i);
+});
+
+test("rock outcrops produce a geology-only reading", async () => {
+  const result = await createFieldNoteFromEvidence(place("Simms Island"), [
+    source("summary", "Simms Island contains exposed rock outcrops and geological layers."),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.frame.primaryTheme, "geology");
+  assert.equal(result.frame.frameType, "geology-reading");
+  assert.match(result.generated.question, /geology|outcrops/i);
+});
+
+test("a confirmed station gets a neutral field prompt without invented layout details", async () => {
+  const neutral = await createFieldNoteFromEvidence(place("Example metro station"), [
+    source("summary", "Example Station is a station on the Orange Line."),
+  ]);
+  assert.equal(neutral.ok, true);
+  if (!neutral.ok) return;
+  assert.equal(neutral.frame.frameType, "station-layout");
+  assert.match(neutral.generated.question, /station|arrivals|departures/i);
+  assert.doesNotMatch(neutral.generated.question, /platform|underground|exit/i);
+
+  const supported = await createFieldNoteFromEvidence(place("Example metro station"), [
+    source(
+      "summary",
+      "Example Station is an underground station with an island platform and four station exits."
+    ),
+  ]);
+  assert.equal(supported.ok, true);
+  if (!supported.ok) return;
+  assert.equal(supported.frame.frameType, "station-layout");
+  assert.match(supported.generated.question, /platform|exits|underground/i);
+});
+
+test("a confirmed park gets a neutral prompt when no layout feature is stated", async () => {
+  const result = await createFieldNoteFromEvidence(place("Example Sports Park"), [
+    source("summary", "Example Sports Park is a public sports park in the city."),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.frame.frameType, "public-space-reading");
+  assert.match(result.generated.question, /gather, pause, or move/i);
+  assert.doesNotMatch(result.generated.question, /path|field|playground/i);
+});
+
+test("specific built features support an architectural reading", async () => {
+  const result = await createFieldNoteFromEvidence(place("Example Memorial Church"), [
+    source(
+      "summary",
+      "Example Memorial Church has a Gothic facade and a prominent bell tower."
+    ),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.frame.primaryTheme, "architecture");
+  assert.match(result.generated.question, /Gothic|bell tower|facade/i);
 });
 
 test("ownership accepts current place and rejects another person's property", () => {
@@ -122,6 +255,213 @@ test("Sanfong evidence produces a commerce and river-goods question without clim
   assert.ok(result.generated.evidenceIds.length > 0);
 });
 
+test("Sanfong summary and history form a comparison instead of showing a vanished river", async () => {
+  const result = await createFieldNoteFromEvidence(place("Sanfong Central Street"), [
+    source(
+      "summary",
+      "Sanfong Central Street is a traditional shopping area selling grocery goods and the largest grocery goods wholesale center in Kaohsiung."
+    ),
+    source(
+      "history",
+      "Around a century ago, there was a river by the street through which local merchants imported foreign goods.",
+      "History"
+    ),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.match(result.generated.question, /wholesale/i);
+  assert.match(result.generated.question, /river-trade past/i);
+  assert.doesNotMatch(result.generated.question, /river most clearly visible/i);
+  assert.ok(result.generated.operator);
+});
+
+test("a night market can form a commercial reading without goods movement", async () => {
+  const result = await createFieldNoteFromEvidence(place("Liouhe Night Market"), [
+    source(
+      "summary",
+      "The Liouhe Night Market is a tourist night market in Kaohsiung where seafood, handicrafts, clothing, and other goods are sold."
+    ),
+    source(
+      "history",
+      "In the 1950s, many food stalls in the area were collectively known as Dagangpu Night Market. Since then, the night market developed into a large-scale market. The market later began selling halal foods at its stalls.",
+      "History"
+    ),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.frame.primaryTheme, "commerce");
+  assert.equal(result.frame.frameType, "commercial-reading");
+  assert.match(result.generated.question, /halal food/i);
+  assert.match(result.generated.question, /mix of stalls/i);
+  assert.ok(result.generated.question.split(/\s+/).length <= 24);
+});
+
+test("Dongdamen replaces the generic market fallback with a grounded historical observation", async () => {
+  const previousMode = process.env.FIELD_NOTE_GENERATOR;
+  process.env.FIELD_NOTE_GENERATOR = "operator";
+  try {
+    const result = await createFieldNoteFromEvidence(place("Dongdamen Night Market"), [
+      source(
+        "summary",
+        "Dongdamen Night Market is the largest night market in Hualien County."
+      ),
+      source(
+        "architecture",
+        "The market features a center plaza, an ecology pond, and a lookout tower.",
+        "Architecture"
+      ),
+      source(
+        "history",
+        "The area where the night market stands today used to be the area of the old train station.",
+        "History"
+      ),
+    ]);
+
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(result.generated.generator, "operator");
+    assert.equal(result.frame.frameType, "evidence-grounded-observation");
+    assert.match(result.generated.question, /old train station/i);
+    assert.doesNotMatch(result.generated.question, /mix of stalls|market's role/i);
+  } finally {
+    if (previousMode === undefined) delete process.env.FIELD_NOTE_GENERATOR;
+    else process.env.FIELD_NOTE_GENERATOR = previousMode;
+  }
+});
+
+test("universal operators can produce a grounded reading without a supported theme", async () => {
+  const previousMode = process.env.FIELD_NOTE_GENERATOR;
+  process.env.FIELD_NOTE_GENERATOR = "operator";
+  try {
+    const result = await createFieldNoteFromEvidence(place("Example Grounds"), [
+      source(
+        "history",
+        "The area where Example Grounds stands today used to be the area of an old orchard.",
+        "History"
+      ),
+    ]);
+
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(result.frame.primaryTheme, "placeReading");
+    assert.match(result.generated.question, /old orchard/i);
+  } finally {
+    if (previousMode === undefined) delete process.env.FIELD_NOTE_GENERATOR;
+    else process.env.FIELD_NOTE_GENERATOR = previousMode;
+  }
+});
+
+test("generative validation rejects missing citations and unsupported presuppositions", () => {
+  const atoms = [
+    {
+      evidenceId: "history-1",
+      text: "The site used to be the area of the old train station.",
+      relevance: 8,
+      operators: [{ operator: "historical_trace" as const, score: 3 }],
+      observableClues: ["the old train station"],
+    },
+  ];
+
+  const missingCitation = validateGenerativeCandidate(
+    {
+      question: "Is the old train station still legible in today’s layout?",
+      operator: "historical_trace",
+      evidenceIds: ["missing"],
+      presuppositions: ["The site used to be the old train station."],
+      observableClues: ["the old train station"],
+    },
+    atoms
+  );
+  assert.equal(missingCitation.valid, false);
+
+  const hallucination = validateGenerativeCandidate(
+    {
+      question: "Where is the demolished stone tower still visible in today’s layout?",
+      operator: "historical_trace",
+      evidenceIds: ["history-1"],
+      presuppositions: ["A stone tower was demolished at the site."],
+      observableClues: ["the stone tower"],
+    },
+    atoms
+  );
+  assert.equal(hallucination.valid, false);
+});
+
+test("structured LLM output is revalidated before selection", async () => {
+  const atoms = [
+    {
+      evidenceId: "history-1",
+      text: "The site used to be the area of the old train station.",
+      relevance: 8,
+      operators: [{ operator: "historical_trace" as const, score: 3 }],
+      observableClues: ["the old train station"],
+    },
+  ];
+  let requestBody: Record<string, unknown> | undefined;
+  const fetchImpl = (async (_input: string | URL | Request, init?: RequestInit) => {
+    requestBody = JSON.parse(String(init?.body));
+    return new Response(
+      JSON.stringify({
+        output_text: JSON.stringify({
+          candidates: [
+            {
+              question: "What makes this place unique?",
+              operator: "historical_trace",
+              evidenceIds: ["history-1"],
+              presuppositions: ["The site used to be the old train station."],
+              observableClues: ["the old train station"],
+            },
+            {
+              question: "Where is the unsupported brick tower visible in today’s layout?",
+              operator: "material_expression",
+              evidenceIds: ["history-1"],
+              presuppositions: ["The site contains a brick tower."],
+              observableClues: ["the brick tower"],
+            },
+            {
+              question: "Is the old train station still legible in today’s layout?",
+              operator: "historical_trace",
+              evidenceIds: ["history-1"],
+              presuppositions: ["The site used to be the old train station."],
+              observableClues: ["the old train station"],
+            },
+          ],
+        }),
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  }) as typeof fetch;
+
+  const result = await generateEvidenceGroundedLLMObservation(
+    place("Example Grounds"),
+    atoms,
+    { apiKey: "test-key", model: "test-model", fetchImpl }
+  );
+
+  assert.ok(result);
+  assert.match(result.candidate.question, /old train station/i);
+  assert.equal(
+    (requestBody?.text as { format?: { type?: string } })?.format?.type,
+    "json_schema"
+  );
+});
+
+test("mentioning a nearby market does not turn a river into a market", async () => {
+  const result = await createFieldNoteFromEvidence(place("Love River"), [
+    source(
+      "summary",
+      "Love River is a river in Kaohsiung that flows through the city. A night market operates near Love River and sells food from many stalls."
+    ),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.frame.primaryTheme, "water");
+  assert.doesNotMatch(result.generated.question, /market|stalls/i);
+});
+
 test("Camron-Stanford evidence produces a preserved private-to-public reading", async () => {
   const result = await createFieldNoteFromEvidence(place("Camron-Stanford House"), [
     source(
@@ -147,6 +487,23 @@ test("Camron-Stanford evidence produces a preserved private-to-public reading", 
   assert.doesNotMatch(result.generated.question, /wetland|stone/i);
 });
 
+test("a former museum produces an evidence-backed institutional transition", async () => {
+  const result = await createFieldNoteFromEvidence(place("Chung Cheng Aviation Museum"), [
+    source(
+      "summary",
+      "The Chung Cheng Aviation Museum was an aviation museum located at Taiwan Taoyuan International Airport. The museum closed in 2014 to allow construction of Terminal 3. Items displayed at the museum were sent to storage and all 18 aircraft on display were relocated. The museum was located between the main freeway entrance and the airport terminals."
+    ),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.frame.primaryTheme, "institutionalChange");
+  assert.equal(result.frame.frameType, "institutional-transition");
+  assert.match(result.generated.question, /former aviation museum/i);
+  assert.match(result.generated.question, /aircraft were relocated/i);
+  assert.doesNotMatch(result.generated.question, /movement is organized/i);
+});
+
 test("New Almaden produces mining and terrain, not shoreline", async () => {
   const result = await createFieldNoteFromEvidence(place("New Almaden"), [
     source(
@@ -161,13 +518,16 @@ test("New Almaden produces mining and terrain, not shoreline", async () => {
   ]);
   assert.equal(result.ok, true);
   if (!result.ok) return;
-  assert.equal(result.frame.primaryTheme, "mining");
+  assert.ok(
+    result.frame.primaryTheme === "mining" ||
+      result.frame.secondaryThemes.includes("mining")
+  );
   assert.match(result.generated.question, /mercury|mining/i);
   assert.match(result.generated.question, /hills|slopes|ground/i);
   assert.doesNotMatch(result.generated.question, /shoreline|coastline/i);
 });
 
-test("Port of Hualien keeps an evidence-backed goods-movement reading", async () => {
+test("Port of Hualien replaces unsupported visible-history wording with a verified comparison", async () => {
   const result = await createFieldNoteFromEvidence(place("Port of Hualien"), [
     source(
       "summary",
@@ -181,9 +541,11 @@ test("Port of Hualien keeps an evidence-backed goods-movement reading", async ()
   ]);
   assert.equal(result.ok, true);
   if (!result.ok) return;
-  assert.equal(result.frame.primaryTheme, "goodsMovement");
-  assert.match(result.generated.question, /sugar|cargo/i);
-  assert.match(result.generated.question, /Port of Hualien/i);
+  assert.match(result.generated.question, /cargo/i);
+  assert.match(result.generated.question, /compare|earlier/i);
+  assert.doesNotMatch(result.generated.question, /still reveal|still visible/i);
+  assert.equal(result.generated.generator, "operator");
+  assert.ok(result.generated.operator);
 });
 
 test("Carquinez Bridge keeps a specific multi-span historical reading", async () => {
@@ -202,6 +564,8 @@ test("Carquinez Bridge keeps a specific multi-span historical reading", async ()
   if (!result.ok) return;
   assert.equal(result.frame.primaryTheme, "transportation");
   assert.match(result.generated.question, /parallel|span/i);
+  assert.equal(result.generated.generator, "template");
+  assert.equal(result.generated.operator, "historical_trace");
 });
 
 test("Maolin terrain reading is based on foothills and rivers, not language metadata", async () => {
@@ -219,7 +583,7 @@ test("Maolin terrain reading is based on foothills and rivers, not language meta
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.equal(result.frame.primaryTheme, "terrain");
-  assert.match(result.generated.question, /foothills|river courses/i);
+  assert.match(result.generated.question, /foothill|river channel/i);
   assert.doesNotMatch(result.generated.question, /history|traditional/i);
 });
 

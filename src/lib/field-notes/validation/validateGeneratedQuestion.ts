@@ -14,20 +14,26 @@ const QUESTION_CONCEPTS: Array<{ pattern: RegExp; themes: ObservationTheme[] }> 
   { pattern: /\b(?:climate|rainfall|humidity|monsoon)\b/i, themes: [] },
   { pattern: /\b(?:shoreline|coastline|tidal|beach)\b/i, themes: ["water"] },
   { pattern: /\b(?:wetland|marsh habitat|wetland ecology)\b/i, themes: ["ecology"] },
+  { pattern: /\b(?:habitat|wildlife|native vegetation|flora|fauna)\b/i, themes: ["ecology"] },
   { pattern: /\b(?:stonework|brick|concrete|timber|masonry)\b/i, themes: ["material"] },
+  { pattern: /\b(?:geology|geological|outcrops?|quarry face|ore deposits?)\b/i, themes: ["geology"] },
   { pattern: /\b(?:mine|mining|mercury|cinnabar|quicksilver)\b/i, themes: ["mining", "geology", "industry"] },
-  { pattern: /\b(?:wholesale|commercial|trade|shops?)\b/i, themes: ["commerce"] },
+  { pattern: /\b(?:wholesale|commercial|trade|markets?|shops?|stalls?)\b/i, themes: ["commerce"] },
   { pattern: /\b(?:cargo|goods|distribution)\b/i, themes: ["goodsMovement"] },
   { pattern: /\b(?:mansion|residence|residential)\b/i, themes: ["residentialHistory"] },
-  { pattern: /\b(?:museum)\b/i, themes: ["museumConversion", "adaptiveReuse"] },
+  { pattern: /\b(?:museum)\b/i, themes: ["museumConversion", "adaptiveReuse", "institutionalChange"] },
   { pattern: /\b(?:preserved|surviving|remaining)\b/i, themes: ["preservation"] },
   { pattern: /\b(?:park|public grounds)\b/i, themes: ["publicSpace"] },
-  { pattern: /\b(?:bridge|port|railway|railroad|route|traffic)\b/i, themes: ["transportation"] },
+  { pattern: /\b(?:bridge|port|railway|railroad|route|traffic|station|platforms?|tracks?|airport)\b/i, themes: ["transportation"] },
   { pattern: /\b(?:hills?|foothills?|valley|slopes?|terrain|mountain range)\b/i, themes: ["terrain"] },
 ];
 
 function normalizeQuestion(value: string) {
   return value.toLocaleLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function frameHasSpecificContent(frame: ObservationFrame, question: string) {
@@ -77,8 +83,12 @@ export function validateGeneratedQuestion(
   }
 
   const supportedThemes = new Set([frame.primaryTheme, ...frame.secondaryThemes]);
+  const conceptualText = generated.question.replace(
+    new RegExp(escapeRegExp(frame.placeName), "gi"),
+    ""
+  );
   for (const concept of QUESTION_CONCEPTS) {
-    if (!concept.pattern.test(generated.question)) continue;
+    if (!concept.pattern.test(conceptualText)) continue;
     if (!concept.themes.length || !concept.themes.some((theme) => supportedThemes.has(theme))) {
       return {
         valid: false,
@@ -97,7 +107,7 @@ export function validateGeneratedQuestion(
   }
 
   const words = generated.question.trim().split(/\s+/).length;
-  if (words < 8 || words > 32 || !generated.question.endsWith("?")) {
+  if (words < 8 || words > 24 || !generated.question.endsWith("?")) {
     return {
       valid: false,
       reason: "QUESTION_TOO_GENERIC",

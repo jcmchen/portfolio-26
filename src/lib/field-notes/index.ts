@@ -1,6 +1,10 @@
 export { analyzeEvidence, classifyThemeScores, resolveConcepts } from "./analysis/analyzeEvidence";
 export { buildObservationFrame } from "./analysis/buildObservationFrame";
 export {
+  selectAtomicEvidence,
+  significantTokenOverlap,
+} from "./analysis/selectAtomicEvidence";
+export {
   normalizeEvidenceSources,
   normalizeEvidenceText,
   splitEvidenceSentences,
@@ -12,9 +16,23 @@ export {
 } from "./evidence/fetchWikipediaEvidence";
 export { createQuestionGenerator } from "./generation";
 export { TemplateQuestionGenerator } from "./generation/TemplateQuestionGenerator";
-export { LLMQuestionGenerator } from "./generation/LLMQuestionGenerator";
+export { generateEvidenceGroundedLLMObservation } from "./generation/EvidenceGroundedLLMGenerator";
+export { generateEvidenceGroundedObservation } from "./generation/generateEvidenceGroundedObservation";
+export { generateUniversalOperatorObservation } from "./generation/UniversalOperatorGenerator";
+export {
+  selectBestGenerativeCandidate,
+  validateGenerativeCandidate,
+} from "./generation/generativeValidation";
+export { verifyTemplateObservation } from "./generation/verifyTemplateObservation";
 export { createFieldNoteFromEvidence } from "./pipeline";
 export { fieldNoteCachePolicy } from "./cachePolicy";
+export {
+  FIELD_NOTE_ROTATION_DAYS,
+  candidateRotationSlot,
+  dailyRotationSlot,
+  isPreferredDailyCandidate,
+  utcDayIndex,
+} from "./dailyRotation";
 export { selectFirstEvidenceBackedCandidate } from "./selection";
 export { validateGeneratedQuestion } from "./validation/validateGeneratedQuestion";
 export * from "./types";

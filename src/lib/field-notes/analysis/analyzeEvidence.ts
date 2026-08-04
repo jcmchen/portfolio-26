@@ -14,11 +14,14 @@ type ConceptRule = {
 };
 
 const CONCEPT_RULES: Record<ObservationTheme, ConceptRule[]> = {
+  placeReading: [],
   commerce: [
     { pattern: /\bwholesale(?:\s+center|\s+district)?\b/i, score: 3, phrase: "wholesale activity" },
     { pattern: /\bcommercial street\b/i, score: 3, phrase: "commercial street" },
+    { pattern: /\b(?:night market|street market|market stalls?|food stalls?)\b/i, score: 3, phrase: "market stalls" },
+    { pattern: /\bhalal foods?\b/i, score: 2.5, phrase: "halal food offerings" },
     { pattern: /\b(?:merchants?|market|retail|general goods|grocery goods)\b/i, score: 2, phrase: "trade and shops" },
-    { pattern: /\b(?:shops?|food products?|agricultural produce|lunar new year|chinese new year)\b/i, score: 1, phrase: "goods sold here" },
+    { pattern: /\b(?:shops?|stalls?|food products?|agricultural produce|lunar new year|chinese new year)\b/i, score: 1, phrase: "goods sold here" },
   ],
   goodsMovement: [
     { pattern: /\b(?:river trade|transported goods|brought goods|imported (?:foreign )?goods|imported through)\b/i, score: 3, phrase: "movement of goods" },
@@ -29,6 +32,8 @@ const CONCEPT_RULES: Record<ObservationTheme, ConceptRule[]> = {
     { pattern: /\b(?:railway|railroad|rail line|transcontinental railroad)\b/i, score: 3, phrase: "rail infrastructure" },
     { pattern: /\b(?:caltrain|train station)\b/i, score: 3, phrase: "rail station" },
     { pattern: /\b(?:airport|airfield|metro station|railway station)\b/i, score: 3, phrase: "transport hub" },
+    { pattern: /\b(?:island platform|side platforms?|underground station|elevated station|station exits?|rail interchange)\b/i, score: 3, phrase: "station layout" },
+    { pattern: /\b(?:platforms?|tracks?|light rail|rapid transit|metro line)\b/i, score: 2, phrase: "transit elements" },
     { pattern: /\b(?:bridge|station|port|harbou?r|roadway|route)\b/i, score: 2.5, phrase: "transport infrastructure" },
     { pattern: /\b(?:traffic|pedestrians?|walking distance|accessible by bus)\b/i, score: 1, phrase: "movement and access" },
   ],
@@ -51,10 +56,17 @@ const CONCEPT_RULES: Record<ObservationTheme, ConceptRule[]> = {
     { pattern: /\bfirst museum\b/i, score: 3, phrase: "first museum" },
     { pattern: /\b(?:museum occupied|independent museum)\b/i, score: 2, phrase: "museum use" },
   ],
+  institutionalChange: [
+    { pattern: /\b(?:museum|gallery|visitor center)\s+(?:closed|ceased operations?)\b/i, score: 3, phrase: "institution closed" },
+    { pattern: /\b(?:closed|demolished|removed)\b.{0,70}\b(?:museum|gallery|visitor center)\b/i, score: 3, phrase: "institution closed or removed" },
+    { pattern: /\b(?:items?|objects?|exhibits?|collections?|aircraft)\b.{0,80}\b(?:relocated|moved|sent to storage|transferred)\b/i, score: 3, phrase: "collection relocated" },
+    { pattern: /\bwas an?\s+(?:aviation\s+|history\s+|art\s+|science\s+)?museum\b/i, score: 2.5, phrase: "former museum use" },
+  ],
   architecture: [
     { pattern: /\b(?:victorian|italianate|gothic|modernist|art deco|brutalist)\b/i, score: 3, phrase: "architectural style" },
+    { pattern: /\b(?:bell tower|clock tower|steeple|dome|nave|sanctuary|arcade|colonnade)\b/i, score: 3, phrase: "distinctive building feature" },
     { pattern: /\b(?:architecture|architectural|cantilever bridge|suspension bridge)\b/i, score: 2.5, phrase: "built form" },
-    { pattern: /\b(?:facade|façade|structural|building form)\b/i, score: 1.5, phrase: "building form" },
+    { pattern: /\b(?:facade|façade|structural|building form|lighthouse|auditorium|memorial hall)\b/i, score: 1.5, phrase: "building form" },
   ],
   material: [
     { pattern: /\b(?:reinforced concrete|precast concrete|rammed earth|stone masonry)\b/i, score: 3, phrase: "construction material" },
@@ -67,6 +79,7 @@ const CONCEPT_RULES: Record<ObservationTheme, ConceptRule[]> = {
   ],
   geology: [
     { pattern: /\b(?:geology|geological|rock formation|ore deposit|mineralized area|franciscan assemblage)\b/i, score: 3, phrase: "geology" },
+    { pattern: /\b(?:rock quarry|quarry face|outcrop|rock outcrop)\b/i, score: 3, phrase: "exposed geology" },
     { pattern: /\b(?:cinnabar|mercury ore|mineral deposits?|quicksilver)\b/i, score: 2.5, phrase: "mineral geology" },
     { pattern: /\b(?:rock|ore|mineral)\b/i, score: 1, phrase: "geological material" },
   ],
@@ -78,6 +91,8 @@ const CONCEPT_RULES: Record<ObservationTheme, ConceptRule[]> = {
   ],
   ecology: [
     { pattern: /\b(?:salt marsh|tidal marsh|marsh habitat|wet marshland|wetland ecology)\b/i, score: 3, phrase: "wetland ecology" },
+    { pattern: /\b(?:wildlife habitat|native vegetation|native species|nature preserve|ecological park)\b/i, score: 3, phrase: "habitat and species" },
+    { pattern: /\b(?:flora|fauna|wildlife|biodiversity)\b/i, score: 2, phrase: "living systems" },
     { pattern: /\b(?:habitat|ecology|ecological|wetland)\b/i, score: 2, phrase: "ecology" },
   ],
   industry: [
@@ -90,6 +105,8 @@ const CONCEPT_RULES: Record<ObservationTheme, ConceptRule[]> = {
   ],
   publicSpace: [
     { pattern: /\b(?:public park|municipal park|public grounds|opened to the public)\b/i, score: 3, phrase: "public space" },
+    { pattern: /\b(?:sports park|recreational park|public garden|pedestrian plaza|open space)\b/i, score: 3, phrase: "shared outdoor space" },
+    { pattern: /\b(?:trails?|walking paths?|playgrounds?|sports fields?|gardens?|courtyards?)\b/i, score: 2, phrase: "public-space elements" },
     { pattern: /\b(?:lakeside park|city park|park landscape)\b/i, score: 2.5, phrase: "park" },
     { pattern: /\b(?:street|plaza|courtyard|park)\b/i, score: 1, phrase: "shared public space" },
   ],
@@ -103,6 +120,8 @@ function placeAliases(placeName: string) {
   if (lower.includes("street")) ["the street", "this street", "the commercial street"].forEach((item) => aliases.add(item));
   if (lower.includes("port")) ["the port", "this port", "the harbor"].forEach((item) => aliases.add(item));
   if (lower.includes("bridge")) ["the bridge", "this bridge", "the spans"].forEach((item) => aliases.add(item));
+  if (lower.includes("museum")) ["the museum", "this museum"].forEach((item) => aliases.add(item));
+  if (lower.includes("market")) ["the market", "this market", "the night market"].forEach((item) => aliases.add(item));
   if (/scenic area|park|reserve/.test(lower)) ["the scenic area", "the area", "the park"].forEach((item) => aliases.add(item));
   if (/almaden|mine/.test(lower)) ["new almaden", "the mines", "the mining district", "the community"].forEach((item) => aliases.add(item));
 
@@ -118,8 +137,13 @@ function detectEntities(text: string, place: EvidencePlace) {
   }
 
   const personMatches = text.match(/\b(?:Dr\.\s+)?[A-Z][a-z]+\s+[A-Z][a-z]+\b/g) || [];
+  const nonPersonTerms = /\b(?:airport|aeronautics|administration|museum|township|county|district|city|base|park|river|creek|range|terminal)\b/i;
   personMatches.forEach((name) => {
-    if (!place.placeName.toLocaleLowerCase().includes(name.toLocaleLowerCase())) {
+    if (
+      !/^The\s/.test(name) &&
+      !nonPersonTerms.test(name) &&
+      !place.placeName.toLocaleLowerCase().includes(name.toLocaleLowerCase())
+    ) {
       entities.push({ text: name, type: "person" });
     }
   });
@@ -135,7 +159,15 @@ function detectEntities(text: string, place: EvidencePlace) {
 function competingSubject(text: string) {
   const personProperty = /\b(?:stone|brick|wooden|timber|concrete)?\s*(?:house|home|property|estate)\s+of\s+(?:Dr\.\s+)?[A-Z][a-z]+\s+[A-Z][a-z]+\b/i.test(text);
   const marshPerson = /\b(?:John\s+Marsh|Dr\.\s*John\s+Marsh|Marsh(?:'s|’s)\s+(?:house|home|family)|the\s+Marsh\s+family)\b/.test(text);
-  const startsWithPerson = /^(?:Next to occupy[^.]* was |(?:Dr\.\s+)?[A-Z][a-z]+\s+[A-Z][a-z]+\s+(?:was|is|owned|built|made|became|served|donated)\b)/.test(text);
+  const leadingNamedSubject = text.match(
+    /^(?:Dr\.\s+)?([A-Z][a-z]+\s+[A-Z][a-z]+)\s+(?:was|is|owned|built|made|became|served|donated)\b/
+  )?.[1];
+  const namedPlaceSubject = /\b(?:Station|Park|River|Creek|Airport|Terminal|Museum|Market|Bridge|Port|Harbor|House|Mansion|Hall|Tower|Library|Church|Cathedral)\b/.test(
+    leadingNamedSubject || ""
+  );
+  const startsWithPerson =
+    /^Next to occupy[^.]* was /.test(text) ||
+    Boolean(leadingNamedSubject && !namedPlaceSubject);
   const personPronoun = /^(?:He|She|His|Her)\b/.test(text);
 
   return personProperty || marshPerson || startsWithPerson || personPronoun;
@@ -151,6 +183,12 @@ function currentPlaceOwnership(
   const aliases = placeAliases(place.placeName);
   const explicitlyNamesPlace = lower.includes(place.placeName.toLocaleLowerCase());
   const beginsWithAlias = aliases.some((alias) => lower.startsWith(alias));
+  const refersToCurrentMuseum =
+    place.placeName.toLocaleLowerCase().includes("museum") &&
+    /\b(?:the|this) museum\b/i.test(text);
+  const refersToCurrentMarket =
+    place.placeName.toLocaleLowerCase().includes("market") &&
+    /\b(?:the|this) (?:night )?market\b/i.test(text);
   const continuation = /^(?:it|its|this|these|the surrounding|the other|however,?\s+(?:it|the))/i.test(text);
 
   if (explicitlyNamesPlace) {
@@ -166,7 +204,12 @@ function currentPlaceOwnership(
     return { refers: false, subject, type: "person" as EntityType };
   }
 
-  if (beginsWithAlias || (previousOwned && continuation)) {
+  if (
+    beginsWithAlias ||
+    refersToCurrentMuseum ||
+    refersToCurrentMarket ||
+    (previousOwned && continuation)
+  ) {
     return {
       refers: true,
       subject: beginsWithAlias ? aliases.find((alias) => lower.startsWith(alias)) || place.placeName : place.placeName,
@@ -272,7 +315,28 @@ export function analyzeEvidence(place: EvidencePlace, evidence: EvidenceItem[]) 
   });
 }
 
-export function classifyThemeScores(evidence: EvidenceItem[]): ThemeScore[] {
+const PLACE_TITLE_SUPPORT: Array<{
+  pattern: RegExp;
+  theme: ObservationTheme;
+  bonus: number;
+  reason: string;
+}> = [
+  { pattern: /\b(?:metro|railway|light rail|train) station\b|\b(?:airport|terminal|bridge|port|harbou?r)\b/i, theme: "transportation", bonus: 1.5, reason: "compatible place type in title" },
+  { pattern: /\b(?:night market|street market|market|shopping district|commercial street)\b/i, theme: "commerce", bonus: 1.25, reason: "compatible commercial place type in title" },
+  { pattern: /\b(?:house|mansion|residence|villa)\b/i, theme: "residentialHistory", bonus: 1.25, reason: "compatible residential place type in title" },
+  { pattern: /\b(?:mountain|mount|hills?|valley|canyon|scenic area)\b/i, theme: "terrain", bonus: 1.25, reason: "compatible terrain place type in title" },
+  { pattern: /\b(?:river|creek|stream|bay|beach|lake|waterfront|wharf)\b/i, theme: "water", bonus: 1.25, reason: "compatible water place type in title" },
+  { pattern: /\b(?:wetlands?|marsh|nature preserve|ecological park)\b/i, theme: "ecology", bonus: 1.5, reason: "compatible ecological place type in title" },
+  { pattern: /\b(?:park|plaza|public garden)\b/i, theme: "publicSpace", bonus: 2, reason: "compatible public-space place type in title" },
+  { pattern: /\b(?:quarry|geological|rock)\b/i, theme: "geology", bonus: 1.25, reason: "compatible geological place type in title" },
+  { pattern: /\b(?:mine|mining)\b/i, theme: "mining", bonus: 1.25, reason: "compatible mining place type in title" },
+  { pattern: /\b(?:church|cathedral|tower|lighthouse|memorial hall|auditorium|library)\b/i, theme: "architecture", bonus: 0.75, reason: "compatible built place type in title" },
+];
+
+export function classifyThemeScores(
+  evidence: EvidenceItem[],
+  place?: EvidencePlace
+): ThemeScore[] {
   const scores = new Map<ObservationTheme, ThemeScore>();
 
   evidence.forEach((item) => {
@@ -290,6 +354,16 @@ export function classifyThemeScores(evidence: EvidenceItem[]): ThemeScore[] {
       scores.set(detected.theme, current);
     });
   });
+
+  if (place) {
+    PLACE_TITLE_SUPPORT.forEach((support) => {
+      if (!support.pattern.test(place.placeName)) return;
+      const score = scores.get(support.theme);
+      if (!score) return;
+      score.score += support.bonus;
+      score.reasons.push(`${support.reason}: ${place.placeName}`);
+    });
+  }
 
   scores.forEach((score) => {
     if (score.evidenceIds.length > 1) score.score += Math.min(1.5, (score.evidenceIds.length - 1) * 0.5);

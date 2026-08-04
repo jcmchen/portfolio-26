@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test:field-notes": "tsc --project tsconfig.field-notes-test.json && node --test .field-note-test-build/tests/fieldNotes.test.js",
+    "audit:field-notes": "npm run test:field-notes && node scripts/audit-field-note-coverage.mjs",
     "deploy": "next build && gh-pages -d out"
   },
   "dependencies": {

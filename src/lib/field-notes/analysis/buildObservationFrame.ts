@@ -27,6 +27,21 @@ function evidenceText(evidence: EvidenceItem[]) {
     .join(" ");
 }
 
+function cluesFromText(
+  text: string,
+  rules: Array<{ pattern: RegExp; clue: string }>
+) {
+  return Array.from(
+    new Set(rules.filter((rule) => rule.pattern.test(text)).map((rule) => rule.clue))
+  );
+}
+
+function naturalList(values: string[]) {
+  if (values.length <= 1) return values[0] || "";
+  if (values.length === 2) return `${values[0]} and ${values[1]}`;
+  return `${values.slice(0, -1).join(", ")}, and ${values.at(-1)}`;
+}
+
 function confidence(primaryScore: number, supportCount: number) {
   return Number(Math.min(0.96, 0.56 + primaryScore * 0.035 + supportCount * 0.04).toFixed(2));
 }
@@ -76,6 +91,46 @@ export function buildObservationFrame(
     };
   }
 
+  const hasMarketReading =
+    /\bmarket\b/i.test(place.placeName) &&
+    supported.has("commerce") &&
+    scoreFor(themeScores, "commerce") >= 3 &&
+    /\b(?:night market|street market|market stalls?|food stalls?)\b/i.test(
+      `${place.placeName} ${text}`
+    );
+
+  if (hasMarketReading) {
+    const themes: ObservationTheme[] = ["commerce"];
+    if (supported.has("publicSpace")) themes.push("publicSpace");
+    const hasHalalFood = /\bhalal foods?\b/i.test(text);
+    const grewFromFoodStalls =
+      /\bfood stalls?\b/i.test(text) &&
+      /\b(?:developed into|large-scale market|since then)\b/i.test(text);
+    return {
+      placeId: place.placeId,
+      placeName: place.placeName,
+      primaryTheme: "commerce",
+      secondaryThemes: themes.slice(1),
+      confidence: confidence(scoreFor(themeScores, "commerce"), themes.length),
+      pastState: grewFromFoodStalls ? "a cluster of food stalls" : "a local market",
+      presentState: hasHalalFood
+        ? "a large night market whose stalls include halal food"
+        : "an active market with varied stalls and goods",
+      historicalChange: hasHalalFood
+        ? "the market’s shift toward halal food"
+        : grewFromFoodStalls
+          ? "its growth from food stalls into a large market"
+          : "changes in what the market’s stalls offer",
+      visibleFeature: "today’s mix of stalls and goods",
+      observableClues: hasHalalFood
+        ? ["halal food offerings", "the mix of stalls", "foods and goods on display"]
+        : ["the mix of stalls", "goods on display", "how vendors are grouped"],
+      evidenceIds: evidenceIdsFor(themeScores, themes),
+      disallowedConcepts: ["climate", "wetland", "shoreline", "residential history"],
+      frameType: "commercial-reading",
+    };
+  }
+
   const hasPreservedResidentialTransition =
     supported.has("preservation") &&
     supported.has("residentialHistory") &&
@@ -115,6 +170,43 @@ export function buildObservationFrame(
       evidenceIds: evidenceIdsFor(themeScores, themes),
       disallowedConcepts: ["wetland", "marsh", "stonework", "stone construction", "climate"],
       frameType: "preserved-survivor",
+    };
+  }
+
+  const hasInstitutionalTransition =
+    supported.has("institutionalChange") &&
+    /\b(?:museum|gallery|visitor center)\b/i.test(text) &&
+    /\b(?:closed|demolished|removed|relocated|sent to storage|transferred)\b/i.test(text);
+
+  if (hasInstitutionalTransition) {
+    const themes: ObservationTheme[] = ["institutionalChange"];
+    if (supported.has("transportation")) themes.push("transportation");
+    if (supported.has("architecture")) themes.push("architecture");
+    const isAviationMuseum = /\b(?:aviation museum|aircraft on display|air force fighters?)\b/i.test(text);
+    const hasAirportPosition =
+      /\b(?:between|beside|within|at)\b.{0,90}\b(?:airport|terminal|entrance)\b/i.test(text);
+    return {
+      placeId: place.placeId,
+      placeName: place.placeName,
+      primaryTheme: "institutionalChange",
+      secondaryThemes: themes.slice(1),
+      confidence: confidence(scoreFor(themeScores, "institutionalChange"), themes.length),
+      pastState: isAviationMuseum
+        ? "an aviation museum displaying retired aircraft"
+        : "a museum displaying its collection",
+      presentState: "a former museum site whose collection was moved elsewhere",
+      historicalChange: isAviationMuseum
+        ? "the museum closed and its displayed aircraft were relocated"
+        : "the institution closed and its collection was relocated",
+      visibleFeature: isAviationMuseum && hasAirportPosition
+        ? "the former aviation museum site between the main freeway entrance and airport terminals"
+        : "the former museum site and its surrounding context",
+      observableClues: isAviationMuseum && hasAirportPosition
+        ? ["the former museum site", "the main freeway entrance", "the airport terminals"]
+        : ["the former museum site", "its boundaries", "any remaining signs of its earlier use"],
+      evidenceIds: evidenceIdsFor(themeScores, themes),
+      disallowedConcepts: ["climate", "wetland", "shoreline", "residential history"],
+      frameType: "institutional-transition",
     };
   }
 
@@ -190,11 +282,82 @@ export function buildObservationFrame(
       pastState: "successive bridge spans built for changing traffic needs",
       presentState: "parallel spans from different construction periods",
       historicalChange: "how the crossing expanded through successive structures",
-      visibleFeature: "parallel bridge spans with different structural systems",
-      observableClues: ["the parallel spans", "contrasting structural systems", "different bridge profiles"],
+      visibleFeature: "parallel cantilever and suspension bridges",
+      observableClues: [
+        "the parallel bridges",
+        "the cantilever bridges",
+        "the suspension bridge",
+      ],
       evidenceIds: evidenceIdsFor(themeScores, themes),
       disallowedConcepts: ["rail infrastructure", "wetland", "residential history"],
       frameType: "historical-trace",
+    };
+  }
+
+  const stationClues = cluesFromText(text, [
+    { pattern: /\bisland platform\b/i, clue: "the island platform" },
+    { pattern: /\bside platforms?\b/i, clue: "the side platforms" },
+    { pattern: /\belevated station\b/i, clue: "the elevated station structure" },
+    { pattern: /\bunderground station\b/i, clue: "the underground station layout" },
+    { pattern: /\bstation exits?\b|\bexits?\s+\d/i, clue: "the station exits" },
+    { pattern: /\btracks?\b/i, clue: "the tracks" },
+    { pattern: /\bplatforms?\b/i, clue: "the platforms" },
+    { pattern: /\binterchange\b/i, clue: "the interchange" },
+  ]).slice(0, 3);
+  const isStation =
+    scoreFor(themeScores, "transportation") >= 3 &&
+    /\b(?:metro|railway|light rail|train)?\s*station\b/i.test(place.placeName);
+
+  if (isStation) {
+    const themes: ObservationTheme[] = ["transportation"];
+    if (supported.has("architecture")) themes.push("architecture");
+    const observableClues = stationClues.length
+      ? stationClues
+      : ["movement at the station threshold", "arrivals and departures"];
+    return {
+      placeId: place.placeId,
+      placeName: place.placeName,
+      primaryTheme: "transportation",
+      secondaryThemes: themes.slice(1),
+      confidence: confidence(scoreFor(themeScores, "transportation"), themes.length),
+      visibleFeature: stationClues.length
+        ? naturalList(stationClues)
+        : "movement at the station threshold",
+      observableClues,
+      evidenceIds: evidenceIdsFor(themeScores, themes),
+      disallowedConcepts: ["climate", "wetland", "shoreline", "residential history"],
+      frameType: "station-layout",
+    };
+  }
+
+  const ecologyClues = cluesFromText(text, [
+    { pattern: /\bsalt marsh\b/i, clue: "the salt marsh" },
+    { pattern: /\btidal marsh\b/i, clue: "the tidal marsh" },
+    { pattern: /\bwetlands?\b/i, clue: "the wetland habitat" },
+    { pattern: /\bmarsh habitat\b/i, clue: "the marsh habitat" },
+    { pattern: /\bwildlife habitat\b/i, clue: "the wildlife habitat" },
+    { pattern: /\bnative vegetation\b/i, clue: "the native vegetation" },
+    { pattern: /\bflora\b/i, clue: "the local flora" },
+    { pattern: /\bfauna|wildlife\b/i, clue: "the local wildlife" },
+  ]).slice(0, 3);
+  const hasEcologyReading =
+    scoreFor(themeScores, "ecology") >= 3 && ecologyClues.length > 0;
+
+  if (hasEcologyReading) {
+    const themes: ObservationTheme[] = ["ecology"];
+    if (supported.has("water")) themes.push("water");
+    if (supported.has("terrain")) themes.push("terrain");
+    return {
+      placeId: place.placeId,
+      placeName: place.placeName,
+      primaryTheme: "ecology",
+      secondaryThemes: themes.slice(1),
+      confidence: confidence(scoreFor(themeScores, "ecology"), themes.length),
+      visibleFeature: naturalList(ecologyClues),
+      observableClues: ecologyClues,
+      evidenceIds: evidenceIdsFor(themeScores, themes),
+      disallowedConcepts: ["climate", "mining", "residential history"],
+      frameType: "ecology-reading",
     };
   }
 
@@ -227,24 +390,129 @@ export function buildObservationFrame(
     };
   }
 
-  const hasMaterialExpression =
-    (supported.has("architecture") || supported.has("material")) &&
-    scoreFor(themeScores, strongest.theme) >= 4;
+  const terrainClues = cluesFromText(text, [
+    { pattern: /\bfoothills?\b/i, clue: "the foothills" },
+    { pattern: /\bhills?\b/i, clue: "the hills" },
+    { pattern: /\bvalleys?\b/i, clue: "the valley" },
+    { pattern: /\bslopes?\b/i, clue: "the slopes" },
+    { pattern: /\bridges?\b/i, clue: "the ridges" },
+    { pattern: /\bcanyons?\b/i, clue: "the canyon" },
+    { pattern: /\belevation\b/i, clue: "changes in elevation" },
+    { pattern: /\bmountain ranges?\b/i, clue: "the mountain range" },
+  ]).slice(0, 3);
 
-  if (hasMaterialExpression) {
-    const themes = [strongest.theme];
-    if (strongest.theme !== "architecture" && supported.has("architecture")) themes.push("architecture");
-    if (strongest.theme !== "material" && supported.has("material")) themes.push("material");
+  if (scoreFor(themeScores, "terrain") >= 3 && terrainClues.length > 0) {
     return {
       placeId: place.placeId,
       placeName: place.placeName,
-      primaryTheme: strongest.theme,
+      primaryTheme: "terrain",
+      secondaryThemes: [],
+      confidence: confidence(scoreFor(themeScores, "terrain"), 1),
+      visibleFeature: naturalList(terrainClues),
+      observableClues: terrainClues,
+      evidenceIds: evidenceIdsFor(themeScores, ["terrain"]),
+      disallowedConcepts: ["climate", "shoreline", "wetland", "layered history"],
+      frameType: "terrain-reading",
+    };
+  }
+
+  const geologyClues = cluesFromText(text, [
+    { pattern: /\bquarry face\b|\brock quarry\b/i, clue: "the quarry face" },
+    { pattern: /\boutcrops?\b|\brock outcrops?\b/i, clue: "the rock outcrops" },
+    { pattern: /\brock formations?\b/i, clue: "the rock formations" },
+    { pattern: /\bore deposits?\b/i, clue: "the ore deposits" },
+    { pattern: /\bmineralized (?:area|ground)\b/i, clue: "the mineralized ground" },
+    { pattern: /\bgeological layers?\b/i, clue: "the geological layers" },
+  ]).slice(0, 3);
+
+  if (scoreFor(themeScores, "geology") >= 3 && geologyClues.length > 0) {
+    return {
+      placeId: place.placeId,
+      placeName: place.placeName,
+      primaryTheme: "geology",
+      secondaryThemes: [],
+      confidence: confidence(scoreFor(themeScores, "geology"), 1),
+      visibleFeature: naturalList(geologyClues),
+      observableClues: geologyClues,
+      evidenceIds: evidenceIdsFor(themeScores, ["geology"]),
+      disallowedConcepts: ["climate", "shoreline", "wetland", "residential history"],
+      frameType: "geology-reading",
+    };
+  }
+
+  const publicSpaceClues = cluesFromText(text, [
+    { pattern: /\bwalking paths?\b|\bpaths?\b/i, clue: "the paths" },
+    { pattern: /\btrails?\b/i, clue: "the trails" },
+    { pattern: /\bplaygrounds?\b/i, clue: "the playgrounds" },
+    { pattern: /\bsports fields?\b/i, clue: "the sports fields" },
+    { pattern: /\bgardens?\b/i, clue: "the gardens" },
+    { pattern: /\bcourtyards?\b/i, clue: "the courtyards" },
+    { pattern: /\bplazas?\b/i, clue: "the plaza" },
+    { pattern: /\bopen space\b/i, clue: "the open space" },
+  ]).slice(0, 3);
+  const isNamedPublicSpace =
+    scoreFor(themeScores, "publicSpace") >= 3 &&
+    /\b(?:park|plaza|garden|public space)\b/i.test(place.placeName);
+
+  if (isNamedPublicSpace) {
+    const observableClues = publicSpaceClues.length
+      ? publicSpaceClues
+      : ["movement through the space", "where people pause or gather"];
+    return {
+      placeId: place.placeId,
+      placeName: place.placeName,
+      primaryTheme: "publicSpace",
+      secondaryThemes: [],
+      confidence: confidence(scoreFor(themeScores, "publicSpace"), 1),
+      visibleFeature: publicSpaceClues.length
+        ? naturalList(publicSpaceClues)
+        : "movement and gathering",
+      observableClues,
+      evidenceIds: evidenceIdsFor(themeScores, ["publicSpace"]),
+      disallowedConcepts: ["climate", "mining", "wetland", "residential history"],
+      frameType: "public-space-reading",
+    };
+  }
+
+  const builtTheme: ObservationTheme =
+    scoreFor(themeScores, "material") > scoreFor(themeScores, "architecture")
+      ? "material"
+      : "architecture";
+  const buildingClues = cluesFromText(text, [
+    { pattern: /\bvictorian\b/i, clue: "the Victorian details" },
+    { pattern: /\bitalianate\b/i, clue: "the Italianate details" },
+    { pattern: /\bgothic\b/i, clue: "the Gothic details" },
+    { pattern: /\bmodernist\b/i, clue: "the modernist form" },
+    { pattern: /\bart deco\b/i, clue: "the Art Deco details" },
+    { pattern: /\bbrutalist\b/i, clue: "the Brutalist form" },
+    { pattern: /\bbell tower\b/i, clue: "the bell tower" },
+    { pattern: /\bclock tower\b/i, clue: "the clock tower" },
+    { pattern: /\bsteeple\b/i, clue: "the steeple" },
+    { pattern: /\bdome\b/i, clue: "the dome" },
+    { pattern: /\barcade\b/i, clue: "the arcade" },
+    { pattern: /\bcolonnade\b/i, clue: "the colonnade" },
+    { pattern: /\bfacade|façade\b/i, clue: "the facade" },
+    { pattern: /\bbrick\b/i, clue: "the brickwork" },
+    { pattern: /\bconcrete\b/i, clue: "the concrete structure" },
+    { pattern: /\btimber|wooden\b/i, clue: "the timber construction" },
+    { pattern: /\bsteel\b/i, clue: "the steel structure" },
+    { pattern: /\bstone masonry\b/i, clue: "the stone masonry" },
+  ]).slice(0, 3);
+  const hasMaterialExpression =
+    scoreFor(themeScores, builtTheme) >= 3 && buildingClues.length > 0;
+
+  if (hasMaterialExpression) {
+    const themes = [builtTheme];
+    if (builtTheme !== "architecture" && supported.has("architecture")) themes.push("architecture");
+    if (builtTheme !== "material" && supported.has("material")) themes.push("material");
+    return {
+      placeId: place.placeId,
+      placeName: place.placeName,
+      primaryTheme: builtTheme,
       secondaryThemes: themes.slice(1),
-      confidence: confidence(strongest.score, themes.length),
-      visibleFeature: supported.has("material") ? "construction details and material joints" : "building form and architectural details",
-      observableClues: supported.has("material")
-        ? ["material joints", "surface changes", "repair details"]
-        : ["building profile", "structural rhythm", "architectural details"],
+      confidence: confidence(scoreFor(themeScores, builtTheme), themes.length),
+      visibleFeature: naturalList(buildingClues),
+      observableClues: buildingClues,
       evidenceIds: evidenceIdsFor(themeScores, themes),
       disallowedConcepts: ["climate", "wetland", "shoreline"],
       frameType: "material-expression",
@@ -252,16 +520,13 @@ export function buildObservationFrame(
   }
 
   if (
-    strongest.theme === "transportation" &&
-    strongest.score >= 3 &&
-    /\b(?:airport|station|bridge|port|harbou?r|railway|road)\b/i.test(`${place.placeName} ${text}`)
+    scoreFor(themeScores, "transportation") >= 3 &&
+    /\b(?:airport|bridge|port|harbou?r|road)\b/i.test(place.placeName)
   ) {
     const lower = place.placeName.toLocaleLowerCase();
     const visibleFeature = lower.includes("airport")
       ? "runways, terminal edges, and access routes"
-      : lower.includes("station")
-        ? "platforms, tracks, and station approaches"
-        : lower.includes("bridge")
+      : lower.includes("bridge")
           ? "bridge structure, approaches, and crossing"
           : lower.includes("port") || lower.includes("harbor")
             ? "working edges, routes, and harbor structures"
@@ -271,7 +536,7 @@ export function buildObservationFrame(
       placeName: place.placeName,
       primaryTheme: "transportation",
       secondaryThemes: supported.has("architecture") ? ["architecture"] : [],
-      confidence: confidence(strongest.score, 1),
+      confidence: confidence(scoreFor(themeScores, "transportation"), 1),
       visibleFeature,
       observableClues: visibleFeature.split(", "),
       evidenceIds: evidenceIdsFor(themeScores, ["transportation", "architecture"]),
@@ -301,8 +566,7 @@ export function buildObservationFrame(
   }
 
   if (
-    strongest.theme === "water" &&
-    strongest.score >= 3 &&
+    scoreFor(themeScores, "water") >= 3 &&
     /\b(?:creek|river|bay|beach|shore|waterfront)\b/i.test(`${place.placeName} ${text}`)
   ) {
     const lower = place.placeName.toLocaleLowerCase();
@@ -319,13 +583,13 @@ export function buildObservationFrame(
       : /\bbeach\b/.test(lower)
         ? ["the shoreline", "beach material", "the water’s edge"]
         : ["the shoreline", "water edges", "changing water conditions"];
-    const visibleFeature = observableClues.join(", ").replace(/, ([^,]+)$/, ", and $1");
+    const visibleFeature = naturalList(observableClues);
     return {
       placeId: place.placeId,
       placeName: place.placeName,
       primaryTheme: "water",
       secondaryThemes: supported.has("ecology") ? ["ecology"] : [],
-      confidence: confidence(strongest.score, 1),
+      confidence: confidence(scoreFor(themeScores, "water"), 1),
       visibleFeature,
       observableClues,
       evidenceIds: evidenceIdsFor(themeScores, ["water", "ecology"]),

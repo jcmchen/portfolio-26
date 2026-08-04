@@ -3,7 +3,7 @@ import type { EvidenceItem, EvidencePlace, RawEvidenceSource } from "../types";
 const LANGUAGE_METADATA_PATTERNS = [
   /\((?:[^()]*(?:traditional|simplified)\s+Chinese|[^()]*pinyin)[^()]*\)/gi,
   /\b(?:traditional|simplified)\s+Chinese(?:\s+characters?)?\s*:?/gi,
-  /\b(?:Chinese|pinyin)\s*:\s*[^.;]+[.;]?/gi,
+  /\b(?:Chinese|pinyin)\s*:\s*[^).;]+[).;]?/gi,
   /\bpronunciation\s*:\s*[^.;]+[.;]?/gi,
 ];
 

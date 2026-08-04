@@ -1,4 +1,4 @@
-export const FIELD_NOTE_ALGORITHM_VERSION = "hybrid-nlp-v4";
+export const FIELD_NOTE_ALGORITHM_VERSION = "hybrid-nlp-v6";
 
 export type EvidenceSource =
   | "wikipedia-summary"
@@ -14,6 +14,7 @@ export type EvidenceFetchStatus =
   | "timeout";
 
 export type ObservationTheme =
+  | "placeReading"
   | "commerce"
   | "goodsMovement"
   | "transportation"
@@ -21,6 +22,7 @@ export type ObservationTheme =
   | "preservation"
   | "residentialHistory"
   | "museumConversion"
+  | "institutionalChange"
   | "architecture"
   | "material"
   | "terrain"
@@ -128,16 +130,52 @@ export type ObservationFrame = {
     | "historical-trace"
     | "preserved-survivor"
     | "industry-landscape"
+    | "institutional-transition"
+    | "commercial-reading"
+    | "station-layout"
+    | "ecology-reading"
+    | "public-space-reading"
+    | "geology-reading"
     | "material-expression"
-    | "terrain-reading";
+    | "terrain-reading"
+    | "evidence-grounded-observation";
+};
+
+export type ObservationOperator =
+  | "historical_trace"
+  | "spatial_organization"
+  | "boundary_connection"
+  | "material_expression"
+  | "use_behavior"
+  | "environment_relation";
+
+export type AtomicEvidence = {
+  evidenceId: string;
+  text: string;
+  sectionTitle?: string;
+  relevance: number;
+  operators: Array<{
+    operator: ObservationOperator;
+    score: number;
+  }>;
+  observableClues: string[];
+};
+
+export type GenerativeObservationCandidate = {
+  question: string;
+  operator: ObservationOperator;
+  evidenceIds: string[];
+  presuppositions: string[];
+  observableClues: string[];
 };
 
 export type GeneratedFieldNote = {
   question: string;
   evidenceIds: string[];
   observableClues: string[];
-  generator: "template" | "llm";
+  generator: "template" | "operator" | "llm";
   templateId?: string;
+  operator?: ObservationOperator;
 };
 
 export type CandidateRejectionReason =
@@ -153,8 +191,9 @@ export type CandidateRejectionReason =
 
 export type FieldNotePromptMeta = {
   algorithmVersion: string;
-  generator: "template" | "llm";
+  generator: "template" | "operator" | "llm";
   templateId?: string;
+  operator?: ObservationOperator;
   primaryTheme: ObservationTheme;
   secondaryThemes: ObservationTheme[];
   confidence: number;
