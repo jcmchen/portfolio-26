@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test:field-notes": "tsc --project tsconfig.field-notes-test.json && node --test .field-note-test-build/tests/fieldNotes.test.js",
     "deploy": "next build && gh-pages -d out"
   },
   "dependencies": {

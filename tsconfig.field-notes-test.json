@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "lib": ["ES2021", "DOM"],
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "rootDir": ".",
+    "outDir": ".field-note-test-build",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "types": ["node"]
+  },
+  "include": ["src/lib/field-notes/**/*.ts", "tests/fieldNotes.test.ts"]
+}

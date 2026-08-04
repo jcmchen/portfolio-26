@@ -36,6 +36,11 @@ type FieldNote = {
   url?: string;
 };
 
+type FieldNoteUnavailable = {
+  region: "Taiwan" | "SF Bay Area";
+  message: string;
+};
+
 const projectPageLink = (slug: string) => ({ text: "Project Page", href: `/projects/${slug}` });
 
 const featuredProjectSpecs: Array<{
@@ -143,24 +148,7 @@ const initialPreviewIndex = Math.max(
   featuredProjects.findIndex((project) => project.slug === "hygrometric")
 );
 
-const fieldNotes: FieldNote[] = [
-  {
-    id: "tw-fallback",
-    region: "Taiwan",
-    coordinates: "coordinate pending",
-    place: "North Coast and Guanyinshan National Scenic Area",
-    prompt: "How has climate shaped the way this place is used and changed?",
-    source: "Wikipedia / Taiwan",
-  },
-  {
-    id: "sf-fallback",
-    region: "SF Bay Area",
-    coordinates: "coordinate pending",
-    place: "San Francisco Maritime National Park Association",
-    prompt: "How has the landscape shaped the way people move through this place?",
-    source: "Wikipedia / SF Bay Area",
-  },
-];
+const fieldNotes: FieldNote[] = [];
 
 const categoryOrder = [
   "Nature",
@@ -630,6 +618,8 @@ export default function HomePage() {
   const [highlightIndex, setHighlightIndex] = useState(initialHighlightIndex);
   const [previewIndex, setPreviewIndex] = useState(initialPreviewIndex);
   const [fieldNoteItems, setFieldNoteItems] = useState<FieldNote[]>(fieldNotes);
+  const [fieldNoteUnavailable, setFieldNoteUnavailable] = useState<FieldNoteUnavailable[]>([]);
+  const [fieldNotesLoading, setFieldNotesLoading] = useState(true);
   const [now, setNow] = useState(() => new Date());
   const highlightScrollerRef = useRef<HTMLDivElement>(null);
   const highlightSettleTimerRef = useRef<number | undefined>(undefined);
@@ -862,12 +852,32 @@ export default function HomePage() {
     let isMounted = true;
 
     fetch("/api/local-field-notes")
-      .then((response) => (response.ok ? response.json() : undefined))
+      .then((response) =>
+        response.ok || response.status === 503 ? response.json() : Promise.reject(new Error("Field notes request failed"))
+      )
       .then((data) => {
-        if (!isMounted || !data?.taiwan || !data?.sfBay) return;
-        setFieldNoteItems([data.taiwan, data.sfBay]);
+        if (!isMounted) return;
+        setFieldNoteItems(
+          [data?.taiwan, data?.sfBay].filter((item): item is FieldNote => Boolean(item))
+        );
+        setFieldNoteUnavailable(data?.unavailable || []);
+        setFieldNotesLoading(false);
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (!isMounted) return;
+        setFieldNoteItems([]);
+        setFieldNoteUnavailable([
+          {
+            region: "Taiwan",
+            message: "Today’s local field note is temporarily unavailable.",
+          },
+          {
+            region: "SF Bay Area",
+            message: "Today’s local field note is temporarily unavailable.",
+          },
+        ]);
+        setFieldNotesLoading(false);
+      });
 
     return () => {
       isMounted = false;
@@ -949,6 +959,18 @@ export default function HomePage() {
               {fieldNoteItems.map((note) => (
                 <FieldNoteCard key={note.id} note={note} />
               ))}
+              {!fieldNotesLoading
+                ? fieldNoteUnavailable.map((item) => (
+                    <article key={item.region} className="border-b border-black py-4">
+                      <p className="text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
+                        {item.region}
+                      </p>
+                      <p className="mt-3 max-w-[276px] text-[12px] leading-[1.5] text-neutral-600">
+                        {item.message}
+                      </p>
+                    </article>
+                  ))
+                : null}
             </div>
           </div>
         </aside>

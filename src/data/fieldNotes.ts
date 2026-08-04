@@ -1,4 +1,4 @@
-import type { FieldPromptResult } from "@/lib/fieldNotePrompt";
+import type { FieldNotePromptMeta } from "@/lib/field-notes";
 
 export type FieldLocation = {
   id: string;
@@ -10,7 +10,7 @@ export type FieldLocation = {
   imageAlt?: string;
   source: string;
   url?: string;
-  promptMeta?: FieldPromptResult["meta"];
+  promptMeta?: FieldNotePromptMeta;
 };
 
 export const fieldLocations: FieldLocation[] = [

@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/.field-note-test-build
 
 # next.js
 /.next/
