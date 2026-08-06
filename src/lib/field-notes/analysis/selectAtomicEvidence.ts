@@ -1,5 +1,6 @@
 import type {
   AtomicEvidence,
+  DocumentTopic,
   EvidenceItem,
   ObservationOperator,
 } from "../types";
@@ -131,7 +132,11 @@ function relevance(item: EvidenceItem, operators: AtomicEvidence["operators"], c
   );
 }
 
-export function selectAtomicEvidence(evidence: EvidenceItem[], limit = 6): AtomicEvidence[] {
+export function selectAtomicEvidence(
+  evidence: EvidenceItem[],
+  limit = 6,
+  topics: DocumentTopic[] = []
+): AtomicEvidence[] {
   const candidates = evidence
     .filter(
       (item) =>
@@ -156,12 +161,23 @@ export function selectAtomicEvidence(evidence: EvidenceItem[], limit = 6): Atomi
 
   const selected: AtomicEvidence[] = [];
   while (selected.length < limit && candidates.length) {
+    const coveredTopics = new Set(
+      topics
+        .filter((topic) =>
+          selected.some((item) => topic.evidenceIds.includes(item.evidenceId))
+        )
+        .map((topic) => topic.id)
+    );
     const next = candidates
       .map((candidate) => ({
         candidate,
         mmr:
           candidate.relevance * 0.75 -
-          Math.max(0, ...selected.map((item) => jaccard(candidate.text, item.text))) * 4,
+          Math.max(0, ...selected.map((item) => jaccard(candidate.text, item.text))) * 4 +
+          topics.reduce((bonus, topic) => {
+            if (!topic.evidenceIds.includes(candidate.evidenceId)) return bonus;
+            return bonus + topic.weight * (coveredTopics.has(topic.id) ? 0.7 : 2.2);
+          }, 0),
       }))
       .sort((a, b) => b.mmr - a.mmr)[0]?.candidate;
     if (!next) break;

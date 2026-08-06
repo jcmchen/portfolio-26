@@ -1,4 +1,4 @@
-export const FIELD_NOTE_ALGORITHM_VERSION = "hybrid-nlp-v6";
+export const FIELD_NOTE_ALGORITHM_VERSION = "hybrid-nlp-v9-topic-model";
 
 export type EvidenceSource =
   | "wikipedia-summary"
@@ -112,6 +112,18 @@ export type ThemeScore = {
   reasons: string[];
 };
 
+export type DocumentTopic = {
+  id: string;
+  keywords: string[];
+  evidenceIds: string[];
+  weight: number;
+  coherence: number;
+  themeWeights: Array<{
+    theme: ObservationTheme;
+    score: number;
+  }>;
+};
+
 export type ObservationFrame = {
   placeId: string;
   placeName: string;
@@ -125,6 +137,18 @@ export type ObservationFrame = {
   observableClues: string[];
   evidenceIds: string[];
   disallowedConcepts: string[];
+  spatialRelation?: {
+    kind: "connected-by" | "organized-around" | "separated-by";
+    connector: string;
+    targets: string;
+    evidenceId: string;
+  };
+  topicContext?: Array<{
+    topicId: string;
+    keywords: string[];
+    weight: number;
+    evidenceIds: string[];
+  }>;
   frameType:
     | "past-present-change"
     | "historical-trace"
@@ -205,6 +229,11 @@ export type FieldNotePromptMeta = {
     revision?: number;
   }>;
   observableClues: string[];
+  topics?: Array<{
+    topicId: string;
+    keywords: string[];
+    weight: number;
+  }>;
   fetchReport: EvidenceFetchReport;
 };
 
@@ -222,6 +251,7 @@ export type CandidatePipelineSuccess = {
   frame: ObservationFrame;
   evidence: EvidenceItem[];
   themeScores: ThemeScore[];
+  topics: DocumentTopic[];
 };
 
 export type CandidatePipelineFailure = {
@@ -230,6 +260,7 @@ export type CandidatePipelineFailure = {
   details?: string;
   evidence: EvidenceItem[];
   themeScores: ThemeScore[];
+  topics: DocumentTopic[];
   frame?: ObservationFrame;
 };
 

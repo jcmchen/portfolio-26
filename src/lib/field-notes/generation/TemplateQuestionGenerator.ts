@@ -1,5 +1,9 @@
 import type { GeneratedFieldNote, ObservationFrame } from "../types";
-import type { FieldNoteQuestionGenerator } from "./QuestionGenerator";
+import { isExcludedFieldNoteQuestion } from "../questionDiversity";
+import type {
+  FieldNoteQuestionGenerator,
+  QuestionGenerationOptions,
+} from "./QuestionGenerator";
 
 function withoutLeadingArticle(value: string) {
   return value.replace(/^(?:a|an|the)\s+/i, "");
@@ -11,12 +15,21 @@ function naturalList(values: string[]) {
   return `${values.slice(0, -1).join(", ")}, and ${values.at(-1)}`;
 }
 
-function stableVariant(placeName: string, variants: string[]) {
+function stableVariant(
+  placeName: string,
+  variants: string[],
+  excludedQuestions: string[] = []
+) {
+  const available = variants.filter(
+    (variant) => !isExcludedFieldNoteQuestion(variant, excludedQuestions)
+  );
+  if (!available.length) return null;
   const index = Array.from(placeName).reduce(
-    (total, character) => (total + character.codePointAt(0)!) % variants.length,
+    (total, character) =>
+      (total + character.codePointAt(0)!) % available.length,
     0
   );
-  return variants[index];
+  return available[index];
 }
 
 function generated(
@@ -34,8 +47,25 @@ function generated(
 }
 
 export class TemplateQuestionGenerator implements FieldNoteQuestionGenerator {
-  async generate(frame: ObservationFrame): Promise<GeneratedFieldNote | null> {
+  async generate(
+    frame: ObservationFrame,
+    options: QuestionGenerationOptions = {}
+  ): Promise<GeneratedFieldNote | null> {
     if (!frame.evidenceIds.length || !frame.observableClues.length) return null;
+
+    if (frame.spatialRelation) {
+      const relationQuestion =
+        frame.spatialRelation.kind === "connected-by"
+          ? `How does ${frame.spatialRelation.connector} connect ${frame.spatialRelation.targets} here?`
+          : frame.spatialRelation.kind === "organized-around"
+            ? `How does ${frame.spatialRelation.connector} organize ${frame.spatialRelation.targets} here?`
+            : `How does ${frame.spatialRelation.connector} define a boundary between ${frame.spatialRelation.targets}?`;
+      return generated(
+        frame,
+        "explicit-spatial-relation",
+        relationQuestion
+      );
+    }
 
     if (
       frame.frameType === "past-present-change" &&
@@ -122,16 +152,31 @@ export class TemplateQuestionGenerator implements FieldNoteQuestionGenerator {
     }
 
     if (frame.frameType === "station-layout" && frame.visibleFeature) {
+      if (
+        frame.observableClues.includes("the station’s terminal and starting roles")
+      ) {
+        return generated(
+          frame,
+          "station-line-role-reading",
+          "Where is one line’s end and another’s beginning legible here?"
+        );
+      }
+      const neutralStationQuestion = stableVariant(
+        frame.placeName,
+        [
+          "Where does movement change between the street and the station?",
+          "How does entering the station change the pace of movement?",
+          "Where do arrivals and departures become most visible at the station?",
+          "What changes as people move between the street and station?",
+        ],
+        options.excludedQuestions
+      );
       return generated(
         frame,
         "station-layout-reading",
         frame.observableClues.includes("movement at the station threshold")
-          ? stableVariant(frame.placeName, [
-              "Where does movement change between the street and the station?",
-              "How does entering the station change the pace of movement?",
-              "Where do arrivals and departures become most visible here?",
-              "What changes as people move between the street and station?",
-            ])
+          ? neutralStationQuestion ||
+            "Where does movement change between the street and the station?"
           : `How do ${withoutLeadingArticle(frame.visibleFeature)} organize movement through the station?`
       );
     }

@@ -294,9 +294,30 @@ export function buildObservationFrame(
     };
   }
 
+  const terminalLine = text.match(
+    /\bterminal station of (?:the )?([^.,;]{2,50}?\bline)\b/i
+  )?.[1];
+  const startingLine = text.match(
+    /\bstarting station of (?:the )?([^.,;]{2,50}?\bline)\b/i
+  )?.[1];
+  const lineRoleClues =
+    terminalLine && startingLine
+      ? [
+          `the ${terminalLine}`,
+          `the ${startingLine}`,
+          "the station’s terminal and starting roles",
+        ]
+      : [];
   const stationClues = cluesFromText(text, [
+    {
+      pattern:
+        /\bnorthbound platform\b[\s\S]{0,180}\bsouthbound platform\b|\bsouthbound platform\b[\s\S]{0,180}\bnorthbound platform\b/i,
+      clue: "the northbound and southbound platforms",
+    },
+    { pattern: /\bpedestrian plaza\b/i, clue: "the pedestrian plaza" },
     { pattern: /\bisland platform\b/i, clue: "the island platform" },
     { pattern: /\bside platforms?\b/i, clue: "the side platforms" },
+    { pattern: /\bat-grade (?:light rail )?station\b/i, clue: "the at-grade station" },
     { pattern: /\belevated station\b/i, clue: "the elevated station structure" },
     { pattern: /\bunderground station\b/i, clue: "the underground station layout" },
     { pattern: /\bstation exits?\b|\bexits?\s+\d/i, clue: "the station exits" },
@@ -311,8 +332,10 @@ export function buildObservationFrame(
   if (isStation) {
     const themes: ObservationTheme[] = ["transportation"];
     if (supported.has("architecture")) themes.push("architecture");
-    const observableClues = stationClues.length
-      ? stationClues
+    const observableClues = lineRoleClues.length
+      ? lineRoleClues
+      : stationClues.length
+        ? stationClues
       : ["movement at the station threshold", "arrivals and departures"];
     return {
       placeId: place.placeId,
@@ -320,8 +343,10 @@ export function buildObservationFrame(
       primaryTheme: "transportation",
       secondaryThemes: themes.slice(1),
       confidence: confidence(scoreFor(themeScores, "transportation"), themes.length),
-      visibleFeature: stationClues.length
-        ? naturalList(stationClues)
+      visibleFeature: lineRoleClues.length
+        ? `${terminalLine} ending and ${startingLine} beginning at the station`
+        : stationClues.length
+          ? naturalList(stationClues)
         : "movement at the station threshold",
       observableClues,
       evidenceIds: evidenceIdsFor(themeScores, themes),

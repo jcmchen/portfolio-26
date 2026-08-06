@@ -12,6 +12,7 @@ import type {
 import { validateGenerativeCandidate } from "./generativeValidation";
 
 function operatorForFrame(frame: ObservationFrame): ObservationOperator {
+  if (frame.spatialRelation) return "spatial_organization";
   if (
     [
       "past-present-change",

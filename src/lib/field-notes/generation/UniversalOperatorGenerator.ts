@@ -1,5 +1,6 @@
 import type {
   AtomicEvidence,
+  DocumentTopic,
   EvidencePlace,
   GenerativeObservationCandidate,
 } from "../types";
@@ -35,7 +36,8 @@ function candidate(
 
 export function generateUniversalOperatorObservation(
   _place: EvidencePlace,
-  atoms: AtomicEvidence[]
+  atoms: AtomicEvidence[],
+  topics: DocumentTopic[] = []
 ) {
   const candidates: GenerativeObservationCandidate[] = [];
 
@@ -196,5 +198,5 @@ export function generateUniversalOperatorObservation(
     }
   });
 
-  return selectBestGenerativeCandidate(candidates, atoms);
+  return selectBestGenerativeCandidate(candidates, atoms, topics);
 }

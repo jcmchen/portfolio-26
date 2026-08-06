@@ -1,6 +1,7 @@
 import { significantTokenOverlap } from "../analysis/selectAtomicEvidence";
 import type {
   AtomicEvidence,
+  DocumentTopic,
   GenerativeObservationCandidate,
 } from "../types";
 
@@ -13,7 +14,7 @@ const GENERIC_QUESTIONS = [
 ];
 
 const OBSERVATION_LANGUAGE =
-  /\b(?:visible|legible|layout|trace|remains?|surviv(?:e|es|ed|ing)|edge|boundary|connect|organize|movement|move|gather|pause|material|built|facade|façade|path|route|street|plaza|platform|shore|river|creek|wetland|marsh|hill|slope|station|market|stalls?|vendors?|cargo|park|house|mansion|museum|bridge|port|harbou?r|wharves?|mine|mining|habitat|vegetation|tower|pond|quarry|outcrop)\b/i;
+  /\b(?:visible|legible|layout|trace|remains?|surviv(?:e|es|ed|ing)|edge|boundary|connect|organize|movement|move|gather|pause|material|built|facade|façade|path|route|street|plaza|platform|shore|river|creek|wetland|marsh|hill|slope|station|market|stalls?|vendors?|cargo|park|house|mansion|museum|bridge|port|harbou?r|wharves?|mine|mining|habitat|vegetation|tower|pond|quarry|outcrop|garden|courtyard|passage|arcade|wall)\b/i;
 
 export type GenerativeCandidateValidation =
   | { valid: true; score: number }
@@ -109,18 +110,30 @@ export function validateGenerativeCandidate(
 
 export function selectBestGenerativeCandidate(
   candidates: GenerativeObservationCandidate[],
-  atoms: AtomicEvidence[]
+  atoms: AtomicEvidence[],
+  topics: DocumentTopic[] = []
 ) {
   return candidates
     .map((candidate) => ({
       candidate,
       validation: validateGenerativeCandidate(candidate, atoms),
+      topicFit: topics.reduce((fit, topic) => {
+        const citedInTopic = candidate.evidenceIds.filter((id) =>
+          topic.evidenceIds.includes(id)
+        ).length;
+        return fit + topic.weight * Math.min(1, citedInTopic);
+      }, 0),
     }))
     .filter(
       (item): item is {
         candidate: GenerativeObservationCandidate;
         validation: { valid: true; score: number };
+        topicFit: number;
       } => item.validation.valid
     )
-    .sort((a, b) => b.validation.score - a.validation.score)[0] || null;
+    .sort(
+      (a, b) =>
+        b.validation.score + b.topicFit * 0.12 -
+          (a.validation.score + a.topicFit * 0.12)
+    )[0] || null;
 }

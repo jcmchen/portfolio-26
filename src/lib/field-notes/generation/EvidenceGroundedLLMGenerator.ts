@@ -1,5 +1,6 @@
 import type {
   AtomicEvidence,
+  DocumentTopic,
   EvidencePlace,
   GenerativeObservationCandidate,
   ObservationOperator,
@@ -23,6 +24,7 @@ type LLMGeneratorOptions = {
   apiKey?: string;
   model?: string;
   fetchImpl?: FetchLike;
+  topics?: DocumentTopic[];
 };
 
 type ResponsesPayload = {
@@ -101,6 +103,14 @@ export async function generateEvidenceGroundedLLMObservation(
                 suggestedOperators: atom.operators.map((item) => item.operator),
                 observableClues: atom.observableClues,
               })),
+              documentTopics: (options.topics || []).slice(0, 4).map((topic) => ({
+                topicId: topic.id,
+                keywords: topic.keywords,
+                weight: topic.weight,
+                evidenceIds: topic.evidenceIds.filter((id) =>
+                  atoms.some((atom) => atom.evidenceId === id)
+                ),
+              })),
             }),
           },
         ],
@@ -166,7 +176,7 @@ export async function generateEvidenceGroundedLLMObservation(
     if (!text) return null;
     const parsed = JSON.parse(text) as { candidates?: unknown[] };
     const candidates = (parsed.candidates || []).filter(isCandidate).slice(0, 3);
-    return selectBestGenerativeCandidate(candidates, atoms);
+    return selectBestGenerativeCandidate(candidates, atoms, options.topics || []);
   } catch {
     return null;
   } finally {

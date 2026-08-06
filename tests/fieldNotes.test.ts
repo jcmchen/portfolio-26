@@ -8,10 +8,13 @@ import {
   FIELD_NOTE_ROTATION_DAYS,
   candidateRotationSlot,
   dailyRotationSlot,
+  fieldNoteQuestionsMatch,
   fieldNoteCachePolicy,
   generateEvidenceGroundedLLMObservation,
+  modelDocumentTopics,
   normalizeEvidenceSources,
   normalizeEvidenceText,
+  rerankThemeScoresWithTopics,
   selectFirstEvidenceBackedCandidate,
   validateGenerativeCandidate,
   type EvidencePlace,
@@ -82,6 +85,80 @@ test("inline Chinese labels are removed without deleting surrounding spatial evi
   assert.doesNotMatch(normalized, /Chinese|福町|原住民/);
   assert.match(normalized, /street of Taiwanese Indigenous cuisine/i);
   assert.match(normalized, /Ziqiang Night Market/i);
+});
+
+test("document topic modeling separates environmental and public-use readings", () => {
+  const currentPlace = place("Harbor Park");
+  const evidence = analyzeEvidence(
+    currentPlace,
+    normalizeEvidenceSources(currentPlace, [
+      source(
+        "summary",
+        "Harbor Park contains tidal marsh habitat beside a creek. " +
+          "The marsh supports wildlife and native vegetation. " +
+          "Walking paths cross the public grounds and connect several gardens. " +
+          "The paths lead to sports fields and playgrounds used for recreation."
+      ),
+    ])
+  );
+  const topics = modelDocumentTopics(currentPlace, evidence);
+  const keywords = topics.flatMap((topic) => topic.keywords);
+
+  assert.ok(topics.length >= 2);
+  assert.ok(keywords.some((keyword) => /marsh|habitat|wildlife|vegetation/i.test(keyword)));
+  assert.ok(keywords.some((keyword) => /paths?|gardens?|fields?|playgrounds?/i.test(keyword)));
+  assert.ok(topics.every((topic) => topic.weight > 0 && topic.evidenceIds.length > 0));
+  assert.ok(topics.every((topic) => !topic.keywords.includes("harbor")));
+});
+
+test("topic support reinforces repeated article themes without inventing a new theme", () => {
+  const currentPlace = place("Creekside Reserve");
+  const evidence = analyzeEvidence(
+    currentPlace,
+    normalizeEvidenceSources(currentPlace, [
+      source(
+        "summary",
+        "Creekside Reserve contains tidal marsh habitat. " +
+          "The wetland supports wildlife habitat and native vegetation. " +
+          "Marsh channels carry water through the reserve. " +
+          "A stone wall marks one entrance."
+      ),
+    ])
+  );
+  const original = classifyThemeScores(evidence, currentPlace);
+  const topics = modelDocumentTopics(currentPlace, evidence);
+  const reranked = rerankThemeScoresWithTopics(original, topics);
+  const originalThemes = new Set(original.map((score) => score.theme));
+
+  assert.equal(reranked[0]?.theme, "ecology");
+  assert.ok(reranked.every((score) => originalThemes.has(score.theme)));
+  assert.ok(
+    reranked.some((score) =>
+      score.reasons.some((reason) => reason.startsWith("document topic support:"))
+    )
+  );
+});
+
+test("topic context reaches a verified question for a non-station place", async () => {
+  const result = await createFieldNoteFromEvidence(place("Riverside Park"), [
+    source(
+      "summary",
+      "Riverside Park contains two public gardens connected by a footbridge. " +
+        "The gardens surround a creek and native wetland habitat. " +
+        "Walking paths lead from the gardens to recreation fields."
+    ),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.ok(result.topics.length > 0);
+  assert.ok((result.frame.topicContext?.length || 0) > 0);
+  assert.ok(
+    result.frame.topicContext?.some((topic) =>
+      result.generated.evidenceIds.some((id) => topic.evidenceIds.includes(id))
+    )
+  );
+  assert.match(result.generated.question, /gardens|footbridge|creek|wetland|paths/i);
 });
 
 test("Coast Range supports terrain and geology, never shoreline", () => {
@@ -193,6 +270,128 @@ test("a confirmed station gets a neutral field prompt without invented layout de
   if (!supported.ok) return;
   assert.equal(supported.frame.frameType, "station-layout");
   assert.match(supported.generated.question, /platform|exits|underground/i);
+});
+
+test("station components retain current-place ownership across sentences", () => {
+  const evidence = analyze("Paseo de San Antonio station", [
+    source(
+      "summary",
+      "Paseo de San Antonio station is an at-grade light rail station. The station platforms run along 1st Street and 2nd Street. The two platforms are connected by a pedestrian plaza."
+    ),
+  ]);
+
+  assert.equal(evidence.length, 3);
+  assert.ok(evidence.every((item) => item.refersToCurrentPlace));
+  assert.ok(
+    evidence[1].detectedThemes.some((theme) => theme.theme === "transportation")
+  );
+  assert.ok(
+    evidence[2].detectedThemes.some((theme) => theme.theme === "publicSpace")
+  );
+});
+
+test("Hualien station uses its terminal and starting-line role", async () => {
+  const result = await createFieldNoteFromEvidence(place("Hualien railway station"), [
+    source(
+      "summary",
+      "Hualien is a railway station served by the Taiwan Railway. It is the terminal station of the North-link line and the starting station of the Taitung line."
+    ),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.generated.templateId, "station-line-role-reading");
+  assert.match(result.generated.question, /line’s end/i);
+  assert.match(result.generated.question, /beginning/i);
+  assert.doesNotMatch(result.generated.question, /pace of movement/i);
+});
+
+test("Paseo station uses its split platforms and pedestrian plaza", async () => {
+  const result = await createFieldNoteFromEvidence(
+    place("Paseo de San Antonio station"),
+    [
+      source(
+        "summary",
+        "Paseo de San Antonio station is an at-grade light rail station. The northbound platform is alongside 1st Street and the southbound platform is alongside 2nd Street. The two platforms are connected by a pedestrian plaza."
+      ),
+    ]
+  );
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.generated.templateId, "explicit-spatial-relation");
+  assert.match(result.generated.question, /platforms/i);
+  assert.match(result.generated.question, /pedestrian plaza/i);
+  assert.doesNotMatch(result.generated.question, /pace of movement/i);
+});
+
+for (const example of [
+  {
+    placeName: "Riverside Park",
+    text: "Riverside Park is a public park with several gardens. The two gardens are connected by a footbridge.",
+    expected: /footbridge.*two gardens/i,
+  },
+  {
+    placeName: "Harbor Market",
+    text: "Harbor Market is a night market with food stalls. The market stalls are arranged around a central plaza.",
+    expected: /central plaza.*market stalls/i,
+  },
+  {
+    placeName: "Example Church",
+    text: "Example Church is a Gothic church. The nave and courtyard are joined by a covered arcade.",
+    expected: /covered arcade.*nave and courtyard/i,
+  },
+  {
+    placeName: "Walled Garden",
+    text: "Walled Garden is a public garden with two courtyards. The two courtyards are separated by a stone wall.",
+    expected: /stone wall.*boundary.*two courtyards/i,
+  },
+]) {
+  test(`explicit spatial relations generalize to ${example.placeName}`, async () => {
+    const result = await createFieldNoteFromEvidence(place(example.placeName), [
+      source("summary", example.text),
+    ]);
+
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(result.generated.templateId, "explicit-spatial-relation");
+    assert.match(result.generated.question, example.expected);
+    assert.equal(result.generated.operator, "spatial_organization");
+  });
+}
+
+test("components of a separately named nearby place do not inherit ownership", () => {
+  const evidence = analyze("Example Park", [
+    source(
+      "summary",
+      "Example Park is a public park. Stanford station has two platforms. The two platforms are connected by a pedestrian plaza."
+    ),
+  ]);
+
+  assert.equal(evidence[0].refersToCurrentPlace, true);
+  assert.equal(evidence[1].refersToCurrentPlace, false);
+  assert.equal(evidence[2].refersToCurrentPlace, false);
+});
+
+test("an excluded neutral station prompt selects a different verified variant", async () => {
+  const evidence = [
+    source("summary", "Example metro station is a station on the Orange Line."),
+  ];
+  const first = await createFieldNoteFromEvidence(place("Example metro station"), evidence);
+  assert.equal(first.ok, true);
+  if (!first.ok) return;
+
+  const second = await createFieldNoteFromEvidence(
+    place("Example metro station"),
+    evidence,
+    { excludedQuestions: [first.generated.question] }
+  );
+  assert.equal(second.ok, true);
+  if (!second.ok) return;
+  assert.equal(
+    fieldNoteQuestionsMatch(first.generated.question, second.generated.question),
+    false
+  );
 });
 
 test("a confirmed park gets a neutral prompt when no layout feature is stated", async () => {

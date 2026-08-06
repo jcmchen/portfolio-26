@@ -189,6 +189,11 @@ function currentPlaceOwnership(
   const refersToCurrentMarket =
     place.placeName.toLocaleLowerCase().includes("market") &&
     /\b(?:the|this) (?:night )?market\b/i.test(text);
+  const refersToCurrentPlaceComponent =
+    previousOwned &&
+    /^(?:(?:the|these|those)\s+)?(?:(?:two|three|several|multiple|northbound|southbound|eastbound|westbound|central|main|common|covered|pedestrian|public|walking|tidal|native|stone|food|retail|station|market|bridge|historic|former)\s+){0,3}(?:platforms?|tracks?|concourses?|entrances?|exits?|plazas?|courtyards?|paths?|trails?|gardens?|playgrounds?|fields?|stalls?|shops?|storefronts?|aisles?|halls?|galleries?|naves?|passages?|facades?|façades?|towers?|wings?|roofs?|spans?|decks?|approaches?|piers?|wharves?|breakwaters?|quays?|shorelines?|riverbanks?|channels?|slopes?|ridges?|habitats?|wetlands?|marsh(?:es)?|vegetation|grounds?|edges?|boundar(?:y|ies))\b/i.test(
+      text
+    );
   const continuation = /^(?:it|its|this|these|the surrounding|the other|however,?\s+(?:it|the))/i.test(text);
 
   if (explicitlyNamesPlace) {
@@ -208,6 +213,7 @@ function currentPlaceOwnership(
     beginsWithAlias ||
     refersToCurrentMuseum ||
     refersToCurrentMarket ||
+    refersToCurrentPlaceComponent ||
     (previousOwned && continuation)
   ) {
     return {

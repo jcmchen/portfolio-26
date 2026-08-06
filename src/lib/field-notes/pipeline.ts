@@ -1,9 +1,16 @@
 import { analyzeEvidence, classifyThemeScores } from "./analysis/analyzeEvidence";
 import { buildObservationFrame } from "./analysis/buildObservationFrame";
+import { applyExplicitPlaceRelation } from "./analysis/extractPlaceRelations";
+import {
+  attachTopicContext,
+  modelDocumentTopics,
+  rerankThemeScoresWithTopics,
+} from "./analysis/modelDocumentTopics";
 import { normalizeEvidenceSources } from "./evidence/normalizeEvidence";
 import { createQuestionGenerator } from "./generation";
 import { generateEvidenceGroundedObservation } from "./generation/generateEvidenceGroundedObservation";
 import { verifyTemplateObservation } from "./generation/verifyTemplateObservation";
+import { isExcludedFieldNoteQuestion } from "./questionDiversity";
 import type {
   CandidatePipelineResult,
   EvidencePlace,
@@ -14,6 +21,10 @@ import type {
 import { validateEvidence } from "./validation/validateEvidence";
 import { validateGeneratedQuestion } from "./validation/validateGeneratedQuestion";
 import { validateObservationFrame } from "./validation/validateObservationFrame";
+
+export type FieldNotePipelineOptions = {
+  excludedQuestions?: string[];
+};
 
 function shouldPreferGenerativeFallback(
   generated: GeneratedFieldNote,
@@ -28,11 +39,16 @@ function shouldPreferGenerativeFallback(
 
 export async function createFieldNoteFromEvidence(
   place: EvidencePlace,
-  sources: RawEvidenceSource[]
+  sources: RawEvidenceSource[],
+  options: FieldNotePipelineOptions = {}
 ): Promise<CandidatePipelineResult> {
   const normalized = normalizeEvidenceSources(place, sources);
   const evidence = analyzeEvidence(place, normalized);
-  const themeScores = classifyThemeScores(evidence, place);
+  const topics = modelDocumentTopics(place, evidence);
+  const themeScores = rerankThemeScoresWithTopics(
+    classifyThemeScores(evidence, place),
+    topics
+  );
   const evidenceValidation = validateEvidence(evidence);
 
   if (!evidenceValidation.valid) {
@@ -42,6 +58,7 @@ export async function createFieldNoteFromEvidence(
       details: evidenceValidation.details,
       evidence,
       themeScores,
+      topics,
     };
   }
 
@@ -51,17 +68,31 @@ export async function createFieldNoteFromEvidence(
   let attemptedFrame: ObservationFrame | undefined;
 
   if (themeScores.length) {
-    const frame = buildObservationFrame(place, evidence, themeScores);
+    const builtFrame = buildObservationFrame(place, evidence, themeScores);
+    const frame = builtFrame
+      ? attachTopicContext(
+          applyExplicitPlaceRelation(builtFrame, evidence),
+          topics
+        )
+      : null;
     attemptedFrame = frame || undefined;
     if (frame) {
       const frameValidation = validateObservationFrame(frame);
       if (frameValidation.valid) {
-        const generated = await createQuestionGenerator().generate(frame);
+        const generated = await createQuestionGenerator().generate(frame, {
+          excludedQuestions: options.excludedQuestions,
+        });
         if (generated) {
           const questionValidation = validateGeneratedQuestion(generated, frame);
           if (questionValidation.valid) {
             const verified = verifyTemplateObservation(generated, frame, evidence);
-            if (verified) {
+            if (
+              verified &&
+              !isExcludedFieldNoteQuestion(
+                verified.generated.question,
+                options.excludedQuestions
+              )
+            ) {
               if (!shouldPreferGenerativeFallback(verified.generated, verified.frame)) {
                 return {
                   ok: true,
@@ -69,6 +100,7 @@ export async function createFieldNoteFromEvidence(
                   frame: verified.frame,
                   evidence,
                   themeScores,
+                  topics,
                 };
               }
               retainedTemplate = {
@@ -85,17 +117,25 @@ export async function createFieldNoteFromEvidence(
   const evidenceGrounded = await generateEvidenceGroundedObservation(
     place,
     evidence,
-    themeScores
+    themeScores,
+    topics
   );
   if (evidenceGrounded) {
     const frameValidation = validateObservationFrame(evidenceGrounded.frame);
-    if (frameValidation.valid) {
+    if (
+      frameValidation.valid &&
+      !isExcludedFieldNoteQuestion(
+        evidenceGrounded.generated.question,
+        options.excludedQuestions
+      )
+    ) {
       return {
         ok: true,
         generated: evidenceGrounded.generated,
         frame: evidenceGrounded.frame,
         evidence,
         themeScores,
+        topics,
       };
     }
   }
@@ -107,6 +147,7 @@ export async function createFieldNoteFromEvidence(
       frame: retainedTemplate.frame,
       evidence,
       themeScores,
+      topics,
     };
   }
 
@@ -118,6 +159,7 @@ export async function createFieldNoteFromEvidence(
       : "No supported theme or evidence-grounded observation was available.",
     evidence,
     themeScores,
+    topics,
     frame: attemptedFrame,
   };
 }

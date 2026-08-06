@@ -1,7 +1,10 @@
 import type { FieldNoteQuestionGenerator } from "./QuestionGenerator";
 import { TemplateQuestionGenerator } from "./TemplateQuestionGenerator";
 
-export type { FieldNoteQuestionGenerator } from "./QuestionGenerator";
+export type {
+  FieldNoteQuestionGenerator,
+  QuestionGenerationOptions,
+} from "./QuestionGenerator";
 
 export function createQuestionGenerator(): FieldNoteQuestionGenerator {
   const mode = process.env.FIELD_NOTE_GENERATOR ?? "hybrid";

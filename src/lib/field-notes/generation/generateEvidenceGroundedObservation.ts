@@ -1,6 +1,7 @@
 import { selectAtomicEvidence } from "../analysis/selectAtomicEvidence";
 import type {
   CandidatePipelineSuccess,
+  DocumentTopic,
   EvidenceItem,
   EvidencePlace,
   GeneratedFieldNote,
@@ -13,17 +14,19 @@ import { generateUniversalOperatorObservation } from "./UniversalOperatorGenerat
 export async function generateEvidenceGroundedObservation(
   place: EvidencePlace,
   evidence: EvidenceItem[],
-  themeScores: ThemeScore[]
+  themeScores: ThemeScore[],
+  topics: DocumentTopic[] = []
 ): Promise<Pick<CandidatePipelineSuccess, "generated" | "frame"> | null> {
-  const atoms = selectAtomicEvidence(evidence);
+  const atoms = selectAtomicEvidence(evidence, 6, topics);
   if (!atoms.length) return null;
 
   const mode = process.env.FIELD_NOTE_GENERATOR ?? "hybrid";
   const llmResult =
     mode === "template" || mode === "operator"
       ? null
-      : await generateEvidenceGroundedLLMObservation(place, atoms);
-  const selected = llmResult || generateUniversalOperatorObservation(place, atoms);
+      : await generateEvidenceGroundedLLMObservation(place, atoms, { topics });
+  const selected =
+    llmResult || generateUniversalOperatorObservation(place, atoms, topics);
   if (!selected) return null;
 
   const generator = llmResult ? "llm" : "operator";
@@ -52,6 +55,17 @@ export async function generateEvidenceGroundedObservation(
     observableClues: selected.candidate.observableClues,
     evidenceIds: selected.candidate.evidenceIds,
     disallowedConcepts: [],
+    topicContext: topics
+      .filter((topic) =>
+        selected.candidate.evidenceIds.some((id) => topic.evidenceIds.includes(id))
+      )
+      .slice(0, 2)
+      .map((topic) => ({
+        topicId: topic.id,
+        keywords: topic.keywords,
+        weight: topic.weight,
+        evidenceIds: topic.evidenceIds,
+      })),
     frameType: "evidence-grounded-observation",
   };
 

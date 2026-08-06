@@ -1,6 +1,15 @@
 export { analyzeEvidence, classifyThemeScores, resolveConcepts } from "./analysis/analyzeEvidence";
 export { buildObservationFrame } from "./analysis/buildObservationFrame";
 export {
+  applyExplicitPlaceRelation,
+  extractExplicitPlaceRelation,
+} from "./analysis/extractPlaceRelations";
+export {
+  attachTopicContext,
+  modelDocumentTopics,
+  rerankThemeScoresWithTopics,
+} from "./analysis/modelDocumentTopics";
+export {
   selectAtomicEvidence,
   significantTokenOverlap,
 } from "./analysis/selectAtomicEvidence";
@@ -24,8 +33,16 @@ export {
   validateGenerativeCandidate,
 } from "./generation/generativeValidation";
 export { verifyTemplateObservation } from "./generation/verifyTemplateObservation";
-export { createFieldNoteFromEvidence } from "./pipeline";
+export {
+  createFieldNoteFromEvidence,
+  type FieldNotePipelineOptions,
+} from "./pipeline";
 export { fieldNoteCachePolicy } from "./cachePolicy";
+export {
+  fieldNoteQuestionsMatch,
+  isExcludedFieldNoteQuestion,
+  normalizeFieldNoteQuestion,
+} from "./questionDiversity";
 export {
   FIELD_NOTE_ROTATION_DAYS,
   candidateRotationSlot,

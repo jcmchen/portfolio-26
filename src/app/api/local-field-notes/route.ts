@@ -4,6 +4,7 @@ import {
   FIELD_NOTE_ALGORITHM_VERSION,
   FIELD_NOTE_ROTATION_DAYS,
   createFieldNoteFromEvidence,
+  fieldNoteQuestionsMatch,
   fieldNoteCachePolicy,
   fetchWikipediaEvidence,
   hasUsableFetchedEvidence,
@@ -485,7 +486,8 @@ function unavailable(
 
 async function resolveRegion(
   region: FieldLocation["region"],
-  overrideTitle?: string
+  overrideTitle?: string,
+  excludedQuestions: string[] = []
 ): Promise<RegionResolution> {
   let candidates: WikiFieldLocation[];
 
@@ -554,7 +556,11 @@ async function resolveRegion(
       };
     }
 
-    const pipeline = await createFieldNoteFromEvidence(evidencePlace(place), fetched.sources);
+    const pipeline = await createFieldNoteFromEvidence(
+      evidencePlace(place),
+      fetched.sources,
+      { excludedQuestions }
+    );
     if (!pipeline.ok) {
       logCandidateRejected({
         place,
@@ -588,6 +594,11 @@ async function resolveRegion(
         revision: item.revision,
       })),
       observableClues: pipeline.generated.observableClues,
+      topics: pipeline.frame.topicContext?.map((topic) => ({
+        topicId: topic.topicId,
+        keywords: topic.keywords,
+        weight: topic.weight,
+      })),
       fetchReport: fetched.report,
     };
     const {
@@ -612,6 +623,11 @@ async function resolveRegion(
       frameType: pipeline.frame.frameType,
       templateId: pipeline.generated.templateId,
       evidenceIds: pipeline.generated.evidenceIds,
+      topics: pipeline.frame.topicContext?.map((topic) => ({
+        topicId: topic.topicId,
+        keywords: topic.keywords,
+        weight: topic.weight,
+      })),
     });
     return { ok: true as const, value: location };
   });
@@ -675,10 +691,34 @@ export async function GET(request: Request) {
     return jsonResponse(shortCache.response);
   }
 
-  const [taiwanResult, sfResult] = await Promise.all([
+  const [taiwanResult, initialSfResult] = await Promise.all([
     resolveRegion("Taiwan", overrides.taiwan),
     resolveRegion("SF Bay Area", overrides.sfBay),
   ]);
+  let sfResult = initialSfResult;
+  if (
+    taiwanResult.ok &&
+    sfResult.ok &&
+    fieldNoteQuestionsMatch(
+      taiwanResult.location.prompt,
+      sfResult.location.prompt
+    )
+  ) {
+    const diversified = await resolveRegion(
+      "SF Bay Area",
+      overrides.sfBay,
+      [taiwanResult.location.prompt]
+    );
+    if (diversified.ok) {
+      sfResult = diversified;
+    } else {
+      console.warn({
+        event: "local-field-note-duplicate-prompt-retained",
+        prompt: taiwanResult.location.prompt,
+        reason: diversified.unavailable.reason,
+      });
+    }
+  }
   const taiwan = taiwanResult.ok ? taiwanResult.location : null;
   const sfBay = sfResult.ok ? sfResult.location : null;
   const unavailableRegions = [taiwanResult, sfResult].flatMap((result) =>
