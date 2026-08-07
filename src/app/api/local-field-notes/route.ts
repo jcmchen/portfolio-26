@@ -16,6 +16,7 @@ import {
   type FieldNotePromptMeta,
   type ThemeScore,
 } from "@/lib/field-notes";
+import { fetchWikimediaJson } from "@/lib/field-notes/wikimediaClient";
 
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
@@ -193,12 +194,16 @@ function isLikelyPlaceImage(filename?: string) {
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, {
+  const response = await fetchWikimediaJson<T>(url, {
     next: { revalidate: 86400 },
-    headers: { "User-Agent": "jcmchen.com daily place reading contact: portfolio" },
+    timeoutMs: 8_000,
   });
-  if (!response.ok) throw new Error(`Wikipedia candidate request failed: ${response.status}`);
-  return (await response.json()) as T;
+  if (!response.ok) {
+    throw new Error(
+      `Wikipedia candidate request failed: ${response.httpStatus ?? response.status}`
+    );
+  }
+  return response.data;
 }
 
 async function fetchCategoryMembers(category: string) {
@@ -377,8 +382,10 @@ function rejectionReasonForFetch(report: EvidenceFetchReport): CandidateRejectio
     : "INSUFFICIENT_EVIDENCE";
 }
 
-function fetchWasRateLimited(report: EvidenceFetchReport) {
-  return Object.values(report).some((item) => item.httpStatus === 429);
+function fetchWasBackpressured(report: EvidenceFetchReport) {
+  return Object.values(report).some(
+    (item) => item.httpStatus === 429 || item.httpStatus === 503
+  );
 }
 
 function candidateTitlePriority(place: WikiFieldLocation) {
@@ -552,7 +559,7 @@ async function resolveRegion(
       return {
         ok: false as const,
         reason,
-        terminal: fetchWasRateLimited(fetched.report),
+        terminal: fetchWasBackpressured(fetched.report),
       };
     }
 

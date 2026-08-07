@@ -13,7 +13,7 @@ const SAMPLE_SIZE = Number.isFinite(configuredSample) && configuredSample > 0
   ? Math.max(5, configuredSample)
   : Number.POSITIVE_INFINITY;
 const API = "https://en.wikipedia.org/w/api.php";
-const USER_AGENT = "jcmchen.com field-note coverage audit contact: portfolio";
+const USER_AGENT = "DailyPlaceReadingCoverageAudit/1.0 (https://jcmchen.com/)";
 
 const REGIONS = {
   Taiwan: {
@@ -65,9 +65,16 @@ async function fetchJson(params) {
     if (response.status !== 429 && response.status < 500) {
       throw new Error(`Wikipedia HTTP ${response.status}`);
     }
-    const retryAfter = Number(response.headers.get("retry-after") || 0);
+    const retryAfterHeader = response.headers.get("retry-after");
+    const retryAfterSeconds = Number(retryAfterHeader);
+    const retryAfterDate = retryAfterHeader ? Date.parse(retryAfterHeader) : Number.NaN;
+    const retryAfter = Number.isFinite(retryAfterSeconds)
+      ? retryAfterSeconds * 1000
+      : Number.isFinite(retryAfterDate)
+        ? Math.max(0, retryAfterDate - Date.now())
+        : 0;
     await new Promise((resolve) =>
-      setTimeout(resolve, Math.max(retryAfter * 1000, 1000 * (attempt + 1)))
+      setTimeout(resolve, Math.max(retryAfter, 5000 * 2 ** attempt))
     );
   }
   throw new Error("Wikipedia request exhausted its retry budget");

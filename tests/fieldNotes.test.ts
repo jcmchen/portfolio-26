@@ -20,6 +20,53 @@ import {
   type EvidencePlace,
   type RawEvidenceSource,
 } from "../src/lib/field-notes";
+import {
+  fetchWikimediaJson,
+  parseRetryAfterMs,
+  WIKIMEDIA_USER_AGENT,
+} from "../src/lib/field-notes/wikimediaClient";
+
+test("Wikimedia client uses a compliant identity and parses Retry-After", () => {
+  assert.match(WIKIMEDIA_USER_AGENT, /^DailyPlaceReading\/\d+\.\d+ \(https:\/\//);
+  assert.equal(parseRetryAfterMs("7"), 7_000);
+  assert.equal(
+    parseRetryAfterMs(
+      "Fri, 07 Aug 2026 20:00:05 GMT",
+      Date.parse("2026-08-07T20:00:00Z")
+    ),
+    5_000
+  );
+});
+
+test("Wikimedia client allows no more than three concurrent requests", async () => {
+  let active = 0;
+  let peak = 0;
+  const seenUserAgents = new Set<string>();
+  const fetchImpl: typeof fetch = async (_input, init) => {
+    active += 1;
+    peak = Math.max(peak, active);
+    seenUserAgents.add(new Headers(init?.headers).get("user-agent") || "");
+    await new Promise((resolve) => setTimeout(resolve, 15));
+    active -= 1;
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  const results = await Promise.all(
+    Array.from({ length: 7 }, (_, index) =>
+      fetchWikimediaJson<{ ok: boolean }>(`https://example.test/${index}`, {
+        fetchImpl,
+        maxAttempts: 1,
+      })
+    )
+  );
+
+  assert.equal(peak, 3);
+  assert.deepEqual([...seenUserAgents], [WIKIMEDIA_USER_AGENT]);
+  assert.ok(results.every((result) => result.ok && result.data.ok));
+});
 
 test("daily rotation gives every page one preferred day and prevents consecutive repeats", () => {
   const pageId = 43_813_261;

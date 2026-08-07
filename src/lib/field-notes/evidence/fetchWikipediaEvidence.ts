@@ -6,9 +6,9 @@ import type {
   FetchResult,
   RawEvidenceSource,
 } from "../types";
+import { fetchWikimediaJson } from "../wikimediaClient";
 
 const REQUEST_TIMEOUT_MS = 8_000;
-const USER_AGENT = "jcmchen.com daily place reading contact: portfolio";
 
 type WikiParsedArticleResponse = {
   parse?: {
@@ -41,73 +41,11 @@ type WikidataResponse = {
 };
 
 async function fetchJson<T>(url: string): Promise<FetchResult<T>> {
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-    try {
-      const response = await fetch(url, {
-        cache: "no-store",
-        signal: controller.signal,
-        headers: {
-          Accept: "application/json",
-          "User-Agent": USER_AGENT,
-        },
-      });
-
-      if (!response.ok) {
-        if ((response.status === 429 || response.status >= 500) && attempt === 0) {
-          await new Promise((resolve) => setTimeout(resolve, 450));
-          continue;
-        }
-        return {
-          ok: false,
-          data: null,
-          status: "http-error",
-          httpStatus: response.status,
-          error: `HTTP ${response.status}`,
-        };
-      }
-
-      try {
-        return {
-          ok: true,
-          data: (await response.json()) as T,
-          status: "success",
-          httpStatus: response.status,
-        };
-      } catch (error) {
-        return {
-          ok: false,
-          data: null,
-          status: "parse-error",
-          httpStatus: response.status,
-          error: error instanceof Error ? error.message : "Invalid JSON response",
-        };
-      }
-    } catch (error) {
-      const timedOut = error instanceof Error && error.name === "AbortError";
-      if (attempt === 0) {
-        await new Promise((resolve) => setTimeout(resolve, 250));
-        continue;
-      }
-      return {
-        ok: false,
-        data: null,
-        status: timedOut ? "timeout" : "http-error",
-        error: error instanceof Error ? error.message : "Evidence request failed",
-      };
-    } finally {
-      clearTimeout(timeout);
-    }
-  }
-
-  return {
-    ok: false,
-    data: null,
-    status: "http-error",
-    error: "Evidence request exhausted its retry budget",
-  };
+  return fetchWikimediaJson<T>(url, {
+    cache: "no-store",
+    timeoutMs: REQUEST_TIMEOUT_MS,
+    maxAttempts: 2,
+  });
 }
 
 function reportFromResult<T>(result: FetchResult<T>, itemCount = 0): EvidenceFetchDetail {
