@@ -113,6 +113,44 @@ html {
   flex: 0 0 min(82vw, 680px);
 }
 
+@media (max-width: 1023px) {
+  .project-card h3 {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .mobile-category-index .category-index-item .category-index-icon {
+    height: 40px;
+  }
+
+  .mobile-category-index .category-index-item > span:last-child {
+    font-size: 9px;
+    line-height: 1.25;
+  }
+
+  .highlight-route-overlay.category-index-icon {
+    bottom: 12px;
+    left: 12px;
+    width: 144px;
+    height: 64px;
+  }
+}
+
+@media (min-width: 390px) and (max-width: 1023px) {
+  .field-note-list .field-note-image {
+    height: 132px;
+  }
+
+  .field-note-list .field-note-prompt-overlay {
+    padding: 10px;
+  }
+
+  .field-note-list .field-note-prompt-text {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+}
+
 @media (min-width: 1280px) {
   .highlight-track-card {
     flex-basis: 56%;

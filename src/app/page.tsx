@@ -463,20 +463,20 @@ function FieldNoteCard({ note }: { note: FieldNote }) {
   const sourceLabel = note.source.split(" / ")[0];
 
   return (
-    <article className="border-b border-black pb-2 pt-4">
-      <div className="mb-2.5 grid grid-cols-2 items-baseline gap-2 text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
+    <article className="snap-start border-b-0 border-black pb-2 pt-4 lg:border-b">
+      <div className="mb-2.5 grid grid-cols-1 items-baseline gap-2 text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500 lg:grid-cols-2">
         <span>{note.region}</span>
-        <span className="text-right">{note.coordinates}</span>
+        <span className="hidden text-right lg:block">{note.coordinates}</span>
       </div>
       {note.url ? (
-        <h2 className="text-[26px] font-normal uppercase leading-[0.98] tracking-normal">
+        <h2 className="text-[18px] font-normal uppercase leading-[1.02] tracking-normal lg:text-[26px] lg:leading-[0.98]">
           <a
             href={note.url}
             target="_blank"
             rel="noreferrer"
             className="group inline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
           >
-            <span className="underline decoration-transparent underline-offset-[0.14em] transition-[text-decoration-color] group-hover:decoration-current group-focus-visible:decoration-current">
+            <span className="underline decoration-transparent underline-offset-[3px] transition-[text-decoration-color] group-hover:decoration-current group-focus-visible:decoration-current lg:underline-offset-[0.14em]">
               {note.place}
             </span>{" "}
             <span
@@ -489,7 +489,7 @@ function FieldNoteCard({ note }: { note: FieldNote }) {
           </a>
         </h2>
       ) : (
-        <h2 className="text-[26px] font-normal uppercase leading-[0.98] tracking-normal">
+        <h2 className="text-[18px] font-normal uppercase leading-[1.02] tracking-normal lg:text-[26px] lg:leading-[0.98]">
           {note.place}
         </h2>
       )}
@@ -572,15 +572,19 @@ function HighlightCard({
         />
       </div>
       <div className="pt-0.5">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">{project.category}</p>
-        <h3 className="mt-0.5 border-b border-black pb-1.5 text-[31px] font-normal uppercase leading-none tracking-normal">
+        <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-black py-2 text-[10px] uppercase tracking-[0.16em] text-neutral-500 lg:hidden">
+          <p>{project.category}</p>
+          <span>{project.year}</span>
+        </div>
+        <p className="hidden text-[11px] uppercase tracking-[0.2em] text-neutral-500 lg:block">{project.category}</p>
+        <h3 className="mt-0.5 hidden border-b border-black pb-1.5 text-[31px] font-normal uppercase leading-none tracking-normal lg:block">
           {project.title}
         </h3>
-        <div className="grid grid-cols-[1fr_auto] gap-4 py-1.5 text-[11px] uppercase tracking-[0.16em] text-neutral-500">
+        <div className="hidden grid-cols-[1fr_auto] gap-4 py-1.5 text-[11px] uppercase tracking-[0.16em] text-neutral-500 lg:grid">
           <p>{project.label || categoryLead[project.category]}</p>
           <span>{project.year}</span>
         </div>
-        <div className="mt-0 flex flex-wrap items-center gap-x-1.5 gap-y-1 pb-1.5">
+        <div className="mt-0 flex flex-wrap items-center gap-x-1.5 gap-y-1 py-2 lg:pb-1.5 lg:pt-0">
           {project.links.map((link, index) => (
             <span key={`${project.slug}-${link.text}`} className="inline-flex items-center gap-1.5">
               {index > 0 ? (
@@ -591,7 +595,7 @@ function HighlightCard({
               {link.href.startsWith("/") ? (
                 <Link
                   href={link.href}
-                  className="inline-block border-b border-black text-[11px] font-normal uppercase tracking-[0.14em] text-neutral-700"
+                  className="inline-block border-b-0 border-black text-[11px] font-normal uppercase tracking-[0.14em] text-neutral-700 underline decoration-1 underline-offset-[3px] lg:border-b lg:no-underline"
                 >
                   {link.text}
                 </Link>
@@ -600,7 +604,7 @@ function HighlightCard({
                   href={link.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-block border-b border-black text-[11px] font-normal uppercase tracking-[0.14em] text-neutral-700"
+                  className="inline-block border-b-0 border-black text-[11px] font-normal uppercase tracking-[0.14em] text-neutral-700 underline decoration-1 underline-offset-[3px] lg:border-b lg:no-underline"
                 >
                   {link.text}
                 </a>
@@ -623,6 +627,7 @@ export default function HomePage() {
   const [newsRevealKey, setNewsRevealKey] = useState(0);
   const [now, setNow] = useState(() => new Date());
   const highlightScrollerRef = useRef<HTMLDivElement>(null);
+  const highlightCategoryScrollerRef = useRef<HTMLDivElement>(null);
   const newsLineRef = useRef<HTMLParagraphElement>(null);
   const highlightSettleTimerRef = useRef<number | undefined>(undefined);
   const scrollSyncReleaseTimerRef = useRef<number | undefined>(undefined);
@@ -755,6 +760,14 @@ export default function HomePage() {
     [projectGroups]
   );
 
+  const mobileProjects = useMemo(
+    () =>
+      active === "Show All"
+        ? projectGroups.flatMap((group) => group.projects)
+        : projectGroups.find((group) => group.category === active)?.projects ?? [],
+    [active, projectGroups]
+  );
+
   const highlightProjects = featuredProjects;
   const currentPreviewIndex = wrapIndex(previewIndex, highlightProjects.length);
   const previewProject = highlightProjects[currentPreviewIndex] || highlightProjects[0] || projects[0];
@@ -762,6 +775,42 @@ export default function HomePage() {
   const activeCategoryPosition = (highlightIndicesByCategory[activeCategory] || []).indexOf(
     currentPreviewIndex
   );
+
+  useEffect(() => {
+    const scroller = highlightCategoryScrollerRef.current;
+    const mobileViewport = window.matchMedia("(max-width: 1023px)");
+
+    if (!scroller || !mobileViewport.matches) return;
+
+    const activeItem = Array.from(
+      scroller.querySelectorAll<HTMLElement>("[data-highlight-category]")
+    ).find((item) => item.dataset.highlightCategory === activeCategory);
+
+    if (!activeItem) return;
+
+    const scrollerRect = scroller.getBoundingClientRect();
+    const itemRect = activeItem.getBoundingClientRect();
+    const edgePadding = 8;
+    const isFullyVisible =
+      itemRect.left >= scrollerRect.left + edgePadding &&
+      itemRect.right <= scrollerRect.right - edgePadding;
+
+    if (isFullyVisible) return;
+
+    const targetLeft = Math.max(
+      0,
+      Math.min(
+        activeItem.offsetLeft - (scroller.clientWidth - activeItem.offsetWidth) / 2,
+        scroller.scrollWidth - scroller.clientWidth
+      )
+    );
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    scroller.scrollTo({
+      left: targetLeft,
+      behavior: reduceMotion ? "auto" : "smooth",
+    });
+  }, [activeCategory]);
 
   const previewHighlight = (index: number) => {
     categoryCycleRef.current = null;
@@ -1023,7 +1072,7 @@ export default function HomePage() {
               href="https://dl.acm.org/doi/10.1145/3772318.3791333"
               target="_blank"
               rel="noreferrer"
-              className="border-b border-black transition-colors hover:border-neutral-500 hover:text-neutral-500"
+              className="border-b-0 border-black underline decoration-1 underline-offset-[3px] transition-colors hover:border-neutral-500 hover:text-neutral-500 lg:border-b lg:no-underline"
             >
               DOI
             </a>
@@ -1036,7 +1085,7 @@ export default function HomePage() {
               href="https://dl.acm.org/doi/epdf/10.1145/3772318.3791333"
               target="_blank"
               rel="noreferrer"
-              className="border-b border-black transition-colors hover:border-neutral-500 hover:text-neutral-500"
+              className="border-b-0 border-black underline decoration-1 underline-offset-[3px] transition-colors hover:border-neutral-500 hover:text-neutral-500 lg:border-b lg:no-underline"
             >
               PDF
             </a>
@@ -1044,54 +1093,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-[1680px] grid-cols-1 border-b border-black px-4 md:px-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:pt-4">
+      <section className="mx-auto grid w-full max-w-[1680px] grid-cols-1 px-4 md:px-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:border-b lg:border-black lg:pt-4">
         <div aria-hidden="true" className="hidden lg:col-span-2 lg:block lg:border-t lg:border-black" />
-        <aside className="border-b border-black py-3 lg:flex lg:min-h-0 lg:flex-col lg:border-b-0 lg:border-r lg:pb-3 lg:pt-0 lg:pr-6">
-          <div className="border-y border-black pb-3 pt-1.5 lg:border-t-0">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
-              <h2 className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500">
-                Daily place reading
-              </h2>
-              <time className="text-right text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
-                {now.toISOString().slice(0, 10)} UTC
-              </time>
-            </div>
-            <p className="mt-3 max-w-[276px] text-[12px] leading-[1.5] tracking-[0.01em] text-neutral-600">
-              Taiwan and the SF Bay Area are both part of my life. Each day, we explore one new place in each, noticing its environment, materials, spaces, and histories.
-            </p>
-            <p className="mt-2.5 max-w-[276px] text-[10px] leading-[1.5] tracking-[0.03em] text-neutral-500">
-              Explore the images for a closer reading.
-            </p>
-          </div>
-          <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-2">
-            <div>
-              {fieldNoteItems.map((note) => (
-                <FieldNoteCard key={note.id} note={note} />
-              ))}
-              {!fieldNotesLoading
-                ? fieldNoteUnavailable.map((item) => (
-                    <article key={item.region} className="border-b border-black py-4">
-                      <p className="text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
-                        {item.region}
-                      </p>
-                      <p className="mt-3 max-w-[276px] text-[12px] leading-[1.5] text-neutral-600">
-                        {item.message}
-                      </p>
-                    </article>
-                  ))
-                : null}
-            </div>
-          </div>
-        </aside>
-
-        <section className="pb-4 pt-3 lg:pb-3 lg:pt-0 lg:pl-6">
-          <div className="border-y border-black py-1.5 lg:border-t-0">
+        <section className="py-6 lg:col-start-2 lg:row-start-2 lg:pb-3 lg:pt-0 lg:pl-6">
+          <div className="border-b border-black py-1.5">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
               <div>
-                <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500">
-                  Highlights
+                <p className="grid grid-cols-[24px_minmax(0,1fr)] text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500 lg:block">
+                  <span className="lg:hidden">I.</span>
+                  <span>Highlights</span>
                 </p>
-                <h1 className="mt-2 text-4xl font-normal uppercase leading-none tracking-normal">
+                <h1 className="mt-2 text-[30px] font-normal uppercase leading-none tracking-normal lg:text-4xl">
                   {previewProject.title}
                 </h1>
               </div>
@@ -1100,7 +1112,7 @@ export default function HomePage() {
                   type="button"
                   aria-label="Previous highlight"
                   onClick={() => slideHighlights(-1)}
-                  className="grid h-9 w-9 place-items-center border border-black text-sm font-normal hover:bg-black hover:text-[#fbfaf7]"
+                  className="grid h-11 w-11 place-items-center border border-black text-sm font-normal hover:bg-black hover:text-[#fbfaf7] lg:h-9 lg:w-9"
                 >
                   &lt;
                 </button>
@@ -1108,7 +1120,7 @@ export default function HomePage() {
                   type="button"
                   aria-label="Next highlight"
                   onClick={() => slideHighlights(1)}
-                  className="grid h-9 w-9 place-items-center border border-black text-sm font-normal hover:bg-black hover:text-[#fbfaf7]"
+                  className="grid h-11 w-11 place-items-center border border-black text-sm font-normal hover:bg-black hover:text-[#fbfaf7] lg:h-9 lg:w-9"
                 >
                   &gt;
                 </button>
@@ -1116,10 +1128,14 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="mt-2 grid grid-cols-2 border-l border-t border-black md:grid-cols-4 xl:grid-cols-7">
+          <div
+            ref={highlightCategoryScrollerRef}
+            className="mobile-category-index no-scrollbar mt-2 flex overflow-x-auto border-l border-t border-black lg:grid lg:grid-cols-4 lg:overflow-visible xl:grid-cols-7"
+          >
             {categoryOrder.map((category) => (
               <button
                 key={category}
+                data-highlight-category={category}
                 type="button"
                 aria-pressed={category === activeCategory}
                 aria-label={`${category}: ${highlightIndicesByCategory[category].length} highlights. Activate repeatedly to cycle through this category.`}
@@ -1128,7 +1144,7 @@ export default function HomePage() {
                   category === activeCategory
                     ? "is-active"
                     : ""
-                } min-h-[94px] border-b border-r border-black p-1.5 text-left`}
+                } min-h-[76px] w-24 shrink-0 border-b border-r border-black p-1.5 text-left lg:min-h-[94px] lg:w-auto lg:shrink`}
               >
                 <span aria-hidden="true" className="category-index-marker">
                   {highlightIndicesByCategory[category].map((_, index) => (
@@ -1145,7 +1161,7 @@ export default function HomePage() {
                 <CategoryGlyph
                   key={`${category}-${category === activeCategory ? currentPreviewIndex : "idle"}`}
                   category={category}
-                  className="category-index-icon h-14 w-full"
+                  className="category-index-icon h-10 w-full lg:h-14"
                 />
                 <span className="block text-[10px] font-normal uppercase leading-4 tracking-[0.14em]">
                   {category}
@@ -1186,10 +1202,18 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="mt-2 border-t border-black" />
-
           <div className="mt-2 border-t border-black py-2">
-            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-500">
+            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-500 lg:hidden">
+              <span>{String(currentPreviewIndex + 1).padStart(2, "0")}</span>
+              <div className="h-px overflow-hidden bg-neutral-300">
+                <span
+                  className="block h-full bg-black transition-[width] duration-300 ease-out"
+                  style={{ width: `${((currentPreviewIndex + 1) / highlightProjects.length) * 100}%` }}
+                />
+              </div>
+              <span>{String(highlightProjects.length).padStart(2, "0")}</span>
+            </div>
+            <div className="hidden grid-cols-[auto_1fr_auto] items-center gap-3 text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-500 lg:grid">
               <span>{String(currentPreviewIndex + 1).padStart(2, "0")}</span>
               <div
                 className="grid gap-1"
@@ -1214,14 +1238,60 @@ export default function HomePage() {
               </div>
               <span>{String(highlightProjects.length).padStart(2, "0")}</span>
             </div>
-            <p className="mt-2 text-xs font-normal uppercase tracking-[0.16em]">
+            <p className="mt-2 hidden text-xs font-normal uppercase tracking-[0.16em] lg:block">
               {previewProject.title}
             </p>
           </div>
         </section>
+
+        <div aria-hidden="true" className="-mx-2 border-t border-black md:-mx-4 lg:hidden" />
+
+        <aside className="py-6 lg:col-start-1 lg:row-start-2 lg:flex lg:min-h-0 lg:flex-col lg:border-r lg:pb-3 lg:pt-0 lg:pr-6">
+          <div className="border-b border-black pb-3 pt-1.5">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
+              <h2 className="grid grid-cols-[24px_minmax(0,1fr)] text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500 lg:block">
+                <span className="lg:hidden">II.</span>
+                <span>Daily place reading</span>
+              </h2>
+              <time className="text-right text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
+                {now.toISOString().slice(0, 10)} UTC
+              </time>
+            </div>
+            <p className="mt-3 text-[12px] leading-[1.5] tracking-[0.01em] text-neutral-600 lg:hidden">
+              Taiwan and the SF Bay Area are both part of my life. Each day, we explore one place in each, noticing its environment, materials, spaces, and histories.
+            </p>
+            <p className="mt-3 hidden max-w-[276px] text-[12px] leading-[1.5] tracking-[0.01em] text-neutral-600 lg:block">
+              Taiwan and the SF Bay Area are both part of my life. Each day, we explore one new place in each, noticing its environment, materials, spaces, and histories.
+            </p>
+            <p className="mt-2.5 hidden max-w-[276px] text-[10px] leading-[1.5] tracking-[0.03em] text-neutral-500 lg:block">
+              Explore the images for a closer reading.
+            </p>
+          </div>
+          <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-2">
+            <div className="field-note-list no-scrollbar grid auto-cols-[82%] grid-flow-col gap-3 overflow-x-auto overscroll-x-contain scroll-smooth snap-x snap-mandatory min-[390px]:grid-flow-row min-[390px]:grid-cols-2 min-[390px]:overflow-visible min-[390px]:snap-none lg:block">
+              {fieldNoteItems.map((note) => (
+                <FieldNoteCard key={note.id} note={note} />
+              ))}
+              {!fieldNotesLoading
+                ? fieldNoteUnavailable.map((item) => (
+                    <article key={item.region} className="snap-start border-b-0 border-black py-4 lg:border-b">
+                      <p className="text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
+                        {item.region}
+                      </p>
+                      <p className="mt-3 max-w-[276px] text-[12px] leading-[1.5] text-neutral-600">
+                        {item.message}
+                      </p>
+                    </article>
+                  ))
+                : null}
+            </div>
+          </div>
+        </aside>
+
+        <div aria-hidden="true" className="-mx-2 border-t border-black md:-mx-4 lg:hidden" />
       </section>
 
-      <section id="projects-section" className="scroll-mt-24 px-4 py-8 md:px-8">
+      <section id="projects-section" className="scroll-mt-24 px-4 py-6 md:px-8 lg:py-8">
         <div className="mx-auto max-w-[1680px]">
           {/* <div className="mb-6 grid py-5 md:grid-cols-[minmax(0,1fr)_minmax(260px,0.38fr)] md:items-end">
             <div>
@@ -1237,17 +1307,21 @@ export default function HomePage() {
                 This body of work explores research, computation, material systems, and perception.
               </p>
           </div> */}
-          <div className="mt-8 mb-8 grid gap-5 md:grid-cols-[0.35fr_1.65fr] md:items-end">
+          <div className="mb-6 mt-2 grid gap-4 md:grid-cols-[0.35fr_1.65fr] md:items-end lg:mb-8 lg:mt-8 lg:gap-5">
             <div>
-              <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">
-                Selected Work
+              <p className="grid grid-cols-[24px_minmax(0,1fr)] text-xs uppercase tracking-[0.16em] text-neutral-500 lg:block">
+                <span className="lg:hidden">III.</span>
+                <span>Selected Work</span>
               </p>
               <h2 className="mt-2 text-4xl font-light uppercase tracking-normal md:text-6xl">
                 Projects
               </h2>
             </div>
 
-            <p className="max-w-none text-sm leading-6 text-neutral-600 md:justify-self-end md:text-right">
+            <p className="max-w-[34rem] text-[13px] leading-[1.55] text-neutral-600 lg:hidden">
+              Exploring matter, computation, and perception through research, prototyping, and making.
+            </p>
+            <p className="hidden max-w-none text-sm leading-6 text-neutral-600 lg:block lg:justify-self-end lg:text-right">
               Quantitative and qualitative in approach, poetic and artistic in expression, and innovative in form.<br />
               This body of work explores research, computation, material systems, and perception.
             </p>
@@ -1258,7 +1332,18 @@ export default function HomePage() {
             setActive={(category) => setActive(category)}
           />
 
-          <div className="mt-8 overflow-x-auto pb-4">
+          <div className="mt-6 grid grid-cols-1 gap-x-3 gap-y-6 min-[390px]:grid-cols-2 lg:hidden">
+            {mobileProjects.map((project, projectIndex) => (
+              <ProjectCard
+                key={project.slug}
+                project={project}
+                priority={projectIndex < 2}
+                sizes="(max-width: 389px) calc(100vw - 32px), (max-width: 1023px) 46vw, 20vw"
+              />
+            ))}
+          </div>
+
+          <div className="mt-8 hidden overflow-x-auto pb-4 lg:block">
             <div
               className="grid min-w-[1380px] gap-4 2xl:min-w-0"
               style={{ gridTemplateColumns: `repeat(${projectGroups.length}, minmax(0, 1fr))` }}
