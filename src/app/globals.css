@@ -32,6 +32,36 @@ html {
   background: #fbfaf7;
 }
 
+.news-banner-enter {
+  will-change: transform;
+  animation: news-banner-reveal 1.05s cubic-bezier(0.22, 1, 0.36, 1) 650ms both;
+}
+
+.news-thinking-highlight {
+  display: inline-block;
+  color: #111111;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .news-thinking-highlight {
+    background-image: linear-gradient(
+      100deg,
+      #111111 0%,
+      #111111 40%,
+      #b8b4aa 49%,
+      #111111 58%,
+      #111111 100%
+    );
+    background-position: 100% 50%;
+    background-size: 250% 100%;
+    background-repeat: no-repeat;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
 .route-overlay {
   filter: drop-shadow(0 1px 10px rgba(0, 0, 0, 0.32));
   opacity: 0.95;
@@ -1403,6 +1433,16 @@ html {
   }
 }
 
+@keyframes news-banner-reveal {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -1415,6 +1455,17 @@ html {
   .glyph-secondary,
   .glyph-trail,
   .glyph-bar {
+    animation: none !important;
+  }
+
+  .news-banner-enter {
+    animation: none !important;
+  }
+
+  .news-thinking-highlight {
+    background: none !important;
+    color: #111111 !important;
+    -webkit-text-fill-color: #111111 !important;
     animation: none !important;
   }
 

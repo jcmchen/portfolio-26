@@ -620,8 +620,10 @@ export default function HomePage() {
   const [fieldNoteItems, setFieldNoteItems] = useState<FieldNote[]>(fieldNotes);
   const [fieldNoteUnavailable, setFieldNoteUnavailable] = useState<FieldNoteUnavailable[]>([]);
   const [fieldNotesLoading, setFieldNotesLoading] = useState(true);
+  const [newsRevealKey, setNewsRevealKey] = useState(0);
   const [now, setNow] = useState(() => new Date());
   const highlightScrollerRef = useRef<HTMLDivElement>(null);
+  const newsLineRef = useRef<HTMLParagraphElement>(null);
   const highlightSettleTimerRef = useRef<number | undefined>(undefined);
   const scrollSyncReleaseTimerRef = useRef<number | undefined>(undefined);
   const dragStateRef = useRef({
@@ -632,6 +634,92 @@ export default function HomePage() {
   });
   const ignoreScrollSyncRef = useRef(false);
   const categoryCycleRef = useRef<{ category: string; position: number } | null>(null);
+
+  useEffect(() => {
+    const replayNewsReveal = () => {
+      setNewsRevealKey((current) => current + 1);
+    };
+    window.addEventListener("portfolio:home-enter", replayNewsReveal);
+    return () => {
+      window.removeEventListener("portfolio:home-enter", replayNewsReveal);
+    };
+  }, []);
+
+  useEffect(() => {
+    const line = newsLineRef.current;
+    if (!line) return;
+
+    let sheenAnimations: Animation[] = [];
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const syncSheenMetrics = () => {
+      sheenAnimations.forEach((animation) => animation.cancel());
+      sheenAnimations = [];
+      if (reducedMotion.matches) return;
+
+      const lineRect = line.getBoundingClientRect();
+      const highlights = Array.from(
+        line.querySelectorAll<HTMLElement>(".news-thinking-highlight")
+      );
+      const highlightRects = highlights.map((highlight) =>
+        highlight.getBoundingClientRect()
+      );
+      const first = highlightRects[0];
+      const last = highlightRects.at(-1);
+      if (!first || !last) return;
+
+      const sweepStart = first.left - lineRect.left - 24;
+      const sweepEnd = last.right - lineRect.left + 24;
+      const sweepDistance = Math.max(1, sweepEnd - sweepStart);
+      const sweepDuration = 5_500;
+      const cycleDuration = 8_500;
+
+      sheenAnimations = highlights.map((highlight, index) => {
+        const rect = highlightRects[index];
+        const enter = Math.max(
+          0,
+          ((rect.left - lineRect.left - 24 - sweepStart) / sweepDistance) *
+            sweepDuration
+        );
+        const leave = Math.min(
+          sweepDuration,
+          ((rect.right - lineRect.left + 24 - sweepStart) / sweepDistance) *
+            sweepDuration
+        );
+        return highlight.animate(
+          [
+            { backgroundPosition: "100% 50%", offset: 0 },
+            {
+              backgroundPosition: "100% 50%",
+              offset: enter / cycleDuration,
+            },
+            {
+              backgroundPosition: "0% 50%",
+              offset: leave / cycleDuration,
+            },
+            { backgroundPosition: "0% 50%", offset: 1 },
+          ],
+          {
+            duration: cycleDuration,
+            delay: 1_900,
+            iterations: Infinity,
+            easing: "linear",
+          }
+        );
+      });
+    };
+
+    syncSheenMetrics();
+    const resizeObserver = new ResizeObserver(syncSheenMetrics);
+    resizeObserver.observe(line);
+    const handleMotionPreference = () => syncSheenMetrics();
+    reducedMotion.addEventListener("change", handleMotionPreference);
+    return () => {
+      resizeObserver.disconnect();
+      reducedMotion.removeEventListener("change", handleMotionPreference);
+      sheenAnimations.forEach((animation) => animation.cancel());
+    };
+  }, [newsRevealKey]);
 
   const projectGroups = useMemo(
     () =>
@@ -898,19 +986,26 @@ export default function HomePage() {
 
   return (
     <main className="material-field lg:flex lg:min-h-[calc(100svh-53px)] lg:flex-col">
-      <section aria-label="Latest news" className="shrink-0 border-b border-neutral-300 bg-[#ece9e1] text-black">
+      <section
+        key={newsRevealKey}
+        aria-label="Latest news"
+        className="news-banner-enter shrink-0 overflow-hidden border-b border-neutral-300 bg-[#ece9e1] text-black"
+      >
         <div className="mx-auto flex max-w-[1680px] flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-2.5 text-[10px] font-normal md:flex-nowrap md:px-8">
           <span className="shrink-0 font-medium uppercase tracking-[0.16em] text-black">News</span>
           <time dateTime="2026-04-16" className="shrink-0 uppercase tracking-[0.16em] text-neutral-500">
             Apr 16, 2026
           </time>
-          <p className="min-w-0 basis-full text-[11px] tracking-[0.08em] text-neutral-700 md:basis-auto md:flex-1">
+          <p
+            ref={newsLineRef}
+            className="news-thinking-line min-w-0 basis-full text-[11px] tracking-[0.08em] text-neutral-700 md:basis-auto md:flex-1"
+          >
             I presented my first-authored paper{" "}
             <a
               href="/projects/hygrometric"
               className="font-semibold text-black hover:underline hover:underline-offset-4"
             >
-              HygroMetric
+              <span className="news-thinking-highlight">HygroMetric</span>
             </a>{" "}
             at{" "}
             <a
@@ -919,7 +1014,9 @@ export default function HomePage() {
               rel="noreferrer"
               className="font-semibold text-black hover:underline hover:underline-offset-4"
             >
-              ACM CHI 2026 in Barcelona
+              <span className="news-thinking-highlight">
+                ACM CHI 2026 in Barcelona
+              </span>
             </a>
             !{" "}
             <a

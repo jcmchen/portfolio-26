@@ -53,10 +53,17 @@ export default function Header() {
     if (pathname !== "/" || searchParams.has("scrollTo")) {
       router.push("/", { scroll: false });
       window.setTimeout(() => scrollToHome("smooth"), 150);
+      if (pathname === "/") {
+        window.setTimeout(
+          () => window.dispatchEvent(new Event("portfolio:home-enter")),
+          320
+        );
+      }
       return;
     }
 
     window.scrollTo({ top: 0, behavior: "smooth" });
+    window.dispatchEvent(new Event("portfolio:home-enter"));
   };
 
   useEffect(() => {
@@ -84,7 +91,11 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-black bg-[#fbfaf7]/95">
       <div className="mx-auto grid max-w-[1680px] grid-cols-[1fr_auto] items-center px-4 py-3 md:grid-cols-[1fr_auto_1fr] md:px-8">
-        <Link href="/" className="text-lg font-normal uppercase tracking-[0.18em] md:text-xl">
+        <Link
+          href="/"
+          onClick={handleHomeScroll}
+          className="text-lg font-normal uppercase tracking-[0.18em] md:text-xl"
+        >
           Jeremy Chen
         </Link>
 
