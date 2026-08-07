@@ -62,7 +62,7 @@ type WikiFieldLocation = FieldLocation & {
 type TemporaryUnavailable = {
   status: "temporary-unavailable";
   region: FieldLocation["region"];
-  message: "Today’s local field note is temporarily unavailable.";
+  message: "Today’s daily place reading is temporarily unavailable.";
   reason: CandidateRejectionReason;
   retryAfterSeconds: number;
 };
@@ -478,7 +478,7 @@ function unavailable(
   return {
     status: "temporary-unavailable",
     region,
-    message: "Today’s local field note is temporarily unavailable.",
+    message: "Today’s daily place reading is temporarily unavailable.",
     reason,
     retryAfterSeconds: SHORT_RETRY_SECONDS,
   };
