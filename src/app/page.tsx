@@ -1228,7 +1228,7 @@ export default function HomePage() {
 
         <div aria-hidden="true" className="mobile-section-divider -mx-2 border-t border-black md:-mx-4 lg:hidden" />
 
-        <aside className="py-6 lg:col-start-1 lg:row-start-1 lg:flex lg:min-h-0 lg:flex-col lg:border-r lg:pb-3 lg:pt-0 lg:pr-6">
+        <aside className="py-6 lg:col-start-1 lg:row-start-1 lg:flex lg:min-h-0 lg:flex-col lg:pb-3 lg:pt-0 lg:pr-6">
           <div className="border-b border-black pb-3 pt-1.5 lg:border-t lg:pt-0">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3 lg:border-b lg:border-black lg:py-3">
               <h2 className="grid grid-cols-[24px_minmax(0,1fr)] text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500 lg:block">

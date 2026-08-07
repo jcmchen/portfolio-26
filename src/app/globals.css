@@ -41,10 +41,22 @@ html {
   }
 
   .landing-overview {
+    --landing-overview-edge-space: clamp(1rem, 2dvh, 1.5rem);
+    position: relative;
     grid-template-rows: minmax(0, 1fr) auto;
     align-content: stretch;
-    padding-top: clamp(1rem, 2dvh, 1.5rem);
-    padding-bottom: clamp(1rem, 2dvh, 1.5rem);
+    padding-top: var(--landing-overview-edge-space);
+    padding-bottom: var(--landing-overview-edge-space);
+  }
+
+  .landing-overview::before {
+    position: absolute;
+    top: 0;
+    bottom: var(--landing-overview-edge-space);
+    left: clamp(288px, 19vw, 380px);
+    border-left: 1px solid #111111;
+    content: "";
+    pointer-events: none;
   }
 }
 
