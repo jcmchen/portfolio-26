@@ -1048,10 +1048,9 @@ export default function HomePage() {
         </div>
         </section>
 
-        <section className="landing-overview site-frame grid grid-cols-1 lg:min-h-0 lg:flex-1 lg:content-start lg:grid-cols-[320px_minmax(0,1fr)]">
-        <div aria-hidden="true" className="hidden lg:col-span-2 lg:block lg:border-t lg:border-black" />
-        <section className="py-6 lg:col-start-2 lg:row-start-2 lg:pb-3 lg:pt-0 lg:pl-6">
-          <div className="border-b border-black pb-3 pt-1.5 lg:py-1.5">
+        <section className="landing-overview site-frame grid grid-cols-1 lg:min-h-0 lg:flex-1 lg:grid-cols-[clamp(288px,19vw,380px)_minmax(0,1fr)]">
+        <section className="py-6 lg:col-start-2 lg:row-start-1 lg:pb-3 lg:pt-0 lg:pl-6">
+          <div className="border-b border-black pb-3 pt-1.5 lg:border-y lg:py-1.5">
             <div className="grid grid-cols-1 items-end lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-3">
               <div>
                 <p className="grid grid-cols-[24px_minmax(0,1fr)] text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500 lg:block">
@@ -1229,9 +1228,9 @@ export default function HomePage() {
 
         <div aria-hidden="true" className="mobile-section-divider -mx-2 border-t border-black md:-mx-4 lg:hidden" />
 
-        <aside className="py-6 lg:col-start-1 lg:row-start-2 lg:flex lg:min-h-0 lg:flex-col lg:border-r lg:pb-3 lg:pt-0 lg:pr-6">
-          <div className="border-b border-black pb-3 pt-1.5">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
+        <aside className="py-6 lg:col-start-1 lg:row-start-1 lg:flex lg:min-h-0 lg:flex-col lg:border-r lg:pb-3 lg:pt-0 lg:pr-6">
+          <div className="border-b border-black pb-3 pt-1.5 lg:border-t lg:pt-0">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3 lg:border-b lg:border-black lg:py-3">
               <h2 className="grid grid-cols-[24px_minmax(0,1fr)] text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500 lg:block">
                 <span className="lg:hidden">02</span>
                 <span>Daily place reading</span>
@@ -1273,7 +1272,7 @@ export default function HomePage() {
 
         <div
           aria-hidden="true"
-          className="hidden lg:col-span-2 lg:col-start-1 lg:row-start-3 lg:block lg:border-t lg:border-black"
+          className="hidden lg:col-span-2 lg:col-start-1 lg:row-start-2 lg:block lg:border-t lg:border-black"
         />
 
         <div aria-hidden="true" className="mobile-section-divider -mx-2 border-t border-black md:-mx-4 lg:hidden" />

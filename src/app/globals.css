@@ -41,7 +41,10 @@ html {
   }
 
   .landing-overview {
-    padding-top: clamp(1.5rem, calc(1.5rem + 80dvh - 45vw), 8.5rem);
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-content: stretch;
+    padding-top: clamp(1rem, 2dvh, 1.5rem);
+    padding-bottom: clamp(1rem, 2dvh, 1.5rem);
   }
 }
 
@@ -59,7 +62,7 @@ html {
 
 @media (min-width: 1024px) {
   .site-frame {
-    width: min(84vw, 1680px);
+    width: min(92vw, 1920px);
     padding-inline: 0;
   }
 }
