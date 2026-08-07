@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MouseEvent, useEffect, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -17,6 +17,31 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const focusFrame = window.requestAnimationFrame(() => {
+      mobileMenuRef.current?.querySelector<HTMLAnchorElement>("a")?.focus();
+    });
+    const handleEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setIsOpen(false);
+      window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+    };
+
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen]);
 
   const scrollToProjectsSection = (behavior: ScrollBehavior = "smooth") => {
     const target = document.getElementById("projects-section");
@@ -90,7 +115,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-black bg-[#fbfaf7]">
-      <div className="mx-auto grid max-w-[1680px] grid-cols-[1fr_auto] items-center px-4 py-3 md:grid-cols-[1fr_auto_1fr] md:px-8">
+      <div className="mx-auto grid max-w-[1680px] grid-cols-[1fr_auto] items-center px-4 py-2 md:grid-cols-[1fr_auto_1fr] md:px-8 md:py-3">
         <Link
           href="/"
           onClick={handleHomeScroll}
@@ -147,25 +172,30 @@ export default function Header() {
         </nav>
 
         <button
+          ref={menuButtonRef}
           type="button"
-          className="relative z-[1001] grid h-9 w-9 place-items-center border border-black md:hidden"
-          aria-label="Toggle navigation"
+          className="relative z-[1001] grid h-11 w-11 place-items-center border border-black md:hidden"
+          aria-label={isOpen ? "Close navigation" : "Open navigation"}
           aria-expanded={isOpen}
+          aria-controls="mobile-navigation"
           onClick={() => setIsOpen((open) => !open)}
         >
           <span className="sr-only">Menu</span>
           <span className="relative block h-4 w-5">
             <motion.span
-              animate={isOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
-              className="absolute left-0 top-0 h-px w-5 bg-black"
+              animate={isOpen ? { rotate: 45, y: 5.5 } : { rotate: 0, y: 0 }}
+              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute left-0 top-0.5 h-px w-5 origin-center bg-black"
             />
             <motion.span
-              animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
-              className="absolute left-0 top-2 h-px w-5 bg-black"
+              animate={isOpen ? { opacity: 0, scaleX: 0.4 } : { opacity: 1, scaleX: 1 }}
+              transition={{ duration: 0.16, ease: "easeOut" }}
+              className="absolute left-0 top-[7.5px] h-px w-5 origin-center bg-black"
             />
             <motion.span
-              animate={isOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
-              className="absolute left-0 top-4 h-px w-5 bg-black"
+              animate={isOpen ? { rotate: -45, y: -5.5 } : { rotate: 0, y: 0 }}
+              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute left-0 top-[13px] h-px w-5 origin-center bg-black"
             />
           </span>
         </button>
@@ -173,46 +203,86 @@ export default function Header() {
 
       <AnimatePresence>
         {isOpen && (
-          <motion.nav
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[999] grid place-items-center border-t border-black bg-[#fbfaf7] px-6 md:hidden"
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="fixed inset-x-0 bottom-0 top-[61px] z-[999] bg-black/20 md:hidden"
+            onClick={() => {
+              setIsOpen(false);
+              window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+            }}
           >
-            <div className="grid w-full gap-5 text-center">
-              {navItems.map((item) =>
-                item.scroll ? (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={handleProjectScroll}
-                    className="border-b border-black pb-4 text-3xl uppercase tracking-[0.12em]"
-                  >
-                    {item.name}
-                  </Link>
-                ) : item.href === "/" ? (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={handleHomeScroll}
-                    className="border-b border-black pb-4 text-3xl uppercase tracking-[0.12em]"
-                  >
-                    {item.name}
-                  </Link>
-                ) : (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setIsOpen(false)}
-                    className="border-b border-black pb-4 text-3xl uppercase tracking-[0.12em]"
-                  >
-                    {item.name}
-                  </Link>
-                )
-              )}
-            </div>
-          </motion.nav>
+            <motion.nav
+              ref={mobileMenuRef}
+              id="mobile-navigation"
+              aria-label="Mobile navigation"
+              initial={{ opacity: 0, y: -10, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.99 }}
+              transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute right-3 top-3 max-h-[calc(100svh-85px)] w-[calc(100%_-_24px)] max-w-[360px] overflow-y-auto border border-black bg-[#fbfaf7] px-4 py-2 shadow-[0_14px_40px_rgba(0,0,0,0.16)]"
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={(event) => {
+                if (event.key !== "Tab") return;
+
+                const links = Array.from(
+                  event.currentTarget.querySelectorAll<HTMLAnchorElement>("a")
+                );
+                const firstLink = links[0];
+                const lastLink = links.at(-1);
+
+                if (!firstLink || !lastLink) return;
+                if (event.shiftKey && document.activeElement === firstLink) {
+                  event.preventDefault();
+                  lastLink.focus();
+                } else if (!event.shiftKey && document.activeElement === lastLink) {
+                  event.preventDefault();
+                  firstLink.focus();
+                }
+              }}
+            >
+              <div className="grid">
+                {navItems.map((item) =>
+                  item.scroll ? (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={handleProjectScroll}
+                      className={`min-h-14 border-b border-black py-4 text-[22px] uppercase leading-none tracking-[0.12em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-black ${
+                        isCurrent(item.href, item.scroll) ? "text-black" : "text-neutral-600"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  ) : item.href === "/" ? (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={handleHomeScroll}
+                      className={`min-h-14 border-b border-black py-4 text-[22px] uppercase leading-none tracking-[0.12em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-black ${
+                        isCurrent(item.href) ? "text-black" : "text-neutral-600"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className={`min-h-14 border-b border-black py-4 text-[22px] uppercase leading-none tracking-[0.12em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-black ${
+                        isCurrent(item.href) ? "text-black" : "text-neutral-600"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  )
+                )}
+              </div>
+            </motion.nav>
+          </motion.div>
         )}
       </AnimatePresence>
     </header>
