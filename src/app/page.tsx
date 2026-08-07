@@ -988,13 +988,14 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="material-field lg:flex lg:min-h-[calc(100svh-53px)] lg:flex-col">
-      <section
-        key={newsRevealKey}
-        aria-label="Latest news"
-        className="news-banner-enter shrink-0 overflow-hidden border-b border-neutral-300 bg-[#ece9e1] text-black"
-      >
-        <div className="mx-auto flex max-w-[1680px] flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-2.5 text-[10px] font-normal md:flex-nowrap md:px-8">
+    <main className="material-field">
+      <div className="landing-intro">
+        <section
+          key={newsRevealKey}
+          aria-label="Latest news"
+          className="news-banner-enter shrink-0 overflow-hidden border-b border-neutral-300 bg-[#ece9e1] text-black"
+        >
+        <div className="site-frame flex flex-wrap items-center gap-x-4 gap-y-1.5 py-2.5 text-[10px] font-normal md:flex-nowrap lg:py-3.5">
           <span className="shrink-0 font-medium uppercase tracking-[0.16em] text-black">News</span>
           <time dateTime="2026-04-16" className="shrink-0 uppercase tracking-[0.16em] text-neutral-500">
             Apr 16, 2026
@@ -1045,9 +1046,9 @@ export default function HomePage() {
             </a>
           </p>
         </div>
-      </section>
+        </section>
 
-      <section className="mx-auto grid w-full max-w-[1680px] grid-cols-1 px-4 md:px-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:pt-4">
+        <section className="landing-overview site-frame grid grid-cols-1 lg:min-h-0 lg:flex-1 lg:content-start lg:grid-cols-[320px_minmax(0,1fr)]">
         <div aria-hidden="true" className="hidden lg:col-span-2 lg:block lg:border-t lg:border-black" />
         <section className="py-6 lg:col-start-2 lg:row-start-2 lg:pb-3 lg:pt-0 lg:pl-6">
           <div className="border-b border-black pb-3 pt-1.5 lg:py-1.5">
@@ -1276,14 +1277,15 @@ export default function HomePage() {
         />
 
         <div aria-hidden="true" className="mobile-section-divider -mx-2 border-t border-black md:-mx-4 lg:hidden" />
-      </section>
+        </section>
+      </div>
 
       <section
         id="projects-section"
-        className="mx-auto w-full max-w-[1680px] scroll-mt-24 px-4 py-6 md:px-8 lg:py-8"
+        className="site-frame scroll-mt-24 py-6 lg:pb-8 lg:pt-[clamp(56px,6vh,72px)]"
       >
         <div>
-          <div className="mb-6 mt-2 grid gap-4 md:grid-cols-[0.35fr_1.65fr] md:items-end lg:mb-8 lg:mt-8 lg:gap-5">
+          <div className="mb-6 mt-2 grid gap-4 md:grid-cols-[0.35fr_1.65fr] md:items-end lg:mb-8 lg:mt-0 lg:gap-5">
             <div>
               <p className="grid grid-cols-[24px_minmax(0,1fr)] text-xs uppercase tracking-[0.16em] text-neutral-500 lg:block">
                 <span className="lg:hidden">03</span>

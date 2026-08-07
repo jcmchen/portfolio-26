@@ -32,6 +32,38 @@ html {
   background: #fbfaf7;
 }
 
+@media (min-width: 1024px) {
+  .landing-intro {
+    display: flex;
+    min-height: calc(100vh - 61px);
+    min-height: calc(100dvh - 61px);
+    flex-direction: column;
+  }
+
+  .landing-overview {
+    padding-top: clamp(1.5rem, calc(1.5rem + 80dvh - 45vw), 8.5rem);
+  }
+}
+
+.site-frame {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 768px) {
+  .site-frame {
+    padding-inline: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-frame {
+    width: min(84vw, 1680px);
+    padding-inline: 0;
+  }
+}
+
 .news-banner-enter {
   will-change: transform;
   animation: news-banner-reveal 1.05s cubic-bezier(0.22, 1, 0.36, 1) 650ms both;
