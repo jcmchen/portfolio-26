@@ -1047,7 +1047,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-[1680px] grid-cols-1 px-4 md:px-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:border-b lg:border-black lg:pt-4">
+      <section className="mx-auto grid w-full max-w-[1680px] grid-cols-1 px-4 md:px-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:pt-4">
         <div aria-hidden="true" className="hidden lg:col-span-2 lg:block lg:border-t lg:border-black" />
         <section className="py-6 lg:col-start-2 lg:row-start-2 lg:pb-3 lg:pt-0 lg:pl-6">
           <div className="border-b border-black pb-3 pt-1.5 lg:py-1.5">
@@ -1270,11 +1270,19 @@ export default function HomePage() {
           </div>
         </aside>
 
+        <div
+          aria-hidden="true"
+          className="hidden lg:col-span-2 lg:col-start-1 lg:row-start-3 lg:block lg:border-t lg:border-black"
+        />
+
         <div aria-hidden="true" className="mobile-section-divider -mx-2 border-t border-black md:-mx-4 lg:hidden" />
       </section>
 
-      <section id="projects-section" className="scroll-mt-24 px-4 py-6 md:px-8 lg:py-8">
-        <div className="mx-auto max-w-[1680px]">
+      <section
+        id="projects-section"
+        className="mx-auto w-full max-w-[1680px] scroll-mt-24 px-4 py-6 md:px-8 lg:py-8"
+      >
+        <div>
           <div className="mb-6 mt-2 grid gap-4 md:grid-cols-[0.35fr_1.65fr] md:items-end lg:mb-8 lg:mt-8 lg:gap-5">
             <div>
               <p className="grid grid-cols-[24px_minmax(0,1fr)] text-xs uppercase tracking-[0.16em] text-neutral-500 lg:block">
@@ -1321,7 +1329,10 @@ export default function HomePage() {
                 const isMuted = active !== "Show All" && !isSelected;
 
                 return (
-                  <section key={group.category} className="min-w-0 border-l border-black pl-3">
+                  <section
+                    key={group.category}
+                    className="min-w-0 border-l border-black pl-3 first:border-l-0 first:pl-0"
+                  >
                     <div className="grid gap-4">
                       {group.projects.map((project, projectIndex) => (
                         <ProjectCard
