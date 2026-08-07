@@ -28,16 +28,6 @@ function removeProjectPageChrome(content: string) {
     .replace(/^\s*<div className="row h-6" \/>\s*$/gim, "");
 }
 
-function mediaLabel(content: string, hasCover: boolean) {
-  const media = [];
-
-  if (hasCover || /(!\[|<img|\bsrc=["']\/images)/i.test(content)) media.push("Images");
-  if (/(<iframe|youtube\.com|youtu\.be|vimeo\.com)/i.test(content)) media.push("Video");
-  media.push("Text");
-
-  return media.join(" / ");
-}
-
 function formatInfoDetail(source: string) {
   return source
     .replace(/<br\s*\/?>/gi, "\n")
@@ -105,7 +95,6 @@ export default async function ProjectPage({ params }: PageProps) {
   const project = getProject(slug);
   const cover = project?.cover;
   const bodyContent = removeProjectPageChrome(content);
-  const media = mediaLabel(bodyContent, Boolean(cover));
 
   return (
     <main className="bg-[#fbfaf7] px-4 py-8 md:px-8 md:py-12">
@@ -212,10 +201,6 @@ export default async function ProjectPage({ params }: PageProps) {
                 </dd>
               </div>
             ) : null}
-            {/* <div className="grid grid-cols-[96px_1fr] gap-4 border-t border-neutral-300 pt-3">
-              <dt className="text-neutral-400">Media</dt>
-              <dd className="text-neutral-700">{media}</dd>
-            </div> */}
           </dl>
         </aside>
 

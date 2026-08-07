@@ -227,19 +227,10 @@ html {
   }
 }
 
-.route-line {
-  animation: route-dash 7s linear infinite;
-}
-
 .route-node {
   animation: route-pulse 1.8s ease-in-out infinite;
   transform-box: fill-box;
   transform-origin: center;
-}
-
-.route-nature .route-line {
-  stroke-width: 1.4;
-  stroke-linecap: round;
 }
 
 .route-nature .glyph-secondary {
@@ -265,28 +256,6 @@ html {
 .route-nature .glyph-route {
   animation-name: route-dash;
   stroke-width: 1.42;
-}
-
-.route-nature .glyph-trail {
-  display: block;
-  opacity: 0.24;
-  stroke-dasharray: 12 18;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  animation: route-dash 12s linear infinite;
-}
-
-.route-nature .glyph-trail-main {
-  stroke-width: 2.1;
-}
-
-.route-nature .glyph-trail-secondary {
-  stroke-width: 1.35;
-}
-
-.route-construction-fabrication .route-line {
-  stroke-width: 2.2;
-  stroke-linejoin: miter;
 }
 
 .route-construction-fabrication .glyph-route,
@@ -318,12 +287,6 @@ html {
   animation-timing-function: ease-in-out;
 }
 
-.route-robotics .route-line {
-  stroke-width: 1.5;
-  stroke-linecap: square;
-  stroke-linejoin: bevel;
-}
-
 .route-robotics .glyph-route,
 .route-robotics .glyph-secondary {
   stroke-linecap: square;
@@ -337,11 +300,6 @@ html {
 .route-robotics .route-node {
   animation-name: route-blink;
   animation-duration: 1.15s;
-}
-
-.route-perception .route-line {
-  stroke-width: 1.2;
-  stroke-linecap: round;
 }
 
 .route-perception .glyph-secondary {
@@ -359,11 +317,6 @@ html {
 .route-perception .route-node {
   animation-name: route-magnified-point;
   animation-duration: 6.4s;
-}
-
-.route-new-media .route-line {
-  stroke-width: 1.8;
-  stroke-linejoin: bevel;
 }
 
 .route-new-media .glyph-route {
@@ -411,12 +364,6 @@ html {
 .route-visualization .route-node {
   animation-name: route-signal;
   animation-duration: 1.65s;
-}
-
-.route-building .route-line {
-  stroke-width: 2;
-  stroke-linecap: square;
-  stroke-linejoin: miter;
 }
 
 .route-building .glyph-route,
@@ -761,60 +708,6 @@ html {
   animation-name: glyph-volume-bar;
 }
 
-.project-card-signal {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 5px;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 240ms ease, transform 240ms ease;
-}
-
-.project-card:hover .project-card-signal {
-  opacity: 0.92;
-  transform: translateY(0);
-}
-
-.project-card-signal span {
-  border-top: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
-  animation: route-pulse 2.6s ease-in-out infinite;
-}
-
-.project-card.route-nature .project-card-signal span {
-  border-radius: 50%;
-  border: 2px solid currentColor;
-  animation-name: route-grow;
-}
-
-.project-card.route-robotics .project-card-signal span {
-  animation-name: route-blink;
-  animation-duration: 1s;
-}
-
-.project-card.route-perception .project-card-signal span {
-  border-top-width: 1px;
-  border-bottom-width: 1px;
-  animation-name: route-flicker;
-}
-
-.project-card.route-new-media .project-card-signal span {
-  animation-name: glyph-signal;
-}
-
-.project-card.route-visualization .project-card-signal {
-  grid-template-columns: repeat(6, 1fr);
-}
-
-.project-card.route-visualization .project-card-signal span {
-  border: 1px solid currentColor;
-}
-
-.project-card.route-building .project-card-signal span {
-  border: 2px solid currentColor;
-  animation-name: route-assemble;
-}
-
 .glyph-route {
   stroke-width: 1.7;
   stroke-linecap: round;
@@ -844,10 +737,6 @@ html {
   vector-effect: non-scaling-stroke;
 }
 
-.glyph-trail {
-  display: none;
-}
-
 .glyph-bar {
   opacity: 0.66;
   stroke-width: 2.4;
@@ -870,98 +759,6 @@ html {
 
   100% {
     stroke-dashoffset: -92;
-  }
-}
-
-@keyframes glyph-grow-draw {
-  0% {
-    opacity: 0.2;
-    stroke-dashoffset: 70;
-  }
-
-  45% {
-    opacity: 0.62;
-  }
-
-  100% {
-    opacity: 0.32;
-    stroke-dashoffset: -110;
-  }
-}
-
-@keyframes glyph-organic-grow {
-  0% {
-    opacity: 0;
-    stroke-dashoffset: 520;
-  }
-
-  42% {
-    opacity: 0.78;
-  }
-
-  70% {
-    opacity: 0.94;
-    stroke-dashoffset: 0;
-  }
-
-  100% {
-    opacity: 0.66;
-    stroke-dashoffset: -88;
-  }
-}
-
-@keyframes glyph-organic-trail {
-  0% {
-    opacity: 0;
-    stroke-dashoffset: 520;
-  }
-
-  16% {
-    opacity: 0.78;
-  }
-
-  48% {
-    opacity: 0.34;
-  }
-
-  100% {
-    opacity: 0;
-    stroke-dashoffset: -120;
-  }
-}
-
-@keyframes glyph-assemble-draw {
-  0% {
-    opacity: 0.22;
-    stroke-dashoffset: 96;
-  }
-
-  52% {
-    opacity: 0.64;
-  }
-
-  100% {
-    opacity: 0.36;
-    stroke-dashoffset: -96;
-  }
-}
-
-@keyframes glyph-assemble-snap {
-  0% {
-    opacity: 0.18;
-    transform: translateX(-10px);
-    stroke-dashoffset: 96;
-  }
-
-  42% {
-    opacity: 0.7;
-    transform: translateX(0);
-  }
-
-  100% {
-    opacity: 0.36;
-    transform: translateX(0);
-    stroke-dashoffset: -96;
   }
 }
 
@@ -1001,94 +798,6 @@ html {
     stroke-dashoffset: -20;
   }
 }
-
-@keyframes glyph-aperture-draw {
-  0%,
-  100% {
-    opacity: 0.22;
-    transform: scaleX(0.9);
-    stroke-dashoffset: 64;
-  }
-
-  50% {
-    opacity: 0.68;
-    transform: scaleX(1.04);
-    stroke-dashoffset: -64;
-  }
-}
-
-/* @keyframes glyph-search-sweep {
-  0%,
-  100% {
-    opacity: 0.48;
-    transform: translateX(-10px) scaleX(0.96);
-    stroke-dashoffset: 72;
-  }
-
-  48% {
-    opacity: 0.86;
-    transform: translateX(12px) scaleX(1.03);
-    stroke-dashoffset: -56;
-  }
-} */
-@keyframes glyph-search-sweep {
-  0%,
-  100% {
-    opacity: 0.18;
-    transform: translateX(-8px) scaleX(0.96);
-    stroke-dashoffset: 72;
-  }
-
-  48% {
-    opacity: 0.72;
-    transform: translateX(8px) scaleX(1.03);
-    stroke-dashoffset: -56;
-  }
-}
-
-/* @keyframes glyph-lens-travel {
-  0% {
-    opacity: 0.72;
-    transform: translateX(0);
-  }
-
-  12% {
-    opacity: 1;
-    transform: translateX(68px);
-  }
-
-  32% {
-    opacity: 1;
-    transform: translateX(142px);
-  }
-
-  49% {
-    opacity: 1;
-    transform: translateX(204px);
-  }
-
-  65% {
-    opacity: 1;
-    transform: translateX(260px);
-  }
-
-  80% {
-    opacity: 1;
-    transform: translateX(316px);
-  }
-
-  86%,
-  88% {
-    opacity: 0.9;
-    transform: translateX(338px);
-  }
-
-  96%,
-  100% {
-    opacity: 0.72;
-    transform: translateX(0);
-  }
-} */
 
 @keyframes glyph-lens-travel {
   0% {
@@ -1237,21 +946,6 @@ html {
   }
 }
 
-@keyframes glyph-massing-draw {
-  0%,
-  100% {
-    opacity: 0.24;
-    transform: translateY(3px);
-    stroke-dashoffset: 88;
-  }
-
-  50% {
-    opacity: 0.64;
-    transform: translateY(0);
-    stroke-dashoffset: -44;
-  }
-}
-
 @keyframes route-pulse {
   0%,
   100% {
@@ -1262,58 +956,6 @@ html {
   50% {
     opacity: 1;
     transform: scale(1.18);
-  }
-}
-
-@keyframes route-grow {
-  0%,
-  100% {
-    opacity: 0.42;
-    transform: scale(0.7);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.35);
-  }
-}
-
-@keyframes route-neuron-grow {
-  0% {
-    opacity: 0;
-    transform: scale(0.15);
-  }
-
-  38% {
-    opacity: 1;
-    transform: scale(1.28);
-  }
-
-  100% {
-    opacity: 0.46;
-    transform: scale(0.86);
-  }
-}
-
-@keyframes route-coral-bloom {
-  0% {
-    opacity: 0.12;
-    transform: scale(0.58);
-  }
-
-  20% {
-    opacity: 0.92;
-    transform: scale(1.28);
-  }
-
-  44% {
-    opacity: 0.64;
-    transform: scale(0.98);
-  }
-
-  100% {
-    opacity: 0.24;
-    transform: scale(0.74);
   }
 }
 
@@ -1336,19 +978,6 @@ html {
   100% {
     opacity: 0.48;
     transform: scale(0.92);
-  }
-}
-
-@keyframes route-build {
-  0%,
-  100% {
-    opacity: 0.56;
-    transform: scale(0.9);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.08);
   }
 }
 
@@ -1381,42 +1010,6 @@ html {
   70% {
     opacity: 1;
     transform: scale(1.35);
-  }
-}
-
-@keyframes route-flicker {
-  0%,
-  100% {
-    opacity: 0.34;
-    transform: scale(0.72);
-  }
-
-  30% {
-    opacity: 0.9;
-    transform: scale(1.08);
-  }
-
-  62% {
-    opacity: 0.52;
-    transform: scale(1.42);
-  }
-}
-
-@keyframes route-search-found {
-  0%,
-  100% {
-    opacity: 0.22;
-    transform: scale(0.72);
-  }
-
-  42% {
-    opacity: 1;
-    transform: scale(1.34);
-  }
-
-  58% {
-    opacity: 0.48;
-    transform: scale(0.9);
   }
 }
 
@@ -1483,19 +1076,6 @@ html {
   }
 }
 
-@keyframes glyph-signal {
-  0%,
-  100% {
-    transform: scaleY(0.45);
-    opacity: 0.45;
-  }
-
-  50% {
-    transform: scaleY(1);
-    opacity: 1;
-  }
-}
-
 @keyframes news-banner-reveal {
   from {
     transform: translateY(-100%);
@@ -1511,11 +1091,9 @@ html {
     scroll-behavior: auto;
   }
 
-  .route-line,
   .route-node,
   .glyph-route,
   .glyph-secondary,
-  .glyph-trail,
   .glyph-bar {
     animation: none !important;
   }
@@ -1538,51 +1116,4 @@ html {
   .category-index-icon .glyph-route-morph {
     display: none !important;
   }
-}
-
-/* pagination, nevigation color */
-@layer base {
-  /* .swiper-button-next,
-  .swiper-button-prev {
-    color: white !important;
-  }
-
-  .swiper-pagination-bullet {
-    background: gray !important;
-  }
-
-  .swiper-pagination-bullet-active {
-    background: white !important;
-  } */
-  /* Swiper Navigation Arrows with semi-transparent black background */
-  .swiper-button-next,
-  .swiper-button-prev {
-    color: white !important;            /* 箭頭顏色 */
-    background: rgba(0, 0, 0, 0.45);    /* 半透明黑底 */
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    border-radius: 0;
-    width: 44px !important;
-    height: 44px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .swiper-button-next::after,
-  .swiper-button-prev::after {
-    font-size: 20px !important;         /* 箭頭大小 */
-  }
-
-  .swiper-button-next:hover,
-  .swiper-button-prev:hover {
-    background: rgba(0, 0, 0, 0.7);     /* hover 時更深 */
-  }
-
-  .swiper-pagination-bullet {
-    background: gray !important;
-  }
-
-  .swiper-pagination-bullet-active {
-    background: white !important;
-  } 
 }

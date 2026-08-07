@@ -601,14 +601,15 @@ async function resolveRegion(
       })),
       fetchReport: fetched.report,
     };
-    const {
-      wikiPageId: _wikiPageId,
-      wikiTitle: _wikiTitle,
-      wikidataId: _wikidataId,
-      ...fieldLocation
-    } = place;
     const location: FieldLocation = {
-      ...fieldLocation,
+      id: place.id,
+      region: place.region,
+      place: place.place,
+      coordinates: place.coordinates,
+      imageUrl: place.imageUrl,
+      imageAlt: place.imageAlt,
+      source: place.source,
+      url: place.url,
       prompt: pipeline.generated.question,
       promptMeta,
     };

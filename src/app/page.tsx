@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -140,10 +141,6 @@ const featuredProjects = featuredProjectSpecs
   .filter((project): project is HighlightProject => Boolean(project));
 
 const initialHighlightIndex = Math.max(
-  0,
-  featuredProjects.findIndex((project) => project.slug === "hygrometric")
-);
-const initialPreviewIndex = Math.max(
   0,
   featuredProjects.findIndex((project) => project.slug === "hygrometric")
 );
@@ -619,8 +616,7 @@ function HighlightCard({
 
 export default function HomePage() {
   const [active, setActive] = useState("Show All");
-  const [highlightIndex, setHighlightIndex] = useState(initialHighlightIndex);
-  const [previewIndex, setPreviewIndex] = useState(initialPreviewIndex);
+  const [previewIndex, setPreviewIndex] = useState(initialHighlightIndex);
   const [fieldNoteItems, setFieldNoteItems] = useState<FieldNote[]>(fieldNotes);
   const [fieldNoteUnavailable, setFieldNoteUnavailable] = useState<FieldNoteUnavailable[]>([]);
   const [fieldNotesLoading, setFieldNotesLoading] = useState(true);
@@ -803,9 +799,9 @@ export default function HomePage() {
     return wrapIndex(bestIndex, highlightProjects.length);
   };
 
-  const scrollToHighlight = (index: number, behavior: ScrollBehavior = "auto") => {
+  const scrollToHighlight = useCallback((index: number, behavior: ScrollBehavior = "auto") => {
     const scroller = highlightScrollerRef.current;
-    const nextIndex = wrapIndex(index, highlightProjects.length);
+    const nextIndex = wrapIndex(index, featuredProjects.length);
     const card = scroller?.querySelector<HTMLElement>(`[data-highlight-index="${nextIndex}"]`);
     const firstCard = scroller?.querySelector<HTMLElement>("[data-highlight-card]");
 
@@ -823,7 +819,7 @@ export default function HomePage() {
     scrollSyncReleaseTimerRef.current = window.setTimeout(() => {
       ignoreScrollSyncRef.current = false;
     }, behavior === "smooth" ? 520 : 80);
-  };
+  }, []);
 
   const goToHighlight = (index: number, behavior: ScrollBehavior = "auto", update: "now" | "settle" = "now") => {
     const nextIndex = wrapIndex(index, highlightProjects.length);
@@ -833,11 +829,9 @@ export default function HomePage() {
     }
 
     if (update === "now") {
-      setHighlightIndex(nextIndex);
       setPreviewIndex(nextIndex);
     } else {
       highlightSettleTimerRef.current = window.setTimeout(() => {
-        setHighlightIndex(nextIndex);
         setPreviewIndex(nextIndex);
       }, 420);
     }
@@ -872,7 +866,6 @@ export default function HomePage() {
 
     const nextIndex = getMostVisibleHighlightIndex(event.currentTarget);
 
-    setHighlightIndex((index) => (index === nextIndex ? index : nextIndex));
     setPreviewIndex((index) => (index === nextIndex ? index : nextIndex));
   };
 
@@ -917,18 +910,16 @@ export default function HomePage() {
     if (highlightScrollerRef.current) {
       highlightScrollerRef.current.scrollLeft = 0;
     }
-    setHighlightIndex(initialHighlightIndex);
-    setPreviewIndex(initialHighlightIndex);
     scrollToHighlight(initialHighlightIndex, "auto");
-    window.requestAnimationFrame(() => {
+    const frame = window.requestAnimationFrame(() => {
       if (highlightScrollerRef.current) {
         highlightScrollerRef.current.scrollLeft = 0;
       }
-      setHighlightIndex(initialHighlightIndex);
-      setPreviewIndex(initialHighlightIndex);
       scrollToHighlight(initialHighlightIndex, "auto");
     });
-  }, []);
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [scrollToHighlight]);
 
   useEffect(
     () => () => {
@@ -1013,12 +1004,12 @@ export default function HomePage() {
             className="news-thinking-line min-w-0 basis-full text-[11px] tracking-[0.08em] text-neutral-700 md:basis-auto md:flex-1"
           >
             I presented my first-authored paper{" "}
-            <a
+            <Link
               href="/projects/hygrometric"
               className="news-emphasis-link font-semibold text-black"
             >
               <span className="news-thinking-highlight">HygroMetric</span>
-            </a>{" "}
+            </Link>{" "}
             at{" "}
             <a
               href="https://chi2026.acm.org/"
@@ -1284,20 +1275,6 @@ export default function HomePage() {
 
       <section id="projects-section" className="scroll-mt-24 px-4 py-6 md:px-8 lg:py-8">
         <div className="mx-auto max-w-[1680px]">
-          {/* <div className="mb-6 grid py-5 md:grid-cols-[minmax(0,1fr)_minmax(260px,0.38fr)] md:items-end">
-            <div>
-              <p className="text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500">
-                Selected work
-              </p>
-              <h2 className="mt-2 text-[44px] font-normal uppercase leading-none tracking-normal md:text-[64px]">
-                Projects
-              </h2>
-            </div>
-              <p className="max-w-6xl text-sm leading-6 text-neutral-600 md:justify-self-end md:text-right">
-                Quantitative and qualitative in approach, poetic and artistic in expression, and innovative in form.<br />
-                This body of work explores research, computation, material systems, and perception.
-              </p>
-          </div> */}
           <div className="mb-6 mt-2 grid gap-4 md:grid-cols-[0.35fr_1.65fr] md:items-end lg:mb-8 lg:mt-8 lg:gap-5">
             <div>
               <p className="grid grid-cols-[24px_minmax(0,1fr)] text-xs uppercase tracking-[0.16em] text-neutral-500 lg:block">

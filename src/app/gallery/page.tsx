@@ -6,19 +6,11 @@ const galleryItems = [
   { title: "Hengyang Rd", meta: "Taipei · 2018", src: "/images/000018190022.jpg" },
   { title: "Eye Filmmuseum", meta: "Amsterdam · 2020", src: "/images/photo/000282880027.jpg" },
   { title: "Switzerland", meta: "Switzerland · 2020", src: "/images/photo/003746610032.jpg" },
-  // { title: "Nürnberg", meta: "Germany· 2020", src: "/images/photo/2AEF341F-CD87-4A7F-9871-7294E793BB41.JPG" },
   { title: "Council of Ministers Building", meta: "Sophia · 2020", src: "/images/photo/000282880032.jpg" },
 
   { title: "The Presidency", meta: "Sophia · 2020", src: "/images/photo/000282880033 2.JPG" },
 
   { title: "Switzerland", meta: "Switzerland · 2020", src: "/images/photo/003746620007.jpg" },
-  // { title: "Switzerland", meta: "Switzerland · 2020", src: "/images/photo/2AEF341F-CD87-4A7F-9871-7294E793BB41.JPG" },
-
-  // { title: "Sacred Light", meta: "Perception · 2020", src: "/images/IMG_5087_BW-c.jpg" },
-  // { title: "Yuan", meta: "Interactive · 2023", src: "/images/portfolio/p_Page_38.png" },
-  // { title: "Illustrations", meta: "Sketch · 2019", src: "/images/DSC_8999-PS3_BW-c.jpg" },
-  // { title: "Granola Cuckoo Clock", meta: "TUI · 2022", src: "/images/TUI/DSC_6529_ED.jpg" },
-  // { title: "Moment Cube", meta: "TUI · 2022", src: "/images/moment-cube/ezgif.com-gif-maker.gif" },
 ];
 
 export default function GalleryPage() {
