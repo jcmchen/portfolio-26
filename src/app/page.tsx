@@ -1100,7 +1100,7 @@ export default function HomePage() {
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
               <div>
                 <p className="grid grid-cols-[24px_minmax(0,1fr)] text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500 lg:block">
-                  <span className="lg:hidden">I.</span>
+                  <span className="lg:hidden">01</span>
                   <span>Highlights</span>
                 </p>
                 <h1 className="mt-2 text-[30px] font-normal uppercase leading-none tracking-normal lg:text-4xl">
@@ -1203,15 +1203,24 @@ export default function HomePage() {
           </div>
 
           <div className="mt-2 border-t border-black py-2">
-            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-500 lg:hidden">
-              <span>{String(currentPreviewIndex + 1).padStart(2, "0")}</span>
-              <div className="h-px overflow-hidden bg-neutral-300">
+            <div
+              role="progressbar"
+              aria-label="Highlight position"
+              aria-valuemin={1}
+              aria-valuemax={highlightProjects.length}
+              aria-valuenow={currentPreviewIndex + 1}
+              aria-valuetext={`Highlight ${currentPreviewIndex + 1} of ${highlightProjects.length}`}
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-1 lg:hidden"
+            >
+              <div className="h-0.5 overflow-hidden bg-neutral-300">
                 <span
                   className="block h-full bg-black transition-[width] duration-300 ease-out"
                   style={{ width: `${((currentPreviewIndex + 1) / highlightProjects.length) * 100}%` }}
                 />
               </div>
-              <span>{String(highlightProjects.length).padStart(2, "0")}</span>
+              <span aria-hidden="true" className="text-[10px] tabular-nums tracking-[0.08em] text-neutral-500">
+                {currentPreviewIndex + 1}/{highlightProjects.length}
+              </span>
             </div>
             <div className="hidden grid-cols-[auto_1fr_auto] items-center gap-3 text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-500 lg:grid">
               <span>{String(currentPreviewIndex + 1).padStart(2, "0")}</span>
@@ -1250,7 +1259,7 @@ export default function HomePage() {
           <div className="border-b border-black pb-3 pt-1.5">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
               <h2 className="grid grid-cols-[24px_minmax(0,1fr)] text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500 lg:block">
-                <span className="lg:hidden">II.</span>
+                <span className="lg:hidden">02</span>
                 <span>Daily place reading</span>
               </h2>
               <time className="text-right text-[10px] font-normal uppercase tracking-[0.16em] text-neutral-500">
@@ -1310,7 +1319,7 @@ export default function HomePage() {
           <div className="mb-6 mt-2 grid gap-4 md:grid-cols-[0.35fr_1.65fr] md:items-end lg:mb-8 lg:mt-8 lg:gap-5">
             <div>
               <p className="grid grid-cols-[24px_minmax(0,1fr)] text-xs uppercase tracking-[0.16em] text-neutral-500 lg:block">
-                <span className="lg:hidden">III.</span>
+                <span className="lg:hidden">03</span>
                 <span>Selected Work</span>
               </p>
               <h2 className="mt-2 text-4xl font-light uppercase tracking-normal md:text-6xl">
