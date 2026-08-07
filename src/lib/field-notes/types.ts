@@ -1,4 +1,4 @@
-export const FIELD_NOTE_ALGORITHM_VERSION = "hybrid-nlp-v9-topic-model";
+export const FIELD_NOTE_ALGORITHM_VERSION = "hybrid-nlp-v10-high-level-reading";
 
 export type EvidenceSource =
   | "wikipedia-summary"

@@ -325,6 +325,62 @@ test("Paseo station uses its split platforms and pedestrian plaza", async () => 
   assert.doesNotMatch(result.generated.question, /pace of movement/i);
 });
 
+test("Kaohsiung Main Station uses its underground transformation instead of a neutral threshold", async () => {
+  const result = await createFieldNoteFromEvidence(place("Kaohsiung Main Station"), [
+    source(
+      "summary",
+      "Kaohsiung Main Station is a railway and metro station served by Taiwan Railway and Kaohsiung Rapid Transit."
+    ),
+    source(
+      "history",
+      "The station at the current site was built between 1933 and 1941. The railway was later moved underground within Kaohsiung. A temporary station building was used until the underground station opened.",
+      "History"
+    ),
+    source(
+      "railway",
+      "The TRA portion is a three-level underground railway station with two island platforms.",
+      "TRA railway"
+    ),
+    source(
+      "metro",
+      "The rapid transit station is a two-level underground station with one entrance.",
+      "Metro"
+    ),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.generated.templateId, "underground-station-transformation");
+  assert.match(result.generated.question, /railway underground/i);
+  assert.match(result.generated.question, /presence in the city/i);
+  assert.doesNotMatch(result.generated.question, /street and (?:the )?station|pace of movement/i);
+});
+
+test("Stanford station uses its event-only service evidence", async () => {
+  const result = await createFieldNoteFromEvidence(place("Stanford station"), [
+    source(
+      "summary",
+      "Stanford station is a Caltrain station near the Stanford Stadium. " +
+        "It is not a regular service stop; instead, it is only in service for football home games and other large events at the stadium. " +
+        "The usual stop for the university is Palo Alto station. " +
+        "The station does not have any ticket vending machines; when in use, staff use handheld Clipper card readers."
+    ),
+  ]);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.generated.templateId, "event-only-station-service");
+  assert.equal(result.generated.operator, "use_behavior");
+  assert.match(result.generated.question, /large events/i);
+  assert.match(result.generated.question, /regular daily travel/i);
+  assert.doesNotMatch(result.generated.question, /street and (?:the )?station|pace of movement/i);
+
+  const paloAltoSentence = result.evidence.find((item) =>
+    /usual stop.*Palo Alto station/i.test(item.normalizedText)
+  );
+  assert.equal(paloAltoSentence?.refersToCurrentPlace, false);
+});
+
 for (const example of [
   {
     placeName: "Riverside Park",
@@ -373,7 +429,7 @@ test("components of a separately named nearby place do not inherit ownership", (
   assert.equal(evidence[2].refersToCurrentPlace, false);
 });
 
-test("an excluded neutral station prompt selects a different verified variant", async () => {
+test("neutral station paraphrases share one semantic duplicate key", async () => {
   const evidence = [
     source("summary", "Example metro station is a station on the Orange Line."),
   ];
@@ -386,11 +442,13 @@ test("an excluded neutral station prompt selects a different verified variant", 
     evidence,
     { excludedQuestions: [first.generated.question] }
   );
-  assert.equal(second.ok, true);
-  if (!second.ok) return;
+  assert.equal(second.ok, false);
   assert.equal(
-    fieldNoteQuestionsMatch(first.generated.question, second.generated.question),
-    false
+    fieldNoteQuestionsMatch(
+      "Where does movement change between the street and the station?",
+      "What changes as people move between the street and station?"
+    ),
+    true
   );
 });
 

@@ -27,6 +27,23 @@ function evidenceText(evidence: EvidenceItem[]) {
     .join(" ");
 }
 
+function ownedEvidenceIdsMatching(
+  evidence: EvidenceItem[],
+  patterns: RegExp[]
+) {
+  return evidence
+    .filter(
+      (item) =>
+        item.refersToCurrentPlace &&
+        patterns.some((pattern) => pattern.test(item.normalizedText))
+    )
+    .map((item) => item.id);
+}
+
+function uniqueIds(...groups: string[][]) {
+  return Array.from(new Set(groups.flat()));
+}
+
 function cluesFromText(
   text: string,
   rules: Array<{ pattern: RegExp; clue: string }>
@@ -320,6 +337,16 @@ export function buildObservationFrame(
     { pattern: /\bat-grade (?:light rail )?station\b/i, clue: "the at-grade station" },
     { pattern: /\belevated station\b/i, clue: "the elevated station structure" },
     { pattern: /\bunderground station\b/i, clue: "the underground station layout" },
+    {
+      pattern: /\bthree-level underground railway station\b/i,
+      clue: "the three underground railway levels",
+    },
+    {
+      pattern: /\btwo-level,? underground station\b/i,
+      clue: "the two underground metro levels",
+    },
+    { pattern: /\b(?:one|main) entrance\b/i, clue: "the station entrance" },
+    { pattern: /\b1941 station building\b/i, clue: "the 1941 station building" },
     { pattern: /\bstation exits?\b|\bexits?\s+\d/i, clue: "the station exits" },
     { pattern: /\btracks?\b/i, clue: "the tracks" },
     { pattern: /\bplatforms?\b/i, clue: "the platforms" },
@@ -332,6 +359,97 @@ export function buildObservationFrame(
   if (isStation) {
     const themes: ObservationTheme[] = ["transportation"];
     if (supported.has("architecture")) themes.push("architecture");
+    const hasUndergroundTransformation =
+      /\b(?:railway|(?:TRA|rail(?:way)?) tracks?)\b.{0,80}\b(?:being |to be )?moved underground\b|\bmoved underground\b.{0,80}\b(?:railway|(?:TRA|rail(?:way)?) tracks?)\b/i.test(
+        text
+      ) &&
+      /\b(?:temporary|rebuilt|relocated|underground station|underground railway station)\b/i.test(
+        text
+      );
+    if (hasUndergroundTransformation) {
+      const transformationIds = ownedEvidenceIdsMatching(evidence, [
+        /\bmoved underground\b/i,
+        /\bunderground (?:railway |metro )?station\b/i,
+        /\btemporary (?:metro )?station(?: building)?\b/i,
+        /\brebuilt station\b/i,
+        /\brelocated\b/i,
+        /\b(?:island )?platforms?\b/i,
+        /\bstation entrance\b|\bone entrance\b/i,
+      ]);
+      const transformationClues = stationClues.filter((clue) =>
+        /underground|platform|entrance|1941/i.test(clue)
+      );
+      return {
+        placeId: place.placeId,
+        placeName: place.placeName,
+        primaryTheme: "transportation",
+        secondaryThemes: themes.slice(1),
+        confidence: confidence(
+          scoreFor(themeScores, "transportation"),
+          Math.max(2, transformationIds.length)
+        ),
+        pastState: "the railway before it was moved underground",
+        presentState: "a rebuilt underground railway and metro station",
+        historicalChange: "moving the railway underground and rebuilding the station",
+        visibleFeature: "the station’s relationship between the city and its underground rail levels",
+        observableClues: transformationClues.length
+          ? transformationClues
+          : ["the underground station layout", "the station entrance"],
+        evidenceIds: uniqueIds(
+          evidenceIdsFor(themeScores, themes),
+          transformationIds
+        ),
+        disallowedConcepts: ["climate", "wetland", "shoreline", "residential history"],
+        frameType: "past-present-change",
+      };
+    }
+
+    const hasEventOnlyService =
+      /\bnot a regular service stop\b|\bonly in service for\b.{0,100}\b(?:games?|events?)\b|\bevent-only (?:service|station|stop)\b/i.test(
+        text
+      );
+    if (hasEventOnlyService) {
+      const serviceIds = ownedEvidenceIdsMatching(evidence, [
+        /\bnot a regular service stop\b/i,
+        /\bonly in service for\b.{0,100}\b(?:games?|events?)\b/i,
+        /\bstadium\b/i,
+        /\b(?:no|does not have (?:any )?) ticket vending machines?\b/i,
+        /\bhandheld (?:clipper card )?readers?\b/i,
+      ]);
+      const serviceClues = cluesFromText(text, [
+        { pattern: /\bnear the stadium\b/i, clue: "the nearby stadium" },
+        {
+          pattern:
+            /\b(?:no|does not have (?:any )?) ticket vending machines?\b/i,
+          clue: "the lack of ticket vending machines",
+        },
+        {
+          pattern: /\bhandheld (?:clipper card )?readers?\b/i,
+          clue: "staff using handheld card readers",
+        },
+      ]);
+      return {
+        placeId: place.placeId,
+        placeName: place.placeName,
+        primaryTheme: "transportation",
+        secondaryThemes: [],
+        confidence: confidence(
+          scoreFor(themeScores, "transportation"),
+          Math.max(2, serviceIds.length)
+        ),
+        visibleFeature: "the station’s event-only service pattern",
+        observableClues: serviceClues.length
+          ? serviceClues
+          : ["the stadium setting", "the event-only service pattern"],
+        evidenceIds: uniqueIds(
+          evidenceIdsFor(themeScores, ["transportation"]),
+          serviceIds
+        ),
+        disallowedConcepts: ["climate", "wetland", "shoreline", "daily commuter service"],
+        frameType: "station-layout",
+      };
+    }
+
     const observableClues = lineRoleClues.length
       ? lineRoleClues
       : stationClues.length

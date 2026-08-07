@@ -135,7 +135,11 @@ const SECTION_PRIORITIES: Array<{ pattern: RegExp; score: number }> = [
   { pattern: /\b(?:collections?|exhibitions?|displays?|flora|fauna|wildlife|habitat|hydrology|natural history)\b/i, score: 4.75 },
   { pattern: /\b(?:history|origins?|development|conversion|preservation)\b/i, score: 4.5 },
   { pattern: /\b(?:commerce|trade|economy|industry|mining|transport|infrastructure|land use)\b/i, score: 4.25 },
-  { pattern: /\b(?:station layout|facilities|service|operations?|access)\b/i, score: 3.75 },
+  {
+    pattern:
+      /\b(?:station layout|railway|rail|metro|rapid transit|platforms?|concourse|facilities|service|operations?|access)\b/i,
+    score: 4.75,
+  },
   { pattern: /\b(?:culture|community|society|religion|traditions?|seasonal activities)\b/i, score: 4 },
 ];
 

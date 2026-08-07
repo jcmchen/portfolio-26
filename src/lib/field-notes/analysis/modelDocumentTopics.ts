@@ -7,6 +7,8 @@ import type {
 } from "../types";
 
 const STOP_WORDS = new Set([
+  "and", "are", "for", "from", "has", "have", "into", "not", "one", "only",
+  "the", "then", "was", "were", "will",
   "about", "after", "again", "against", "also", "among", "another", "around",
   "because", "before", "being", "between", "both", "during", "each", "from",
   "have", "having", "into", "itself", "more", "most", "other", "over", "same",

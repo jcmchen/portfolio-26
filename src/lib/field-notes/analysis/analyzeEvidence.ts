@@ -122,6 +122,7 @@ function placeAliases(placeName: string) {
   if (lower.includes("bridge")) ["the bridge", "this bridge", "the spans"].forEach((item) => aliases.add(item));
   if (lower.includes("museum")) ["the museum", "this museum"].forEach((item) => aliases.add(item));
   if (lower.includes("market")) ["the market", "this market", "the night market"].forEach((item) => aliases.add(item));
+  if (lower.includes("station")) ["the station", "this station"].forEach((item) => aliases.add(item));
   if (/scenic area|park|reserve/.test(lower)) ["the scenic area", "the area", "the park"].forEach((item) => aliases.add(item));
   if (/almaden|mine/.test(lower)) ["new almaden", "the mines", "the mining district", "the community"].forEach((item) => aliases.add(item));
 
@@ -191,9 +192,17 @@ function currentPlaceOwnership(
     /\b(?:the|this) (?:night )?market\b/i.test(text);
   const refersToCurrentPlaceComponent =
     previousOwned &&
-    /^(?:(?:the|these|those)\s+)?(?:(?:two|three|several|multiple|northbound|southbound|eastbound|westbound|central|main|common|covered|pedestrian|public|walking|tidal|native|stone|food|retail|station|market|bridge|historic|former)\s+){0,3}(?:platforms?|tracks?|concourses?|entrances?|exits?|plazas?|courtyards?|paths?|trails?|gardens?|playgrounds?|fields?|stalls?|shops?|storefronts?|aisles?|halls?|galleries?|naves?|passages?|facades?|façades?|towers?|wings?|roofs?|spans?|decks?|approaches?|piers?|wharves?|breakwaters?|quays?|shorelines?|riverbanks?|channels?|slopes?|ridges?|habitats?|wetlands?|marsh(?:es)?|vegetation|grounds?|edges?|boundar(?:y|ies))\b/i.test(
+    /^(?:(?:a|an|the|these|those)\s+)?(?:(?:\d{4}|two|three|several|multiple|northbound|southbound|eastbound|westbound|central|main|common|covered|pedestrian|public|walking|tidal|native|stone|food|retail|temporary|rebuilt|underground|metro|railway|station|market|bridge|historic|former)\s+){0,3}(?:stations?|station buildings?|platforms?|tracks?|concourses?|entrances?|exits?|plazas?|courtyards?|paths?|trails?|gardens?|playgrounds?|fields?|stalls?|shops?|storefronts?|aisles?|halls?|galleries?|naves?|passages?|facades?|façades?|towers?|wings?|roofs?|spans?|decks?|approaches?|piers?|wharves?|breakwaters?|quays?|shorelines?|riverbanks?|channels?|slopes?|ridges?|habitats?|wetlands?|marsh(?:es)?|vegetation|grounds?|edges?|boundar(?:y|ies))\b/i.test(
       text
     );
+  const strongStationComponent =
+    /\bstation\b/i.test(place.placeName) &&
+    /^(?:(?:a|an|the|this)\s+)?(?:(?:temporary|rebuilt|underground|metro|railway|rapid transit|\d{4})\s+){1,3}(?:station|station building|platforms?|concourses?)\b/i.test(
+      text
+    );
+  const stationServiceContinuation =
+    /\bstation\b/i.test(place.placeName) &&
+    /^service (?:to|at) (?:the|this) station\b/i.test(text);
   const continuation = /^(?:it|its|this|these|the surrounding|the other|however,?\s+(?:it|the))/i.test(text);
 
   if (explicitlyNamesPlace) {
@@ -214,6 +223,8 @@ function currentPlaceOwnership(
     refersToCurrentMuseum ||
     refersToCurrentMarket ||
     refersToCurrentPlaceComponent ||
+    strongStationComponent ||
+    stationServiceContinuation ||
     (previousOwned && continuation)
   ) {
     return {

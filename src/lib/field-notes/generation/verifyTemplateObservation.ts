@@ -14,6 +14,12 @@ import { validateGenerativeCandidate } from "./generativeValidation";
 function operatorForFrame(frame: ObservationFrame): ObservationOperator {
   if (frame.spatialRelation) return "spatial_organization";
   if (
+    frame.frameType === "station-layout" &&
+    /\bevent-only service pattern\b/i.test(frame.visibleFeature || "")
+  ) {
+    return "use_behavior";
+  }
+  if (
     [
       "past-present-change",
       "historical-trace",

@@ -73,6 +73,18 @@ export class TemplateQuestionGenerator implements FieldNoteQuestionGenerator {
       frame.presentState
     ) {
       if (
+        frame.primaryTheme === "transportation" &&
+        /\bmoving the railway underground\b/i.test(
+          frame.historicalChange || ""
+        )
+      ) {
+        return generated(
+          frame,
+          "underground-station-transformation",
+          "What does moving the railway underground change about this station’s presence in the city?"
+        );
+      }
+      if (
         frame.primaryTheme === "commerce" &&
         frame.secondaryThemes.includes("goodsMovement") &&
         /\briver\b/i.test(frame.pastState) &&
@@ -152,6 +164,13 @@ export class TemplateQuestionGenerator implements FieldNoteQuestionGenerator {
     }
 
     if (frame.frameType === "station-layout" && frame.visibleFeature) {
+      if (/\bevent-only service pattern\b/i.test(frame.visibleFeature)) {
+        return generated(
+          frame,
+          "event-only-station-service",
+          "What reveals that this station serves large events rather than regular daily travel?"
+        );
+      }
       if (
         frame.observableClues.includes("the station’s terminal and starting roles")
       ) {
