@@ -627,7 +627,6 @@ export default function HomePage() {
   const [newsRevealKey, setNewsRevealKey] = useState(0);
   const [now, setNow] = useState(() => new Date());
   const highlightScrollerRef = useRef<HTMLDivElement>(null);
-  const highlightCategoryScrollerRef = useRef<HTMLDivElement>(null);
   const newsLineRef = useRef<HTMLParagraphElement>(null);
   const highlightSettleTimerRef = useRef<number | undefined>(undefined);
   const scrollSyncReleaseTimerRef = useRef<number | undefined>(undefined);
@@ -775,42 +774,6 @@ export default function HomePage() {
   const activeCategoryPosition = (highlightIndicesByCategory[activeCategory] || []).indexOf(
     currentPreviewIndex
   );
-
-  useEffect(() => {
-    const scroller = highlightCategoryScrollerRef.current;
-    const mobileViewport = window.matchMedia("(max-width: 1023px)");
-
-    if (!scroller || !mobileViewport.matches) return;
-
-    const activeItem = Array.from(
-      scroller.querySelectorAll<HTMLElement>("[data-highlight-category]")
-    ).find((item) => item.dataset.highlightCategory === activeCategory);
-
-    if (!activeItem) return;
-
-    const scrollerRect = scroller.getBoundingClientRect();
-    const itemRect = activeItem.getBoundingClientRect();
-    const edgePadding = 8;
-    const isFullyVisible =
-      itemRect.left >= scrollerRect.left + edgePadding &&
-      itemRect.right <= scrollerRect.right - edgePadding;
-
-    if (isFullyVisible) return;
-
-    const targetLeft = Math.max(
-      0,
-      Math.min(
-        activeItem.offsetLeft - (scroller.clientWidth - activeItem.offsetWidth) / 2,
-        scroller.scrollWidth - scroller.clientWidth
-      )
-    );
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    scroller.scrollTo({
-      left: targetLeft,
-      behavior: reduceMotion ? "auto" : "smooth",
-    });
-  }, [activeCategory]);
 
   const previewHighlight = (index: number) => {
     categoryCycleRef.current = null;
@@ -1097,17 +1060,20 @@ export default function HomePage() {
         <div aria-hidden="true" className="hidden lg:col-span-2 lg:block lg:border-t lg:border-black" />
         <section className="py-6 lg:col-start-2 lg:row-start-2 lg:pb-3 lg:pt-0 lg:pl-6">
           <div className="border-b border-black py-1.5">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
+            <div className="grid grid-cols-1 items-end lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-3">
               <div>
                 <p className="grid grid-cols-[24px_minmax(0,1fr)] text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500 lg:block">
                   <span className="lg:hidden">01</span>
                   <span>Highlights</span>
                 </p>
-                <h1 className="mt-2 text-[30px] font-normal uppercase leading-none tracking-normal lg:text-4xl">
+                <h1 className="mt-2 line-clamp-2 h-[62px] text-[30px] font-normal uppercase leading-[1.03] tracking-normal lg:hidden">
+                  {previewProject.title}
+                </h1>
+                <h1 className="mt-2 hidden text-4xl font-normal uppercase leading-none tracking-normal lg:block">
                   {previewProject.title}
                 </h1>
               </div>
-              <div className="flex justify-self-end gap-2">
+              <div className="sr-only gap-2 lg:not-sr-only lg:flex lg:justify-self-end">
                 <button
                   type="button"
                   aria-label="Previous highlight"
@@ -1128,14 +1094,10 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div
-            ref={highlightCategoryScrollerRef}
-            className="mobile-category-index no-scrollbar mt-2 flex overflow-x-auto border-l border-t border-black lg:grid lg:grid-cols-4 lg:overflow-visible xl:grid-cols-7"
-          >
+          <div className="mobile-category-index no-scrollbar mt-2 flex overflow-x-auto border-l border-t border-black lg:grid lg:grid-cols-4 lg:overflow-visible xl:grid-cols-7">
             {categoryOrder.map((category) => (
               <button
                 key={category}
-                data-highlight-category={category}
                 type="button"
                 aria-pressed={category === activeCategory}
                 aria-label={`${category}: ${highlightIndicesByCategory[category].length} highlights. Activate repeatedly to cycle through this category.`}
@@ -1172,13 +1134,27 @@ export default function HomePage() {
 
           <div
             ref={highlightScrollerRef}
-            className="highlight-carousel no-scrollbar mt-2 overflow-x-auto"
+            role="region"
+            aria-roledescription="carousel"
+            aria-label="Project highlights"
+            tabIndex={0}
+            className="highlight-carousel no-scrollbar mt-2 overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
             onPointerDown={handleHighlightPointerDown}
             onPointerMove={handleHighlightPointerMove}
             onPointerUp={handleHighlightPointerUp}
             onPointerCancel={handleHighlightPointerUp}
             onWheel={() => {
               categoryCycleRef.current = null;
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                slideHighlights(-1);
+              }
+              if (event.key === "ArrowRight") {
+                event.preventDefault();
+                slideHighlights(1);
+              }
             }}
             onScroll={handleHighlightScroll}
           >
@@ -1222,6 +1198,12 @@ export default function HomePage() {
                 {currentPreviewIndex + 1}/{highlightProjects.length}
               </span>
             </div>
+            <p
+              aria-hidden="true"
+              className="mt-2 text-[11px] font-normal uppercase leading-[1.35] tracking-[0.12em] text-neutral-600 lg:hidden"
+            >
+              {previewProject.title}
+            </p>
             <div className="hidden grid-cols-[auto_1fr_auto] items-center gap-3 text-[11px] font-normal uppercase tracking-[0.16em] text-neutral-500 lg:grid">
               <span>{String(currentPreviewIndex + 1).padStart(2, "0")}</span>
               <div
