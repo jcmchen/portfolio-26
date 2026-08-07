@@ -35,8 +35,8 @@ html {
 @media (min-width: 1024px) {
   .landing-intro {
     display: flex;
-    min-height: calc(100vh - 61px);
-    min-height: calc(100dvh - 61px);
+    min-height: calc(100vh - 53px);
+    min-height: calc(100dvh - 53px);
     flex-direction: column;
   }
 

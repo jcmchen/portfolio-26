@@ -995,7 +995,7 @@ export default function HomePage() {
           aria-label="Latest news"
           className="news-banner-enter shrink-0 overflow-hidden border-b border-neutral-300 bg-[#ece9e1] text-black"
         >
-        <div className="site-frame flex flex-wrap items-center gap-x-4 gap-y-1.5 py-2.5 text-[10px] font-normal md:flex-nowrap lg:py-3.5">
+        <div className="site-frame flex flex-wrap items-center gap-x-4 gap-y-1.5 py-2.5 text-[10px] font-normal md:flex-nowrap">
           <span className="shrink-0 font-medium uppercase tracking-[0.16em] text-black">News</span>
           <time dateTime="2026-04-16" className="shrink-0 uppercase tracking-[0.16em] text-neutral-500">
             Apr 16, 2026
