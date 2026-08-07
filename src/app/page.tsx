@@ -1003,7 +1003,7 @@ export default function HomePage() {
             I presented my first-authored paper{" "}
             <a
               href="/projects/hygrometric"
-              className="font-semibold text-black hover:underline hover:underline-offset-4"
+              className="news-emphasis-link font-semibold text-black"
             >
               <span className="news-thinking-highlight">HygroMetric</span>
             </a>{" "}
@@ -1012,7 +1012,7 @@ export default function HomePage() {
               href="https://chi2026.acm.org/"
               target="_blank"
               rel="noreferrer"
-              className="font-semibold text-black hover:underline hover:underline-offset-4"
+              className="news-emphasis-link font-semibold text-black"
             >
               <span className="news-thinking-highlight">
                 ACM CHI 2026 in Barcelona

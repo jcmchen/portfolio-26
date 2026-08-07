@@ -42,6 +42,14 @@ html {
   color: #111111;
 }
 
+.news-emphasis-link:hover .news-thinking-highlight,
+.news-emphasis-link:focus-visible .news-thinking-highlight {
+  text-decoration-line: underline;
+  text-decoration-color: #111111;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
   .news-thinking-highlight {
     background-image: linear-gradient(
