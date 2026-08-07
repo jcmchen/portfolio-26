@@ -89,7 +89,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black bg-[#fbfaf7]/95">
+    <header className="sticky top-0 z-50 border-b border-black bg-[#fbfaf7]">
       <div className="mx-auto grid max-w-[1680px] grid-cols-[1fr_auto] items-center px-4 py-3 md:grid-cols-[1fr_auto_1fr] md:px-8">
         <Link
           href="/"
