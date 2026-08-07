@@ -114,6 +114,23 @@ html {
 }
 
 @media (max-width: 1023px) {
+  .mobile-section-divider {
+    border-top-width: 1.5px;
+  }
+
+  .mobile-category-index {
+    border: 1px solid #111111;
+  }
+
+  .mobile-category-index .category-index-item {
+    border-right: 1px solid #111111;
+    border-bottom-width: 0;
+  }
+
+  .mobile-category-index .category-index-item:last-child {
+    border-right-width: 0;
+  }
+
   .project-card h3 {
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;

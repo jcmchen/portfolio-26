@@ -523,7 +523,7 @@ function FieldNoteCard({ note }: { note: FieldNote }) {
       ) : (
         <p className="mt-4 text-sm leading-6 text-neutral-700">{note.prompt}</p>
       )}
-      <dl className="mt-3 grid grid-cols-2 border-t border-black pb-1 pt-2 text-[10px] font-normal uppercase tracking-[0.14em] text-neutral-500">
+      <dl className="mt-3 grid grid-cols-2 border-t border-[#c9c6bd] pb-1 pt-2 text-[10px] font-normal uppercase tracking-[0.14em] text-neutral-500 lg:border-black">
         <dt>Source</dt>
         <dd className="text-right text-neutral-500">
           {note.url ? sourceLabel : note.source}
@@ -572,7 +572,7 @@ function HighlightCard({
         />
       </div>
       <div className="pt-0.5">
-        <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-black py-2 text-[10px] uppercase tracking-[0.16em] text-neutral-500 lg:hidden">
+        <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-[#c9c6bd] py-2 text-[10px] uppercase tracking-[0.16em] text-neutral-500 lg:hidden">
           <p>{project.category}</p>
           <span>{project.year}</span>
         </div>
@@ -1059,7 +1059,7 @@ export default function HomePage() {
       <section className="mx-auto grid w-full max-w-[1680px] grid-cols-1 px-4 md:px-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:border-b lg:border-black lg:pt-4">
         <div aria-hidden="true" className="hidden lg:col-span-2 lg:block lg:border-t lg:border-black" />
         <section className="py-6 lg:col-start-2 lg:row-start-2 lg:pb-3 lg:pt-0 lg:pl-6">
-          <div className="border-b border-black py-1.5">
+          <div className="border-b border-black pb-3 pt-1.5 lg:py-1.5">
             <div className="grid grid-cols-1 items-end lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-3">
               <div>
                 <p className="grid grid-cols-[24px_minmax(0,1fr)] text-[11px] font-normal uppercase tracking-[0.22em] text-neutral-500 lg:block">
@@ -1235,7 +1235,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <div aria-hidden="true" className="-mx-2 border-t border-black md:-mx-4 lg:hidden" />
+        <div aria-hidden="true" className="mobile-section-divider -mx-2 border-t border-black md:-mx-4 lg:hidden" />
 
         <aside className="py-6 lg:col-start-1 lg:row-start-2 lg:flex lg:min-h-0 lg:flex-col lg:border-r lg:pb-3 lg:pt-0 lg:pr-6">
           <div className="border-b border-black pb-3 pt-1.5">
@@ -1279,7 +1279,7 @@ export default function HomePage() {
           </div>
         </aside>
 
-        <div aria-hidden="true" className="-mx-2 border-t border-black md:-mx-4 lg:hidden" />
+        <div aria-hidden="true" className="mobile-section-divider -mx-2 border-t border-black md:-mx-4 lg:hidden" />
       </section>
 
       <section id="projects-section" className="scroll-mt-24 px-4 py-6 md:px-8 lg:py-8">
